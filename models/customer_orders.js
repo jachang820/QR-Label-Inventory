@@ -6,9 +6,6 @@ module.exports = (sequelize, DataTypes) => {
       defaultvalue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    date: {
-      type: DataTypes.DATE
-    },
     label: {
       type: DataTypes.STRING
     },
