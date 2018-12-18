@@ -15,6 +15,8 @@ router.get('/dashboard', function(req, res, next) {
 
 	// email: userProfile.emails[0].value
 	res.render('dashboard', {
+		displayName: userProfile.displayName,
+		email: userProfile.emails[0].value,
 		userProfile: JSON.stringify(userProfile, null, 2)
 	})
 })
