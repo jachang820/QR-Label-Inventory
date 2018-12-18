@@ -6,11 +6,11 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    date: {
-      type: DataTypes.DATE
-    },
     label: {
       type: DataTypes.STRING
+    },
+    arrival_date: {
+      type: DataTypes.DATE
     },
     notes: {
       type: DataTypes.STRING,
