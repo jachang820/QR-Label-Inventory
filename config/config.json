@@ -1,26 +1,29 @@
 {
   "development": {
     "username": "root",
-    "password": null,
+    "password": "password",
     "database": "smokebuddy",
     "host": "127.0.0.1",
     "port": "5432",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "operatorsAliases": false
   },
   "test": {
     "username": "root",
-    "password": null,
+    "password": "password",
     "database": "smokebuddy",
     "host": "127.0.0.1",
     "port": "5432",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "operatorsAliases": false
   },
   "production": {
     "username": "root",
-    "password": null,
+    "password": "password",
     "database": "smokebuddy",
     "host": "127.0.0.1",
     "port": "5432",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "operatorsAliases": false
   }
 }
