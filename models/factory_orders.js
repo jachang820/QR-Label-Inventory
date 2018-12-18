@@ -1,19 +1,25 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  var FactoryOrder = sequelize.define('FactoryOrder', {
+  var FactoryOrders = sequelize.define('FactoryOrders', {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultvalue: DataTypes.UUIDV4,
       primaryKey: true
+    },
+    date: {
+      type: DataTypes.DATE
+    },
+    label: {
+      type: DataTypes.STRING
     },
     notes: {
       type: DataTypes.STRING,
     }
   });
 
-  FactoryOrder.associate = models => {
-    FactoryOrder.hasMany(models.Item);
+  FactoryOrders.associate = models => {
+    FactoryOrders.hasMany(models.Items);
   }
 
-  return FactoryOrder;
+  return FactoryOrders;
 };

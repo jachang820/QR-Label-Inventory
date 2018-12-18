@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  var Item = sequelize.define('Item', {
-    uuid: {
+  var Items = sequelize.define('Items', {
+    id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
@@ -10,21 +10,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM,
       values: ['Ordered', 'In stock', 'Shipped'],
       allowNull: false
-    },
-    innerbox: {
-      type: DataTypes.UUID
-    },
-    outerbox: {
-      type: DataTypes.UUID
     }
   });
 
-  Item.associate = models => {
-    Item.belongsTo(models.Color);
-    Item.belongsTo(models.Style);
-    Item.belongsTo(models.FactoryOrder);
-    Item.belongsTo(models.CustomerOrder);
+  Items.associate = models => {
+    Items.belongsTo(models.Colors);
+    Items.belongsTo(models.Styles);
+    Items.belongsTo(models.FactoryOrders);
+    Items.belongsTo(models.CustomerOrders);
+    Items.belongsTo(models.InnerBoxes);
+    Items.belongsTo(models.OuterBoxes);
   }
 
-  return Item;
+  return Items;
 };
