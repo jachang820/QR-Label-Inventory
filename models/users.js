@@ -1,46 +1,29 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   var User = sequelize.define('User', {
-    uuid: {
+    id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    username: {
+    firstname: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    lastname: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    email: {
       type: DataTypes.STRING,
       unique: true,
       allowNull: false
     },
-    password: {
+    role: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-    authlevel: {
-      type: DataTypes.INTEGER,
       allowNull: false
     }
   });
-
-  User.addUser = function(username, password) {
-    return this.create({
-      username,
-      password
-    });
-  };
-
-  User.removeUser = function(id) {
-    return this.destroy({ where: { id } });
-  };
-
-  User.getAllUsers = function() {
-    return this.findAll();
-  }
-
-  User.json = function() {
-    return {
-
-    }
-  }
 
   return User;
 };
