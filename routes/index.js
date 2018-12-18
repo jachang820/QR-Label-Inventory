@@ -13,8 +13,10 @@ router.get('/', function(req, res, next) {
 router.get('/dashboard', function(req, res, next) {
 	const {_raw, _json, ...userProfile } = req.user;
 
-	// email: userProfile.email[0].value
+	// email: userProfile.emails[0].value
 	res.render('dashboard', {
+		displayName: userProfile.displayName,
+		email: userProfile.emails[0].value,
 		userProfile: JSON.stringify(userProfile, null, 2)
 	})
 })
