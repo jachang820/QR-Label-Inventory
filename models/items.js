@@ -11,6 +11,12 @@ module.exports = (sequelize, DataTypes) => {
       values: ['Ordered', 'In stock', 'Shipped'],
       allowNull: false
     }
+    innerbox: {
+      type: DataTypes.UUID
+    },
+    outerbox: {
+      type: DataTypes.UUID
+    }
   });
 
   Items.associate = models => {
@@ -18,8 +24,6 @@ module.exports = (sequelize, DataTypes) => {
     Items.belongsTo(models.Styles);
     Items.belongsTo(models.FactoryOrders);
     Items.belongsTo(models.CustomerOrders);
-    Items.belongsTo(models.InnerBoxes);
-    Items.belongsTo(models.OuterBoxes);
   }
 
   return Items;
