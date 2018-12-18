@@ -2,8 +2,8 @@
 module.exports = (sequelize, DataTypes) => {
   var FactoryOrders = sequelize.define('FactoryOrders', {
     id: {
-      type: DataTypes.UUID,
-      defaultvalue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true
     },
     date: {
