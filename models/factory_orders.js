@@ -2,7 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   var FactoryOrders = sequelize.define('FactoryOrders', {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER(5).UNSIGNED.ZEROFILL,
       autoIncrement: true,
       primaryKey: true
     },
