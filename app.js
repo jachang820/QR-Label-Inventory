@@ -12,7 +12,6 @@ var userInViews = require('./lib/middleware/userInViews');
 var authRouter = require('./routes/auth');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var qrCodeRouter = require('./routes/qr_code.js');
 
 dotenv.load();
 
@@ -74,7 +73,6 @@ app.use(userInViews());
 app.use('/', authRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/', qrCodeRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
