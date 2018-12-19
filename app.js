@@ -74,6 +74,7 @@ app.use(userInViews());
 app.use('/', authRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/', qrCodeRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
