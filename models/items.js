@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM,
       values: ['Ordered', 'In stock', 'Shipped'],
       allowNull: false
-    }
+    },
     innerbox: {
       type: DataTypes.UUID
     },
