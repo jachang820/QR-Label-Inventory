@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "jest"
+    "test": "jest",
+    "db-setup": "psql postgres < ./scripts/db-setup.sql",
+    "dummy-data": "node scripts/dummy-data.js"
   },
   "engines": {
     "node": "10.14.2"
