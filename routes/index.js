@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const api = require('./api');
+const inventory = require('./inventory');
 
 router.use('/api', api);
+router.use('/inventory', inventory);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
