@@ -5,12 +5,12 @@ const qr = require('qr-image');
 const jimp = require('jimp');
 
 /* GET random QR code generation for testing. */
-router.get('/generate', function(req, res, next) {
+router.get('/', function(req, res, next) {
 
   res.render('generate');
 });
 
-router.get('/qr', function(req, res, next) {
+router.get('/generate', function(req, res, next) {
 	// generate random UUID
 	var arr = [8, 4, 4, 4, 12].map(function(term) {
 		return Math.random().toString(16).substring(2, term + 2);
