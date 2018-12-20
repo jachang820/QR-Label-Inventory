@@ -3,6 +3,7 @@ const router = express.Router();
 const api = require('./api');
 const qr = require('qr-image');
 const jimp = require('jimp');
+const secured = require('../lib/middleware/secured');
 
 router.use('/api', api);
 
@@ -21,7 +22,7 @@ router.get('/qr', function(req, res, next) {
 	arr_string = arr_string.concat(arr.join('-'));
 
 	// generate QR
-	var qrcode = qr.imageSync(arr_string, { margin: 1 });
+	var qrcode = qr.imageSync(arr_string, { margin: 1 , size: 4});
 
 	// open Smoke Buddy logo in Jimp
 	var logo_file = './public/images/smokebuddy.png';
