@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const secured = require('../lib/middleware/secured');
 const api = require('./api');
-var authRouter = require('./auth');
-var usersRouter = require('./users');
-var qrCodeRouter = require('./qr_code');
+const authRouter = require('./auth');
+const usersRouter = require('./users');
+const qrCodeRouter = require('./qr_code');
 
 router.use('/api', api);
 router.use('/auth', authRouter);
