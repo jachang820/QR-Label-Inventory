@@ -1,8 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const secured = require('../middleware/secured');
 const api = require('./api');
+const authRouter = require('./auth');
+const usersRouter = require('./users');
+const qrCodeRouter = require('./qr_code');
 
 router.use('/api', api);
+router.use('/auth', authRouter);
+router.use('/users', usersRouter);
+router.use('/qr', qrCodeRouter);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -10,10 +17,9 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET dashboard. */
-router.get('/dashboard', function(req, res, next) {
+router.get('/dashboard', secured(), function(req, res, next) {
 	const {_raw, _json, ...userProfile } = req.user;
 
-	// email: userProfile.emails[0].value
 	res.render('dashboard', {
 		displayName: userProfile.displayName,
 		email: userProfile.emails[0].value,

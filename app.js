@@ -1,17 +1,15 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var session = require('express-session');
-var dotenv = require('dotenv');
-var passport = require('passport');
-var Auth0Strategy = require('passport-auth0');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const session = require('express-session');
+const dotenv = require('dotenv');
+const passport = require('passport');
+const Auth0Strategy = require('passport-auth0');
 
-var userInViews = require('./lib/middleware/userInViews');
-var authRouter = require('./routes/auth');
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const userInViews = require('./middleware/userInViews');
+const indexRouter = require('./routes/index');
 
 dotenv.load();
 
@@ -22,7 +20,7 @@ var strategy = new Auth0Strategy(
 		clientID: process.env.AUTH0_CLIENT_ID,
 		clientSecret: process.env.AUTH0_CLIENT_SECRET,
 		callbackURL:
-			process.env.AUTH0_CALLBACK_URL || 'http://localhost:3000/callback'
+			process.env.AUTH0_CALLBACK_URL || 'http://localhost:3000/auth/callback'
 	},
 	function (accessToken, refreshToken, extraParams, profile, done) {
 		return done(null, profile)
@@ -70,9 +68,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(userInViews());
-app.use('/', authRouter);
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
