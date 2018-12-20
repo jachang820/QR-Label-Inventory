@@ -8,7 +8,7 @@ const dotenv = require('dotenv');
 const passport = require('passport');
 const Auth0Strategy = require('passport-auth0');
 
-const userInViews = require('./lib/middleware/userInViews');
+const userInViews = require('./middleware/userInViews');
 const indexRouter = require('./routes/index');
 
 dotenv.load();

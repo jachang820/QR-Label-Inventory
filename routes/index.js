@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const secured = require('../lib/middleware/secured');
+const secured = require('../middleware/secured');
 const api = require('./api');
 const authRouter = require('./auth');
 const usersRouter = require('./users');
