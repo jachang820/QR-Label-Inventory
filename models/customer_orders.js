@@ -1,11 +1,12 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  var CustomerOrder = sequelize.define('CustomerOrder', {
-    uuid: {
+  var CustomerOrders = sequelize.define('CustomerOrders', {
+    id: {
       type: DataTypes.UUID,
+      defaultvalue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    orderid: {
+    label: {
       type: DataTypes.STRING
     },
     notes: {
@@ -13,9 +14,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
 
-  CustomerOrder.associate = models => {
-    CustomerOrder.hasMany(models.Item);
+  CustomerOrders.associate = models => {
+    CustomerOrders.hasMany(models.Items);
   }
 
-  return CustomerOrder;
+  return CustomerOrders;
 };

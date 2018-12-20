@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  var Item = sequelize.define('Item', {
-    uuid: {
+  var Items = sequelize.define('Items', {
+    id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
@@ -19,12 +19,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
 
-  Item.associate = models => {
-    Item.belongsTo(models.Color);
-    Item.belongsTo(models.Style);
-    Item.belongsTo(models.FactoryOrder);
-    Item.belongsTo(models.CustomerOrder);
+  Items.associate = models => {
+    Items.belongsTo(models.Colors);
+    Items.belongsTo(models.Sizes);
+    Items.belongsTo(models.FactoryOrders);
+    Items.belongsTo(models.CustomerOrders);
   }
 
-  return Item;
+  return Items;
 };
