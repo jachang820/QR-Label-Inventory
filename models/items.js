@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.ENUM,
-      values: ['Ordered', 'In stock', 'Shipped'],
+      values: ['Ordered', 'In Stock', 'Shipped'],
       allowNull: false
     },
     innerbox: {
