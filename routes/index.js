@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const api = require('./api');
-var authRouter = require('./routes/auth');
-var usersRouter = require('./routes/users');
-var qrCodeRouter = require('./routes/qr_code');
+var authRouter = require('./auth');
+var usersRouter = require('./users');
+var qrCodeRouter = require('./qr_code');
 
 router.use('/api', api);
 app.use('/auth', authRouter);
