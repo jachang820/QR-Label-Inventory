@@ -1,10 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const api = require('./api');
-const inventory = require('./inventory');
+const secured = require('../middleware/secured');
+const apiRouter = require('./api');
+const authRouter = require('./auth');
+const inventoryRouter = require('./inventory');
+const qrCodeRouter = require('./qr_code');
+const usersRouter = require('./users');
 
-router.use('/api', api);
-router.use('/inventory', inventory);
+router.use('/api', apiRouter);
+router.use('/auth', authRouter);
+router.use('/inventory', inventoryRouter);
+router.use('/qr', qrCodeRouter);
+router.use('/users', usersRouter);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -12,10 +19,9 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET dashboard. */
-router.get('/dashboard', function(req, res, next) {
+router.get('/dashboard', secured(), function(req, res, next) {
 	const {_raw, _json, ...userProfile } = req.user;
 
-	// email: userProfile.emails[0].value
 	res.render('dashboard', {
 		displayName: userProfile.displayName,
 		email: userProfile.emails[0].value,
