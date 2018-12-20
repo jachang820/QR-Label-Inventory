@@ -4,10 +4,12 @@ Smokebuddy inventory system.
 
 ### Installing
 
-Run the following
+Run the following:
 
 ```
 npm install
+psql postgres < scripts/db-setup.sql
+[optional] node scripts/dummy-data.js
 ```
 
 ## Built With
