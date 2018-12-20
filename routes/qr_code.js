@@ -4,8 +4,6 @@ const api = require('./api');
 const qr = require('qr-image');
 const jimp = require('jimp');
 
-router.use('/api', api);
-
 /* GET random QR code generation for testing. */
 router.get('/generate', function(req, res, next) {
 

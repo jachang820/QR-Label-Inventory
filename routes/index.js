@@ -1,8 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const api = require('./api');
+var authRouter = require('./routes/auth');
+var usersRouter = require('./routes/users');
+var qrCodeRouter = require('./routes/qr_code');
 
 router.use('/api', api);
+app.use('/auth', authRouter);
+app.use('/users', usersRouter);
+app.use('/qr', qrCodeRouter);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
