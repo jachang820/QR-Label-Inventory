@@ -17,15 +17,4 @@ router.get('/user', secured(), function (req, res, next) {
 	});
 });
 
-/* GET dashboard. */
-router.get('/dashboard', secured(), function(req, res, next) {
-	const {_raw, _json, ...userProfile } = req.user;
-
-	res.render('dashboard', {
-		displayName: userProfile.displayName,
-		email: userProfile.emails[0].value,
-		userProfile: JSON.stringify(userProfile, null, 2)
-	})
-})
-
 module.exports = router;
