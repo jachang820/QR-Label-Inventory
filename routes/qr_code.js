@@ -5,15 +5,12 @@ const qr = require('qr-image');
 const jimp = require('jimp');
 const secured = require('../lib/middleware/secured');
 
-router.use('/api', api);
-
 /* GET random QR code generation for testing. */
-router.get('/generate', secured(), function(req, res, next) {
-
+router.get('/', function(req, res, next) {
   res.render('generate');
 });
 
-router.get('/qr', secured(), function(req, res, next) {
+router.get('/generate', function(req, res, next) {
 	// generate random UUID
 	var arr = [8, 4, 4, 4, 12].map(function(term) {
 		return Math.random().toString(16).substring(2, term + 2);
@@ -22,7 +19,7 @@ router.get('/qr', secured(), function(req, res, next) {
 	arr_string = arr_string.concat(arr.join('-'));
 
 	// generate QR
-	var qrcode = qr.imageSync(arr_string, { margin: 1 , size: 4});
+	var qrcode = qr.imageSync(arr_string, { margin: 1, size: 4 });
 
 	// open Smoke Buddy logo in Jimp
 	var logo_file = './public/images/smokebuddy.png';
