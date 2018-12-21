@@ -3,17 +3,6 @@ const router = express.Router();
 const secured = require('../middleware/secured');
 const { User } = require('../models')
 
-/* GET dashboard. */
-router.get('/dashboard', secured(), function(req, res, next) {
-	const {_raw, _json, ...userProfile } = req.user;
-
-	res.render('dashboard', {
-		displayName: userProfile.displayName,
-		email: userProfile.emails[0].value,
-		userProfile: JSON.stringify(userProfile, null, 2)
-	})
-});
-
 /* GET user profile */
 router.get('/user', secured(), function (req, res, next) {
 	const {_raw, _json, ...userProfile } = req.user;
