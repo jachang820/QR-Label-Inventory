@@ -2,10 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { Items } = require('../../models')
 
-<<<<<<< HEAD
-router.get('/', (req, res) => {
-  res.send('in items api');
-=======
 router.route('/')
 // Retrieve all items
 .get((req, res, next) => {
@@ -95,7 +91,6 @@ router.route('/:id')
     res.json(count);
   })
   .catch(next);
->>>>>>> Created items-api
 });
 
 module.exports = router;
