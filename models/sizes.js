@@ -1,14 +1,9 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   var Sizes = sequelize.define('Sizes', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
-    },
-    size: {
+    name: {
       type: DataTypes.STRING,
-      unique: true
+      primaryKey: true
     }
   });
 
