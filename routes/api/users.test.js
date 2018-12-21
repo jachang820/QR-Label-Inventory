@@ -4,7 +4,6 @@ const request = require('supertest');
 
 const init = () => {
     const app = express();
-    console.log(users);
     app.use(users);
     return app;
 }
