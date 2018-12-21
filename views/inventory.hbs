@@ -1,2 +1,29 @@
 <h1>Inventory</h1>
-<p>{{data}}</p>
+
+<table>
+  <th>
+    <td>ID</td>
+    <td>Status</td>
+    <td>Color</td>
+    <td>Size</td>
+    <td>Factory Order</td>
+    <td>Customer Order</td>
+    <td>Inner Box</td>
+    <td>Outer Box</td>
+  </th>
+
+  {{#each items}}
+    <tr>
+      <td>{{this.id}}</td>
+      <td>{{this.status}}</td>
+      <td>{{this.ColorId}}</td>
+      <td>{{this.SizeId}}</td>
+      <td>{{this.FactoryOrderId}}</td>
+      <td>{{this.CustomerOrderId}}</td>
+      <td>{{this.innerbox}}</td>
+      <td>{{this.outerbox}}</td>
+    </tr>
+  {{/each}}
+
+</table>
+
