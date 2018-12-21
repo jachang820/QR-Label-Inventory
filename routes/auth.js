@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const crypto = require('crypto');
+//const dotenv = require('dotenv');
+
+//dovenv.load();
 
 // after login, auth0 will redirect to callback
 router.get('/login', passport.authenticate('auth0', {
@@ -16,6 +20,13 @@ router.get('/callback', function (req, res, next) {
 		if (!user) { return res.redirect('/auth/login'); }
 		req.logIn(user, function (err) {
 			if (err) { return next(err); }
+
+			console.log(user);
+			var hash = crypto.createHash('sha1');
+			hash.setEncoding('hex');
+			var secret = process.env.SECURITY_SECRET;
+			console.log(secret);
+
 			const returnTo = req.session.returnTo;
 			delete req.session.returnTo;
 			res.redirect(returnTo || '/dashboard');
