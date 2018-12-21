@@ -16,8 +16,8 @@ router.route('/')
   const status = req.body.status;
   const innerbox = req.body.innerbox;
   const outerbox = req.body.outerbox;
-  const ColorId = req.body.ColorId;
-  const SizeId = req.body.SizeId;
+  const ColorName = req.body.ColorName;
+  const SizeName = req.body.SizeName;
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
 
@@ -25,8 +25,8 @@ router.route('/')
     status,
     innerbox,
     outerbox,
-    ColorId,
-    SizeId,
+    ColorName,
+    SizeName,
     FactoryOrderId,
     CustomerOrderId
   })
@@ -54,8 +54,8 @@ router.route('/:id')
   const status = req.body.status;
   const innerbox = req.body.innerbox;
   const outerbox = req.body.outerbox;
-  const ColorId = req.body.ColorId;
-  const SizeId = req.body.SizeId;
+  const ColorName = req.body.ColorName;
+  const SizeName = req.body.SizeName;
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
 
@@ -67,10 +67,10 @@ router.route('/:id')
       item.innerbox = innerbox;
     if (outerbox !== undefined)
       item.outerbox = outerbox;
-    if (ColorId !== undefined)
-      item.ColorId = ColorId;
-    if (SizeId !== undefined)
-      item.SizeId = SizeId;
+    if (ColorName !== undefined)
+      item.ColorName = ColorName;
+    if (SizeName !== undefined)
+      item.SizeName = SizeName;
     if (FactoryOrderId !== undefined)
       item.FactoryOrderId = FactoryOrderId;
     if (CustomerOrderId !== undefined)
