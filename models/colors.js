@@ -1,14 +1,13 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   var Colors = sequelize.define('Colors', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+    name: {
+      type: DataTypes.STRING,
       primaryKey: true
     },
-    color: {
-      type: DataTypes.STRING,
-      unique: true
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
     }
   });
 

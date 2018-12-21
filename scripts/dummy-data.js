@@ -2,23 +2,19 @@ const { Colors, Sizes, FactoryOrders, CustomerOrders, Items } = require('../mode
 
 async function setup() {
   await Colors.findOrCreate({ where: {
-    id: 'fc899a5b-81b6-4091-bc96-faa154f859d9',
-    color: 'blue'
+    name: 'blue'
   }});
 
   await Colors.findOrCreate({ where: {
-    id: 'bc9f1593-3763-42f6-8a43-761eadc14941',
-    color: 'red'
+    name: 'red'
   }});
 
   await Sizes.findOrCreate({ where: {
-    id: '882a4917-75c0-49d1-88a0-310cf0df5074',
-    size: 'jr'
+    name: 'jr'
   }});
 
   await Sizes.findOrCreate({ where: {
-    id: '63a559aa-1920-4afe-936d-16ad1b0822f6',
-    size: 'regular'
+    name: 'regular'
   }});
 
   await FactoryOrders.findOrCreate({ where: {
@@ -47,8 +43,8 @@ async function setup() {
     status: 'Ordered',
     innerbox: 'c9ca6fff-1ef7-44a7-ad28-60f31672ef0e',
     outerbox: '993ea7e9-6185-4207-b5d8-5f994c6fd806',
-    ColorId: 'fc899a5b-81b6-4091-bc96-faa154f859d9', // blue
-    SizeId: '882a4917-75c0-49d1-88a0-310cf0df5074', // jr
+    ColorName: 'blue',
+    SizeName: 'jr',
     FactoryOrderId: 1
   }});
 
@@ -57,8 +53,8 @@ async function setup() {
     status: 'Shipped',
     innerbox: 'c9ca6fff-1ef7-44a7-ad28-60f31672ef0e',
     outerbox: '993ea7e9-6185-4207-b5d8-5f994c6fd806',
-    ColorId: 'fc899a5b-81b6-4091-bc96-faa154f859d9', // blue
-    SizeId: '882a4917-75c0-49d1-88a0-310cf0df5074', // jr
+    ColorName: 'blue',
+    SizeName: 'jr',
     FactoryOrderId: 1,
     CustomerOrderId: '030837e2-b120-4359-8d16-e4adab83004a' // 2
   }});
@@ -69,8 +65,8 @@ async function setup() {
     status: 'In Stock',
     innerbox: '90ec6e3f-98a2-44e6-9b9f-9b5c5a7bd3b2',
     outerbox: '993ea7e9-6185-4207-b5d8-5f994c6fd806',
-    ColorId: 'bc9f1593-3763-42f6-8a43-761eadc14941', // red
-    SizeId: '882a4917-75c0-49d1-88a0-310cf0df5074', // jr
+    ColorName: 'red',
+    SizeName: 'jr',
     FactoryOrderId: 1
   }});
 
@@ -84,8 +80,8 @@ async function setup() {
     status: 'Shipped',
     innerbox: '649279f7-675e-4f8f-a94a-bff37a368695',
     outerbox: 'abb206c9-c795-4dad-bb04-74e94e8c3654',
-    ColorId: 'bc9f1593-3763-42f6-8a43-761eadc14941', // red
-    SizeId: '63a559aa-1920-4afe-936d-16ad1b0822f6', // regular
+    ColorName: 'red',
+    SizeName: 'regular',
     FactoryOrderId: 2,
     CustomerOrderId: 'aee7514d-f202-4f9d-8212-97d9a459cbda' // 1
   }});
