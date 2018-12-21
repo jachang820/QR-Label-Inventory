@@ -21,7 +21,7 @@ router.get('/callback', function (req, res, next) {
 		req.logIn(user, function (err) {
 			if (err) { return next(err); }
 
-			console.log(user);
+			
 			var hash = crypto.createHash('sha1');
 			hash.setEncoding('hex');
 			var secret = process.env.SECURITY_SECRET;
