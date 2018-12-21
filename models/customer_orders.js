@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   var CustomerOrders = sequelize.define('CustomerOrders', {
     id: {
       type: DataTypes.UUID,
-      defaultvalue: DataTypes.UUIDV4,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
     label: {
