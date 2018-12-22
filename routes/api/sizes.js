@@ -37,7 +37,7 @@ router.route('/:name')
   const name = req.params.name;
   const active = req.body.active;
 
-  Sizes.find({ where: { name } })
+  Sizes.findOne({ where: { name } })
   .then((size) => {
     if (active !== undefined)
       size.active = active;

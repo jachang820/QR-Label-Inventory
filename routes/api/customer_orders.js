@@ -46,7 +46,7 @@ router.route('/:id')
   const arrival_date = req.body.arrival_date;
   const notes = req.body.notes;
 
-  CustomerOrders.find({ where: { id } })
+  CustomerOrders.findOne({ where: { id } })
   .then((customerOrder) => {
     if (label !== undefined)
       customerOrder.label = label;

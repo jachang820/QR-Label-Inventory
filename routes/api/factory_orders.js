@@ -46,7 +46,7 @@ router.route('/:id')
   const arrival_date = req.body.arrival_date;
   const notes = req.body.notes;
 
-  FactoryOrders.find({ where: { id } })
+  FactoryOrders.findOne({ where: { id } })
   .then((factoryOrder) => {
     if (label !== undefined)
       factoryOrder.label = label;
