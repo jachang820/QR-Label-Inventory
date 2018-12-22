@@ -4,16 +4,23 @@ const { Users } = require('../../models');
 
 router.route('/')
 	.get((req, res, next) => {
-		Users.findAll().then((user) => {
-			res.json(user);
+		Users.findAll().then((users) => {
+			res.json(users);
 		}).catch(next);
-	})
+	});
+
+router.route('/create')
 	.post((req, res, next) => {
+		const firstname = req.body.firstname;
+		const lastname = req.body.lastname;
+		const email = req.body.email;
+		const role = req.body.role;
+		
 		Users.create({
-			req.body.firstname,
-			req.body.lastname,
-			req.body.email,
-			req.body.role
+			firstname,
+			lastname,
+			email,
+			role
 		}).then((user) => {
 			res.json(user);
 		}).catch(next);
@@ -46,15 +53,14 @@ router.route('/:id')
 			}
 			user.save().then((user) => {
 				res.json(user);
-			})
+			});
 		}).catch(next);
 	})
 	.delete((req, res, next) => {
 		Users.destroy({ where: { id }}).then((count) => {
 			res.json(count);
-		})
-	}).catch(next);
-});
+		}).catch(next);
+	});
 
 function oneField(fieldname) {
 	router.route('/:id/'.concat(fieldname))
@@ -73,8 +79,8 @@ function oneField(fieldname) {
 					}
 					user.save().then((user) => {
 						res.json(user);
-					})
-			}).catch(next);
+					});
+				}).catch(next);
 		});
 }
 

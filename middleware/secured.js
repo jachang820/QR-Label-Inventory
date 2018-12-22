@@ -9,7 +9,9 @@ module.exports = function() {
 		var email = req.user.emails[0].value;
 		hash.write(secret.concat(email));
 		hash.end();
-		if (req.user.hash == hash.read()) { return next(); }
+		sha1 = hash.read();
+		
+		if (req.user.hash == sha1) { return next(); }
 		req.session.returnTo = req.originalUrl;
 		res.redirect('/login')
 	}

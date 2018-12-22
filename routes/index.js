@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const secured = require('../middleware/secured');
-const apiRouter = require('./api');
+const apiRouter = require('./api/index');
 const authRouter = require('./auth');
 const inventoryRouter = require('./inventory');
 const qrCodeRouter = require('./qr_code');
-const usersRouter = require('./users');
+const profileRouter = require('./profile');
 
 router.use('/api', apiRouter);
 router.use('/auth', authRouter);
 router.use('/inventory', inventoryRouter);
 router.use('/qr', qrCodeRouter);
-router.use('/users', usersRouter);
+router.use('/profile', profileRouter);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {

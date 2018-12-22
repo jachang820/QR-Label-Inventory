@@ -22,7 +22,7 @@ router.get('/callback', function (req, res, next) {
 			// Writes a hash to user.hash that could be used to check
 			// whether user is authentic.
 			createHash(user);
-
+			
 			const returnTo = req.session.returnTo;
 			delete req.session.returnTo;
 			res.redirect(returnTo || '/dashboard');

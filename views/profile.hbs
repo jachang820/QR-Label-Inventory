@@ -1,0 +1,46 @@
+<h1>User Profile</h1>
+<h2>{{displayName}}</h2>
+
+<form action="/profile/create" method="post">
+  <label for="fname">First Name: </label>
+  <input id="fname" type="text" name="firstname" value={{fill_firstname}}>
+  <label for="lname">Last Name: </label>
+  <input id="lname" type="text" name="lastname" value={{fill_lastname}}>
+  <label for="email">Email: </label>
+  <input id="email" type="text" name="email" value={{fill_email}}>
+  <label for="role">Role: </label>
+  <select name="role">
+    <option disabled selected value> Select a role: </option>
+    {{#each roles}}
+      <option value={{this}}>{{this}}</option>
+    {{/each}}
+  </select>
+  <input type="submit" value="Create">
+</form>
+
+{{#if errors}}
+<ul>
+  {{#each errors}}
+    <li>{{this.msg}}</li>
+  {{/each}}
+</ul>
+{{/if}}
+
+<table>
+  <th>
+    <td>First Name</td>
+    <td>Last Name</td>
+    <td>Email</td>
+    <td>Role</td>
+  </th>
+
+  {{#each users}}
+    <tr>
+      <td>{{this.firstname}}</td>
+      <td>{{this.lastname}}</td>
+      <td>{{this.email}}</td>
+      <td>{{this.role}}</td>
+    </tr>
+  {{/each}}
+
+</table>
