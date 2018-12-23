@@ -7,8 +7,6 @@ router.get('/', (req, res, next) => {
     .then((response) => {
       const items = response.data;
 
-      console.log(items);
-
       res.render('inventory', { items });
     })
     .catch(next);
