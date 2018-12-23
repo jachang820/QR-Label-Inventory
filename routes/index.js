@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const secured = require('../middleware/secured');
+const axios = require('axios');
 const apiRouter = require('./api/index');
 const authRouter = require('./auth');
 const inventoryRouter = require('./inventory');
@@ -20,7 +21,11 @@ router.use('/scan', scanRouter);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+	if (req.user && req.user.hash && req.user.emails) {
+		res.redirect('dashboard');
+	} else {
+		res.render('index', { title: 'Express' });	
+	}
 });
 
 /* GET dashboard. */

@@ -33,6 +33,7 @@ router.get('/callback', function (req, res, next) {
 // logout and redirect to homepage
 router.get('/logout', function (req, res) {
 	req.logout();
+	console.log(req);
 	res.redirect('/');
 });
 
