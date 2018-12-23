@@ -20,7 +20,7 @@ module.exports = function() {
 
 		axios.get(get_path.join('')).then((response) => {
 			if (req.user.hash == sha1) {
-				req.body.role = response.data.role;
+				req.user.role = response.data.role;
 				return next();
 			} else {
 				throw new Error('Security hash does not match.');

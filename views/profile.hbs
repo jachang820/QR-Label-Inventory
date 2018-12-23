@@ -4,16 +4,16 @@
 
 <form action="/profile/create" method="post">
   <label for="fname">First Name: </label>
-  <input id="fname" type="text" name="firstname" value={{fill_firstname}}>
+  <input id="fname" type="text" name="firstname" value="{{fill_firstname}}">
   <label for="lname">Last Name: </label>
-  <input id="lname" type="text" name="lastname" value={{fill_lastname}}>
+  <input id="lname" type="text" name="lastname" value="{{fill_lastname}}">
   <label for="email">Email: </label>
-  <input id="email" type="text" name="email" value={{fill_email}}>
+  <input id="email" type="text" name="email" value="{{fill_email}}">
   <label for="role">Role: </label>
   <select name="role">
     <option disabled selected value> Select a role: </option>
     {{#each roles}}
-      <option value={{this}}>{{this}}</option>
+      <option value="{{this}}">{{this}}</option>
     {{/each}}
   </select>
   <input type="submit" value="Create">
@@ -41,9 +41,11 @@
       <td>{{this.lastname}}</td>
       <td>{{this.email}}</td>
       <td>{{this.role}}</td>
-      <td><form action={{this.del_path}} method="post">
+      {{#unless this.self}}
+      <td><form action="/profile/del/{{this.email}}" method="post">
         <input type="submit" value="Delete">
       </form></td>
+      {{/unless}}
     </tr>
   {{/each}}
 
