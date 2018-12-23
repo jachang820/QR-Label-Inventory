@@ -1,12 +1,18 @@
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
 const axios = require('axios');
+const identify_self = require('../helpers/identifySelf');
 const { Users } = require('../models');
 const roles = Users.rawAttributes.role.values;
 
 module.exports.create_user_post = [
 
 	// Validate fields
+	(req, res, next) => {
+		console.log(req.body.role);
+		return next();
+	}
+	,
 	body('firstname').trim()
 		.isLength({ min: 1 }).withMessage('First name empty.')
 		.isAlpha().withMessage('First name must be alphabet letters.'),
@@ -18,12 +24,8 @@ module.exports.create_user_post = [
 	body('email').trim()
 		.isEmail().withMessage('Must be a valid email.')
 		.custom(value => {
-			var get_path = [
-				process.env.API_PATH,
-				'users/',
-				value
-			];
-			return axios.get(get_path.join('')).then(response => {
+			axios.defaults.baseURL = process.env.API_PATH;
+			return axios.get('/users/'.concat(value)).then(response => {
 				if (response.data) {
 					return Promise.reject('Email aready in use');
 				}
@@ -59,10 +61,13 @@ module.exports.create_user_post = [
 		};
 
 		const errors = validationResult(req);
+		axios.defaults.baseURL = process.env.API_PATH;
 
 		if (!errors.isEmpty()) {
-			axios.get(process.env.API_PATH.concat('users'))
-					 .then((response) => { 
+			axios.get('/users')
+					 .then((response) => {
+					 		var email = req.user.emails[0].value;
+					 		response.data = identify_self(response.data, email); 
 					 		res.render('profile', {
 								roles: roles,
 								fill_firstname: user.firstname,
@@ -76,7 +81,7 @@ module.exports.create_user_post = [
 						}).catch(next);
 							
 		} else {
-			axios.post(process.env.API_PATH.concat('/users/create'), {
+			axios.post('/users/create', {
 				firstname: user.firstname,
 				lastname: user.lastname,
 				email: user.email,
