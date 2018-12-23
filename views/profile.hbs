@@ -40,6 +40,9 @@
       <td>{{this.lastname}}</td>
       <td>{{this.email}}</td>
       <td>{{this.role}}</td>
+      <td><form action={{this.del_path}} method="post">
+        <input type="submit" value="Delete">
+      </form></td>
     </tr>
   {{/each}}
 

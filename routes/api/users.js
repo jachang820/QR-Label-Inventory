@@ -40,7 +40,7 @@ router.route('/:email')
 		const role = req.body.role;
 		const params = req.params.email;
 
-		Users.findOne({ where: { 'email': email }}).then((user) => {
+		Users.findOne({ where: { 'email': params }}).then((user) => {
 			if (firstname != undefined && firstname.length > 0) {
 				user.firstname = firstname;
 			}
@@ -60,7 +60,7 @@ router.route('/:email')
 	})
 	.delete((req, res, next) => {
 		const params = req.params.email;
-		Users.destroy({ where: { 'email': email }}).then((count) => {
+		Users.destroy({ where: { 'email': params }}).then((count) => {
 			res.json(count);
 		}).catch(next);
 	});

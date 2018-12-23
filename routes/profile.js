@@ -8,8 +8,14 @@ const { Users } = require('../models');
 /* GET user profile */
 router.get('/', secured(), function (req, res, next) {
 	const {_raw, _json, ...userProfile } = req.user;
+	
 	axios.get(process.env.API_PATH.concat('users'))
 	.then((response) => {
+		var i;
+		for (i = 0; i < response.data.length; i++) {
+			response.data[i].del_path = '/profile/del/'.concat(
+				response.data[i].email);
+		}
 		res.render('profile', {
 			roles: Users.rawAttributes.role.values,
 			firstname: userProfile.firstname,
@@ -21,5 +27,20 @@ router.get('/', secured(), function (req, res, next) {
 });
 
 router.post('/create', secured(), create_user_post);
+
+router.post('/del/:email', secured(), function (req, res, next) {
+	var del_path = [
+		process.env.API_PATH,
+		'users/',
+		req.params.email
+	];
+
+	axios.delete(del_path.join('')).then((response) => {
+		res.redirect('/profile');
+	}).catch((err) => {
+		console.log('Failed to delete user');
+		res.redirect('/profile');
+	})
+});
 
 module.exports = router;
