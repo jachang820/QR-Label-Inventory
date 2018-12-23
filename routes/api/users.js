@@ -26,9 +26,10 @@ router.route('/create')
 		}).catch(next);
 	});
 
-router.route('/:id')
+router.route('/:email')
 	.get((req, res, next) => {
-		Users.findOne({ where: { id }}).then((user) => {
+		const params = req.params.email;
+		Users.findOne({ where: { 'email': params }}).then((user) => {
 			res.json(user);
 		}).catch(next);
 	})
@@ -37,8 +38,9 @@ router.route('/:id')
 		const lastname = req.body.lastname;
 		const email = req.body.email;
 		const role = req.body.role;
+		const params = req.params.email;
 
-		Users.findOne({ where: { id }}).then((user) => {
+		Users.findOne({ where: { 'email': email }}).then((user) => {
 			if (firstname != undefined && firstname.length > 0) {
 				user.firstname = firstname;
 			}
@@ -57,22 +59,25 @@ router.route('/:id')
 		}).catch(next);
 	})
 	.delete((req, res, next) => {
-		Users.destroy({ where: { id }}).then((count) => {
+		const params = req.params.email;
+		Users.destroy({ where: { 'email': email }}).then((count) => {
 			res.json(count);
 		}).catch(next);
 	});
 
 function oneField(fieldname) {
-	router.route('/:id/'.concat(fieldname))
+	router.route('/:email/'.concat(fieldname))
 		.get((req, res, next) => {
-			Users.findOne({ where: { id }, attributes: [fieldname] })
+			const params = req.params.email;
+			Users.findOne({ where: { 'email': params }, attributes: [fieldname] })
 				.then((user) => {
 					res.json(user);
 			}).catch(next);
 		})
 		.put((req, res, next) => {
 			const field = req.body[fieldname];
-			Users.findOne({ where: { id }, attributes: [fieldname] })
+			const params = req.params.email;
+			Users.findOne({ where: { 'email': params }, attributes: [fieldname] })
 				.then((user) => {
 					if (field != undefined && field.length > 0) {
 						user[fieldname] = field;

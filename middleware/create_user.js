@@ -18,9 +18,14 @@ module.exports.create_user_post = [
 	body('email').trim()
 		.isEmail().withMessage('Must be a valid email.')
 		.custom(value => {
-			return Users.findOne({where: {'email': value}}).then(user => {
-				if (user) {
-					return Promise.reject('Email already in use');
+			var get_path = [
+				process.env.API_PATH,
+				'users/',
+				value
+			];
+			return axios.get(get_path.join('')).then(response => {
+				if (response.data) {
+					return Promise.reject('Email aready in use');
 				}
 			});
 		}),
