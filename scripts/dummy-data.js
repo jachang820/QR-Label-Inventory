@@ -1,4 +1,5 @@
-const { Colors, Sizes, FactoryOrders, CustomerOrders, Items } = require('../models');
+const { Colors, Sizes, FactoryOrders, 
+  CustomerOrders, Items, Users } = require('../models');
 
 async function setup() {
   await Colors.findOrCreate({ where: {
@@ -85,8 +86,28 @@ async function setup() {
     FactoryOrderId: 2,
     CustomerOrderId: 'aee7514d-f202-4f9d-8212-97d9a459cbda' // 1
   }});
+
+  /**********
+   * USERS
+   */
+  await Users.findOrCreate({where: {
+    firstname: 'Jonathan',
+    lastname: 'Chang',
+    email: 'j.a.chang820@gmail.com',
+    role: 'Administrator'
+  }});
+
+  await Users.findOrCreate({where: {
+    firstname: 'Alex',
+    lastname: 'Chen',
+    email: 'aqchen@gmail.com',
+    role: 'Administrator'
+  }});
 }
 
 setup().then(() => {
+  process.exit();
+}).catch(() => {
+  console.log('Error loading dummy date');
   process.exit();
 });

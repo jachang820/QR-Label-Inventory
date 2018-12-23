@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const axios = require('axios');
 
 // go to login page if user is not logged in
 module.exports = function() {
@@ -11,8 +12,22 @@ module.exports = function() {
 		hash.end();
 		sha1 = hash.read();
 		
-		if (req.user.hash == sha1) { return next(); }
-		req.session.returnTo = req.originalUrl;
-		res.redirect('/login')
+		var get_path = [
+			process.env.API_PATH,
+			'users/',
+			email
+		];
+
+		axios.get(get_path.join('')).then((response) => {
+			if (req.user.hash == sha1) {
+				req.body.role = response.data.role;
+				return next();
+			} else {
+				throw new Error('Security hash does not match.');
+			}
+		}).catch((err) => {
+			req.session.returnTo = req.originalUrl;
+			res.redirect('/auth/logout')
+		})
 	}
 }
