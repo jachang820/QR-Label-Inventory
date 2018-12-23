@@ -59,7 +59,7 @@ router.route('/:id')
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
 
-  Items.find({ where: { id } })
+  Items.findOne({ where: { id } })
   .then((item) => {
     if (status !== undefined)
       item.status = status;

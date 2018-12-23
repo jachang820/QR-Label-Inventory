@@ -37,7 +37,7 @@ router.route('/:name')
   const name = req.params.name;
   const active = req.body.active;
 
-  Colors.find({ where: { name } })
+  Colors.findOne({ where: { name } })
   .then((color) => {
     if (active !== undefined)
       color.active = active;
