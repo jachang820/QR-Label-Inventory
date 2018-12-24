@@ -100,7 +100,7 @@ async function setup() {
   await Users.findOrCreate({where: {
     firstname: 'Alex',
     lastname: 'Chen',
-    email: 'aqchen@gmail.com',
+    email: 'aqchen@g.ucla.edu',
     role: 'Administrator'
   }});
 }
