@@ -77,7 +77,7 @@ function oneField(fieldname) {
 		.put((req, res, next) => {
 			const field = req.body[fieldname];
 			const params = req.params.email;
-			Users.findOne({ where: { 'email': params }, attributes: [fieldname] })
+			Users.findOne({ where: { 'email': params } })
 				.then((user) => {
 					if (field != undefined && field.length > 0) {
 						user[fieldname] = field;

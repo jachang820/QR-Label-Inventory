@@ -3,10 +3,21 @@ const router = express.Router();
 const { Colors } = require('../../models')
 
 // Retrieve all colors
-router.get('/', (req, res, next) => {
+router.route('/')
+.get((req, res, next) => {
   Colors.findAll()
   .then((colors) => {
     res.json(colors);
+  })
+  .catch(next);
+})
+// Create color
+.post((req, res, next) => {
+  const name = req.body.new_color;
+
+  Colors.create({ name })
+  .then((color) => {
+    res.json(color);
   })
   .catch(next);
 })
@@ -22,16 +33,6 @@ router.route('/:name')
   })
   .catch(next);
 })
-// Create color
-.post((req, res, next) => {
-  const name = req.params.name;
-
-  Colors.create({ name })
-  .then((color) => {
-    res.json(color);
-  })
-  .catch(next);
-})
 // Update color
 .put((req, res, next) => {
   const name = req.params.name;
@@ -39,8 +40,9 @@ router.route('/:name')
 
   Colors.findOne({ where: { name } })
   .then((color) => {
-    if (active !== undefined)
+    if (active !== undefined && typeof active == 'boolean') {
       color.active = active;
+    }
 
     color.save().then((color) => {
       res.json(color);
