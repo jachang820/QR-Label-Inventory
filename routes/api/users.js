@@ -3,6 +3,7 @@ const router = express.Router();
 const { Users } = require('../../models');
 
 router.route('/')
+	/* GET all users */
 	.get((req, res, next) => {
 		Users.findAll().then((users) => {
 			res.json(users);
@@ -10,6 +11,7 @@ router.route('/')
 	});
 
 router.route('/create')
+	/* POST new user account. */
 	.post((req, res, next) => {
 		const firstname = req.body.firstname;
 		const lastname = req.body.lastname;
@@ -64,34 +66,5 @@ router.route('/:email')
 			res.json(count);
 		}).catch(next);
 	});
-
-function oneField(fieldname) {
-	router.route('/:email/'.concat(fieldname))
-		.get((req, res, next) => {
-			const params = req.params.email;
-			Users.findOne({ where: { 'email': params }, attributes: [fieldname] })
-				.then((user) => {
-					res.json(user);
-			}).catch(next);
-		})
-		.put((req, res, next) => {
-			const field = req.body[fieldname];
-			const params = req.params.email;
-			Users.findOne({ where: { 'email': params }, attributes: [fieldname] })
-				.then((user) => {
-					if (field != undefined && field.length > 0) {
-						user[fieldname] = field;
-					}
-					user.save().then((user) => {
-						res.json(user);
-					});
-				}).catch(next);
-		});
-}
-
-oneField('firstname');
-oneField('lastname');
-oneField('email');
-oneField('role');
 
 module.exports = router;

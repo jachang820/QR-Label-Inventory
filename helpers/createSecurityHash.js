@@ -1,6 +1,12 @@
 const crypto = require('crypto');
 
-// go to login page if user is not logged in
+/* Creates a hash from user email and a secret.
+   Rationale:
+    - If security is based only on email, a hacker might
+      be able to bypass login authentication by entering
+      someone's email in the session request.
+    - This hash is checked whenever a new page is visited.
+*/
 module.exports = function(user) {
 	var hash = crypto.createHash('sha1');
 	hash.setEncoding('hex');
