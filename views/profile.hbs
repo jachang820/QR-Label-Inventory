@@ -2,6 +2,10 @@
 <p>{{firstname}} {{lastname}}</p>
 <p>{{email}}</p>
 
+{{!-- Form to add new user. Form receives 'fill_' paramss for default values.
+      These are initially empty, but if user enters invalid input, his input
+      will be stored in 'fill_' params so they can be returned with error
+      messages. The roles are populated from database attributes. --}}
 <form action="/profile/create" method="post">
   <label for="fname">First Name: </label>
   <input id="fname" type="text" name="firstname" value="{{fill_firstname}}">
@@ -19,6 +23,7 @@
   <input type="submit" value="Create">
 </form>
 
+{{!-- Errors due to invalid input show up here. --}}
 {{#if errors}}
 <ul>
   {{#each errors}}
@@ -27,6 +32,7 @@
 </ul>
 {{/if}}
 
+{{!-- This is a table of all the users. --}}
 <table>
   <th>
     <td>First Name</td>
@@ -41,6 +47,8 @@
       <td>{{this.lastname}}</td>
       <td>{{this.email}}</td>
       <td>{{this.role}}</td>
+      {{!-- There will be buttons to delete any user except for the
+            admin himself. --}}
       {{#unless this.self}}
       <td><form action="/profile/del/{{this.email}}" method="post">
         <input type="submit" value="Delete">
