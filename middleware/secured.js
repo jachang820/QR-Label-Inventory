@@ -12,13 +12,9 @@ module.exports = function() {
 		hash.end();
 		sha1 = hash.read();
 		
-		var get_path = [
-			process.env.API_PATH,
-			'users/',
-			email
-		];
+		var get_path = `${process.env.API_PATH}users/${email}`;
 
-		axios.get(get_path.join('')).then((response) => {
+		axios.get(get_path).then((response) => {
 			if (req.user.hash == sha1) {
 				req.user.role = response.data.role;
 				return next();
