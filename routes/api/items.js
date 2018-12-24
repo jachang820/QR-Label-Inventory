@@ -98,4 +98,14 @@ router.route('/:id')
   .catch(next);
 });
 
+router.get('/factory_order/:id', (req, res, next) => {
+  const FactoryOrderId = parseInt(req.params.id);
+
+  Items.findAll({ where: { FactoryOrderId }})
+  .then((items) => {
+    res.json(items);
+  })
+  .catch(next);
+});
+
 module.exports = router;
