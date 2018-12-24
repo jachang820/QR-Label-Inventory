@@ -7,12 +7,8 @@ const roles = Users.rawAttributes.role.values;
 
 module.exports.create_user_post = [
 
-	// Validate fields
-	(req, res, next) => {
-		console.log(req.body.role);
-		return next();
-	}
-	,
+	/* Validate inputs, makes sure they are not empty and are
+	   the appropriate format. */
 	body('firstname').trim()
 		.isLength({ min: 1 }).withMessage('First name empty.')
 		.isAlpha().withMessage('First name must be alphabet letters.'),
@@ -24,6 +20,7 @@ module.exports.create_user_post = [
 	body('email').trim()
 		.isEmail().withMessage('Must be a valid email.')
 		.custom(value => {
+			/* Checks the database to see if the email already exists. */
 			axios.defaults.baseURL = process.env.API_PATH;
 			return axios.get('/users/'.concat(value)).then(response => {
 				if (response.data) {
@@ -35,6 +32,9 @@ module.exports.create_user_post = [
 	body('role').trim()
 		.isLength({ min: 1 }).withMessage('Role unselected.')
 		.custom(value => {
+			/* Check that selected role is one of the values taken by
+			   the database, in case hackers try to enter their own
+			   values. */
 			if (!roles.includes(value)) {
 				throw new Error('Must be a valid role.');
 			} else {
@@ -42,7 +42,8 @@ module.exports.create_user_post = [
 			}
 		}),
 
-	// Sanitize fields to prevent malicious injections
+	/* Sanitize fields to prevent malicious injections,
+	   checks for escape characters and removes them. */
 	sanitizeBody('firstname').trim().escape(),
 	
 	sanitizeBody('lastname').trim().escape(),
@@ -51,8 +52,10 @@ module.exports.create_user_post = [
 	
 	sanitizeBody('role').escape(),
 
-	// Process request
+	/* Returns error if they exist, otherwise create user. */
 	(req, res, next) => {
+
+		/* This is the new user that was entered into the form. */
 		var user = {
 			firstname: req.body.firstname,
 			lastname: req.body.lastname,
@@ -60,10 +63,13 @@ module.exports.create_user_post = [
 			role: req.body.role
 		};
 
+		/* List of errors from above validation steps. */
 		const errors = validationResult(req);
 		axios.defaults.baseURL = process.env.API_PATH;
 
 		if (!errors.isEmpty()) {
+			/* There are errors, so return profile page with error messages.
+			   Keep form filled in with user-entered values. */
 			axios.get('/users')
 					 .then((response) => {
 					 		var email = req.user.emails[0].value;
@@ -81,6 +87,7 @@ module.exports.create_user_post = [
 						}).catch(next);
 							
 		} else {
+			/* There are no errors, so create new user. */
 			axios.post('/users/create', {
 				firstname: user.firstname,
 				lastname: user.lastname,
