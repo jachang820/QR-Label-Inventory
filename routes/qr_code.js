@@ -3,10 +3,10 @@ const router = express.Router();
 const api = require('./api');
 const qr = require('qr-image');
 const jimp = require('jimp');
+const secured = require('../middleware/secured');
 
 /* GET random QR code generation for testing. */
 router.get('/', function(req, res, next) {
-
   res.render('generate');
 });
 
