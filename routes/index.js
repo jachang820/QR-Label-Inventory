@@ -9,6 +9,7 @@ const ordersRouter = require('./orders');
 const profileRouter = require('./profile');
 const qrCodeRouter = require('./qr_code');
 const scanRouter = require('./scan');
+const stylesRouter = require('./styles');
 
 router.use('/api', apiRouter);
 router.use('/auth', authRouter);
@@ -18,6 +19,7 @@ router.use('/profile', profileRouter);
 router.use('/qr', qrCodeRouter);
 router.use('/profile', profileRouter);
 router.use('/scan', scanRouter);
+router.use('/styles', stylesRouter);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {

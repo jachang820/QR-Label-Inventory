@@ -1,0 +1,35 @@
+<h1>Manage Styles</h1>
+
+<form action="/profile/create" method="post"> 
+  <label for="color_text">Add color: </label>
+  <input id="color_text" type="text" name="new_color" value="">
+  <input type="radio" 
+    name="filter_colors" 
+    value="all_colors"> All
+  <input type="radio" 
+    name="filter_colors" 
+    value="active_colors" checked> Active
+  <input type="radio" 
+    name="filter_colors" 
+    value="inactive_colors"> Inactive
+  <label for="colors">Colors: </label>
+  <select multiple name="colors" size="10">
+    {{#each colors}}
+      <option value={{this.name}} 
+        class="{{#unless active}}in{{/unless}}active_colors">
+          {{this.name}}</option>
+    {{/each}}
+  </select>
+  <input type="submit" name="toggle_color" value="Toggle Active">
+  <input type="submit" name="add_color" value="Add">
+</form>
+
+{{#if errors}}
+<ul>
+  {{#each errors}}
+    <li>{{this.msg}}</li>
+  {{/each}}
+</ul>
+{{/if}}
+
+<script src="/js/styles.js"></script>
