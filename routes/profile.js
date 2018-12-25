@@ -6,8 +6,10 @@ const { create_user_post } = require('../middleware/create_user');
 const identify_self = require('../helpers/identifySelf');
 const { Users } = require('../models');
 
+router.all('*', secured());
+
 /* GET user profile */
-router.get('/', secured(), function (req, res, next) {
+router.get('/', function (req, res, next) {
 	const {_raw, _json, ...userProfile } = req.user;
 	axios.defaults.baseURL = process.env.API_PATH;
 	
@@ -44,5 +46,15 @@ router.post('/del/:email', secured(), function (req, res, next) {
 		res.redirect('/profile');
 	})
 });
+
+router.use((err, req, res, next) => {
+	if (res.headersSent) {
+		return next(err);
+	}
+	res.status(404).render('error404', {
+		url: req.baseUrl,
+		error: err.stack
+	});
+})
 
 module.exports = router;
