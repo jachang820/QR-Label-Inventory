@@ -5,6 +5,7 @@ const { Colors } = require('../../models')
 // Retrieve all colors
 router.route('/')
 .get((req, res, next) => {
+  console.log(req);
   Colors.findAll()
   .then((colors) => {
     res.json(colors);

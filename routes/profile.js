@@ -6,8 +6,11 @@ const { create_user_post } = require('../middleware/create_user');
 const identify_self = require('../helpers/identifySelf');
 const { Users } = require('../models');
 
+/* Make sure logged in user is a valid user. */
+router.all('*', secured());
+
 /* GET user profile */
-router.get('/', secured(), function (req, res, next) {
+router.get('/', function (req, res, next) {
 	const {_raw, _json, ...userProfile } = req.user;
 	axios.defaults.baseURL = process.env.API_PATH;
 	
@@ -30,10 +33,10 @@ router.get('/', secured(), function (req, res, next) {
 });
 
 /* Validates all inputs and create account. */
-router.post('/create', secured(), create_user_post);
+router.post('/create', create_user_post);
 
 /* Deletes a user account given his email. */
-router.post('/del/:email', secured(), function (req, res, next) {
+router.post('/del/:email', function (req, res, next) {
 	var email = req.params.email;
 	axios.defaults.baseURL = process.env.API_PATH;
 

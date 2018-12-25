@@ -4,14 +4,15 @@ const passport = require('passport');
 const crypto = require('crypto');
 const createHash = require('../helpers/createSecurityHash');
 
-// after login, auth0 will redirect to callback
+/* Authenticate user with Auth0. After successful login,
+   Auth0 will redirect to /callback. */
 router.get('/login', passport.authenticate('auth0', {
 	scope: 'openid email profile'
 }), function (req, res) {
 	res.redirect('/');
 })
 
-// check authentication validity
+/* Complete authentication and add user object to request. */
 router.get('/callback', function (req, res, next) {
 	passport.authenticate('auth0', function (err, user, info) {
 		if (err) { return next(err); }
@@ -19,8 +20,8 @@ router.get('/callback', function (req, res, next) {
 		req.logIn(user, function (err) {
 			if (err) { return next(err); }
 
-			// Writes a hash to user.hash that could be used to check
-			// whether user is authentic.
+			/* Writes a hash to user.hash that could be used to check
+			   whether user is authentic. */
 			createHash(user);
 			
 			const returnTo = req.session.returnTo;
@@ -30,7 +31,7 @@ router.get('/callback', function (req, res, next) {
 	})(req, res, next);
 });
 
-// logout and redirect to homepage
+/* Log user out and clear session. */
 router.get('/logout', function (req, res) {
 	req.logout();
 	res.redirect('/');

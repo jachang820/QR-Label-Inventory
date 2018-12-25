@@ -5,10 +5,14 @@ const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
 const secured = require('../middleware/secured');
 const { create_color, create_size } = require('../middleware/create_style');
+const { toggle_color, toggle_size } = require('../middleware/toggle_style');
 const { Colors, Sizes } = require('../models');
 
+/* Make sure logged in user is a valid user. */
+router.all('*', secured());
+
 /* GET manage styles page */
-router.get('/', secured(), function (req, res, next) {
+router.get('/', function (req, res, next) {
 	axios.defaults.baseURL = process.env.API_PATH;
 	
 	axios.get('/colors').then((response) => {
@@ -18,61 +22,8 @@ router.get('/', secured(), function (req, res, next) {
 	}).catch(next);
 });
 
-router.post('styles/color/add', secured(), create_color);
-
-function create_style(type) {
-	axios.defaults.baseURL = process.env.API_PATH;
-	upper_type = type.charAt(0).toUpperCase() + type.substring(1);
-	type_plural = type.concat('s');
-	slash_type = '/'.concat(type);
-
-	router.post(['styles', type, 'add'].join('/'), secured(), [
-
-		(req, res, next) => {
-			var style = {
-				name: req.body[['new', type].join('_')],
-			};
-
-			var action;
-			if (req.body[['toggle', type].join('_')]) {
-				action = 'toggle';
-			}
-			if (req.body[['add', type].join('_')]) {
-				action = 'add';
-			}
-
-			const errors = validationResult(req);
-			if (!errors.isEmpty()) {
-				var params = { errors: errors.array() };
-
-				axios.get(['/', type, 's'].join(''))
-					 .then((response) => { 
-					 		params[type_plural] = response.data;
-					 		params[[fill, type].join('_')] = style.name;
-					 		res.render('styles', params);
-							return;
-						}).catch(next);
-
-			} else { 
-				if (action == 'toggle') {
-
-
-				} else {
-					axios.post('/'.concat(style), {
-						name: style.name
-					}).then((response) => {
-			 			// Check for error
-			 			if (response.msg) { return next(response); }
-						
-						res.redirect('/styles');
-
-					}).catch(next);
-				}
-			}
-		}
-	]);
-}
-
+router.post('/color/add', create_color);
+router.post('/color/toggle', toggle_color);
 
 function delete_style(type) {
 	var post_path = type.concat('/del/:name');
