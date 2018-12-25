@@ -3,33 +3,14 @@ const router = express.Router();
 const axios = require('axios');
 const secured = require('../middleware/secured');
 const { create_user_post } = require('../middleware/create_user');
-const identify_self = require('../helpers/identifySelf');
+
 const { Users } = require('../models');
+const profileGet = require('./controllers/profileGet');
 
 router.all('*', secured());
 
 /* GET user profile */
-router.get('/', function (req, res, next) {
-	const {_raw, _json, ...userProfile } = req.user;
-	axios.defaults.baseURL = process.env.API_PATH;
-	
-	/* Get the necessary information to populate form. */
-	axios.get('/users').then((response) => {
-		var email = userProfile.emails[0].value;
-
-		/* Adds a marker to logged-in user's account to prevent
-		   a delete button from appearing next to his account, since
-		   an admin shouldn't be able to delete his own account. */
-		response.data = identify_self(response.data, email);
-		res.render('profile', {
-			roles: Users.rawAttributes.role.values,
-			firstname: userProfile.firstname,
-			lastname: userProfile.lastname,
-			email: userProfile.emails[0].value,
-			users: response.data
-		});
-	}).catch(next);
-});
+router.get('/', profileGet); 
 
 /* Validates all inputs and create account. */
 router.post('/create', secured(), create_user_post);
