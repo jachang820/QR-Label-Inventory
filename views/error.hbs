@@ -1,3 +1,19 @@
-<h1>{{message}}</h1>
-<h2>{{error.status}}</h2>
-<pre>{{error.stack}}</pre>
+<link rel="stylesheet" href="/css/error.css"></link>
+
+<img src="/images/{{status}}.png" alt="{{statusText}}">
+
+<h1>
+{{#if custom}}
+	{{custom}}
+{{else}}
+	{{#if message}}
+		{{message}}
+	{{else}}
+		{{statusText}}
+	{{/if}}
+{{/if}}</h1>
+
+<h4>{{#if url}} Error occurred at: {{url}} {{/if}}</h4>
+<h4>{{#if query}} Last query made: {{query}} {{/if}}</h4>
+<pre>{{stack}}</pre>
+

@@ -1,6 +1,8 @@
 const async = require('async');
 const axios = require('axios');
+const identifySelf = require('../../helpers/identifySelf');
 const { Users } = require('../../models');
+const roles = Users.rawAttributes.role.values;
 
 /* Get the necessary information to populate form. */
 module.exports = (req, res, next) => {
@@ -23,7 +25,8 @@ module.exports = (req, res, next) => {
 				return callback(null, profile, response.data);
 			
 			}).catch((err) => { 
-				callback("Error retrieving users from database."); 
+				err.custom = "Error retrieving users from database.";
+				return callback(err); 
 			});
 		},
 
@@ -32,21 +35,14 @@ module.exports = (req, res, next) => {
 		   an admin shouldn't be able to delete his own account. */
 		(profile, allUsers, callback) => {
 			const email = profile.emails[0].value;
-			/* Searches list of users obtained to match given email.
-         Adds a 'self' attribute to the list if matched. */
-			for (let i = 0; i < users.length; i++) {
-				if (allUsers[i].email == email) {
-					allUsers[i].self = true;
-					break;
-				}
-			}
+			allUsers = identifySelf(allUsers, email);
 			return callback(null, profile, allUsers);
 		},
 
 		/* Render user management form and all user data. */
 		(profile, allUsers, callback) => {
 			res.render('profile', {
-				roles: Users.rawAttributes.role.values,
+				roles: roles,
 				firstname: profile.firstname,
 				lastname: profile.lastname,
 				email: profile.emails[0].value,
@@ -56,6 +52,6 @@ module.exports = (req, res, next) => {
 	],
 
 	/* An error has occurred. Pass error to error handler. */
-	(err) => { next(err); });
+	(err) => { return next(err); });
 
 };

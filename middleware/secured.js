@@ -1,7 +1,8 @@
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 
-// go to login page if user is not logged in
+/* Verify that logged in user was authenticated and reaffirm
+   the user's role. If user is invalid, log out. */
 module.exports = function() {
 	return function secured (req, res, next) {
 
