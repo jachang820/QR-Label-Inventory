@@ -4,8 +4,10 @@
 	{{#unless locals.user}}
 		<h4>You are not logged in! Please <a href="/auth/login">log in</a> to continue.</h4>
 	{{/unless}}
+
 </div>
 
+{{!-- Errors due to invalid input show up here. --}}
 {{#if errors}}
 <ul>
   {{#each errors}}
