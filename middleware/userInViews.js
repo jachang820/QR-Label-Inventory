@@ -1,7 +1,7 @@
 // make user available in views
 module.exports = function () {
-	return function (req, res, next) {
-		res.locals.user = req.user;
-		next();
-	}
+  return function (req, res, next) {
+    res.locals.user = req.user;
+    next();
+  }
 }

@@ -11,38 +11,38 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/generate', function(req, res, next) {
-	// generate random UUID
-	const arr = [8, 4, 4, 4, 12].map(function(term) {
-		return Math.random().toString(16).substring(2, term + 2);
-	}).join('-');
-	const arr_string = `http://www.smokebuddy.com/?id=${arr}`;
+  // generate random UUID
+  const arr = [8, 4, 4, 4, 12].map(function(term) {
+    return Math.random().toString(16).substring(2, term + 2);
+  }).join('-');
+  const arr_string = `http://www.smokebuddy.com/?id=${arr}`;
 
-	// generate QR
-	const qrcode = qr.imageSync(arr_string, { margin: 1, size: 4 });
+  // generate QR
+  const qrcode = qr.imageSync(arr_string, { margin: 1, size: 4 });
 
-	// open Smoke Buddy logo in Jimp
-	const logo_file = './public/images/smokebuddy.png';
-	jimp.read(logo_file)
-		.then(function(logo) {
-			return logo.scale(0.25);
-		}).then(function(logo) {
-			jimp.read(qrcode).then(function(qr) {
-				return logo.composite(qr, 305, 360, {
-					mode: jimp.BLEND_SOURCE_OVER,
-					opacitySource: 1.0,
-					opacityDest: 1.0
-				});	
-			}).then(function(image) {
-				image.getBuffer(jimp.MIME_PNG, function(err, buffer) {
-					res.set('Content-type', jimp.MIME_PNG);
-					res.send(buffer);
-				});
-			}).catch(function(err) {
-				throw err;
-			});		
-		}).catch(function(err) {
-			throw err;
-		});
+  // open Smoke Buddy logo in Jimp
+  const logo_file = './public/images/smokebuddy.png';
+  jimp.read(logo_file)
+    .then(function(logo) {
+      return logo.scale(0.25);
+    }).then(function(logo) {
+      jimp.read(qrcode).then(function(qr) {
+        return logo.composite(qr, 305, 360, {
+          mode: jimp.BLEND_SOURCE_OVER,
+          opacitySource: 1.0,
+          opacityDest: 1.0
+        }); 
+      }).then(function(image) {
+        image.getBuffer(jimp.MIME_PNG, function(err, buffer) {
+          res.set('Content-type', jimp.MIME_PNG);
+          res.send(buffer);
+        });
+      }).catch(function(err) {
+        throw err;
+      });   
+    }).catch(function(err) {
+      throw err;
+    });
 });
 
 
