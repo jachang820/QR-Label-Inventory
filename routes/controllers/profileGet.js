@@ -5,53 +5,47 @@ const { Users } = require('../../models');
 const roles = Users.rawAttributes.role.values;
 
 /* Get the necessary information to populate form. */
-module.exports = (req, res, next) => {
+module.exports = [
 
-  /* Call each middleware in series, skip to last function on 
-     error. */
-  async.waterfall([
+  /* Get user data from request. */
+  (req, res, next) => {
+    const {_raw, _json, ...userProfile } = req.user;
+    res.locals.profile = userProfile;
+    return next();
+  },
 
-    /* Get user data from request. */
-    (callback) => {
-      const {_raw, _json, ...userProfile } = req.user;
-      return callback(null, userProfile);
-    },
+  /* Get list of all users from database. */
+  (req, res, next) => {
+    axios.defaults.baseURL = process.env.API_PATH;
+    axios.get('/users').then((response) => {
+      res.locals.allUsers = response.data;
+      return next();
+    
+    }).catch((err) => { 
+      err.custom = "Error retrieving users from database.";
+      return next(err); 
+    });
+  },
 
-    /* Get list of all users from database. */
-    (profile, callback) => {
-      axios.defaults.baseURL = process.env.API_PATH;
-      axios.get('/users').then((response) => {
-        
-        return callback(null, profile, response.data);
-      
-      }).catch((err) => { 
-        err.custom = "Error retrieving users from database.";
-        return callback(err); 
-      });
-    },
+  /* Adds a marker to logged-in user's account to prevent
+     a delete button from appearing next to his account, since
+     an admin shouldn't be able to delete his own account. */
+  (req, res, next) => {
+    res.locals.email = res.locals.profile.emails[0].value;
+    res.locals.allUsers = identifySelf(
+      res.locals.allUsers, res.locals.email);
+    return next();
+  },
 
-    /* Adds a marker to logged-in user's account to prevent
-       a delete button from appearing next to his account, since
-       an admin shouldn't be able to delete his own account. */
-    (profile, allUsers, callback) => {
-      const email = profile.emails[0].value;
-      allUsers = identifySelf(allUsers, email);
-      return callback(null, profile, allUsers);
-    },
-
-    /* Render user management form and all user data. */
-    (profile, allUsers, callback) => {
-      res.render('profile', {
-        roles: roles,
-        firstname: profile.firstname,
-        lastname: profile.lastname,
-        email: profile.emails[0].value,
-        users: allUsers
-      });
-    }
-  ],
-
-  /* An error has occurred. Pass error to error handler. */
-  (err) => { return next(err); });
-
-};
+  /* Render user management form and all user data. */
+  (req, res, next) => {
+    return res.render('profile', {
+      roles: roles,
+      firstname: res.locals.profile.firstname,
+      lastname: res.locals.profile.lastname,
+      email: res.locals.email,
+      users: res.locals.allUsers
+    });
+  }
+  
+];
