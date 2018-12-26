@@ -7,20 +7,13 @@ const secured = require('../middleware/secured');
 const { create_color, create_size } = require('../middleware/create_style');
 const { toggle_color, toggle_size } = require('../middleware/toggle_style');
 const { Colors, Sizes } = require('../models');
+const stylesGet = require('./controllers/stylesGet');
 
 /* Make sure logged in user is a valid user. */
 router.all('*', secured());
 
 /* GET manage styles page */
-router.get('/', function (req, res, next) {
-	axios.defaults.baseURL = process.env.API_PATH;
-	
-	axios.get('/colors').then((response) => {
-		res.render('styles', {
-			colors: response.data
-		});
-	}).catch(next);
-});
+router.get('/', stylesGet);
 
 router.post('/color/add', create_color);
 router.post('/color/toggle', toggle_color);
