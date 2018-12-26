@@ -1,39 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
-const crypto = require('crypto');
-const createHash = require('../helpers/createSecurityHash');
+const authLoginGet = require('./controllers/authLoginGet');
+const authCallbackGet = require('./controllers/authCallbackGet');
+const authLogoutGet = require('./controllers/authLogoutGet');
 
-// after login, auth0 will redirect to callback
-router.get('/login', passport.authenticate('auth0', {
-	scope: 'openid email profile'
-}), function (req, res) {
-	res.redirect('/');
-})
+/* Authenticate with Auth0. */
+router.get('/login', authLoginGet);
 
-// check authentication validity
-router.get('/callback', function (req, res, next) {
-	passport.authenticate('auth0', function (err, user, info) {
-		if (err) { return next(err); }
-		if (!user) { return res.redirect('/auth/login'); }
-		req.logIn(user, function (err) {
-			if (err) { return next(err); }
+/* Returned from Auth0, confirm authentication, and compute
+   security token. */
+router.get('/callback', authCallbackGet);
 
-			// Writes a hash to user.hash that could be used to check
-			// whether user is authentic.
-			createHash(user);
-			
-			const returnTo = req.session.returnTo;
-			delete req.session.returnTo;
-			res.redirect(returnTo || '/dashboard');
-		});
-	})(req, res, next);
-});
-
-// logout and redirect to homepage
-router.get('/logout', function (req, res) {
-	req.logout();
-	res.redirect('/');
-});
+/* Remove user session from request. */
+router.get('/logout', authLogoutGet);
 
 module.exports = router;
