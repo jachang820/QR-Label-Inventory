@@ -1,4 +1,3 @@
-const async = require('async');
 const passport = require('passport');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
