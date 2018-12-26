@@ -8,9 +8,7 @@ router.route('/')
 		Users.findAll().then((users) => {
 			res.json(users);
 		}).catch(next);
-	});
-
-router.route('/create')
+	})
 	/* POST new user account. */
 	.post((req, res, next) => {
 		const firstname = req.body.firstname;

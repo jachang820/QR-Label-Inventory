@@ -12,17 +12,16 @@ router.get('/', function(req, res, next) {
 
 router.get('/generate', function(req, res, next) {
 	// generate random UUID
-	var arr = [8, 4, 4, 4, 12].map(function(term) {
+	const arr = [8, 4, 4, 4, 12].map(function(term) {
 		return Math.random().toString(16).substring(2, term + 2);
-	});
-	var arr_string = "http://www.smokebuddy.com/?id=";
-	arr_string = arr_string.concat(arr.join('-'));
+	}).join('-');
+	const arr_string = `http://www.smokebuddy.com/?id=${arr}`;
 
 	// generate QR
-	var qrcode = qr.imageSync(arr_string, { margin: 1, size: 4 });
+	const qrcode = qr.imageSync(arr_string, { margin: 1, size: 4 });
 
 	// open Smoke Buddy logo in Jimp
-	var logo_file = './public/images/smokebuddy.png';
+	const logo_file = './public/images/smokebuddy.png';
 	jimp.read(logo_file)
 		.then(function(logo) {
 			return logo.scale(0.25);
