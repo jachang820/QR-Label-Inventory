@@ -1,4 +1,3 @@
-const async = require('async');
 const passport = require('passport');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
@@ -75,7 +74,6 @@ module.exports = [
   /* An error has occurred. Return to main page with an error 
      message previously generated. */
   (err, req, res, next) => {
-
     return res.render('index', {
       errors: { msg: err }
     });

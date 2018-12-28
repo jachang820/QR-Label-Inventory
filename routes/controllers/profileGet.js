@@ -1,4 +1,3 @@
-const async = require('async');
 const axios = require('axios');
 const identifySelf = require('../../helpers/identifySelf');
 const { Users } = require('../../models');
