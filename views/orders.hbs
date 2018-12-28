@@ -12,7 +12,9 @@
 
   {{#each factoryOrders}}
     <tr>
-      <td>{{this.id}}</td>
+      <td>
+        <a href="/orders/{{this.id}}">{{this.id}}</a>
+        </td>
       <td>{{this.label}}</td>
       <td>{{this.arrival_date}}</td>
       <td>{{this.notes}}</td>

@@ -84,8 +84,6 @@ router.post('/parse_order', async (req, res, next) => {
     const factoryOrderRes = await axios.post('/factory_orders');
     const FactoryOrderId = factoryOrderRes.data.id;
 
-    let items = []
-
     for (let i = 1; i <= itemCount; i++) {
       const color = data[`color${i}`];
       const size = data[`size${i}`];
@@ -103,7 +101,7 @@ router.post('/parse_order', async (req, res, next) => {
           outerbox = uuid();
         }
 
-        const itemsRes = await axios.post('/items', {
+        await axios.post('/items', {
           status: 'Ordered',
           innerbox: innerbox,
           outerbox: outerbox,
@@ -111,11 +109,9 @@ router.post('/parse_order', async (req, res, next) => {
           SizeName: size,
           FactoryOrderId
         });
-
-        items.push(itemsRes.data)
       }
     }
-    res.json(items);
+    res.redirect(`/orders/${FactoryOrderId}`);
   }
   catch (err) {
     console.log(err);

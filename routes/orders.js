@@ -15,4 +15,17 @@ router.get('/', async (req, res, next) => {
   return await res.render('orders', { factoryOrders, colors, sizes });
 });
 
+router.get('/:id', async (req, res, next) => {
+  axios.defaults.baseURL = process.env.API_PATH;
+
+  const orderId = req.params.id;
+  const itemsRes = await axios.get(`/items/factory_order/${orderId}`);
+  const items = itemsRes.data;
+
+  res.render('orders_detail', {
+    orderId,
+    items
+  });
+});
+
 module.exports = router;
