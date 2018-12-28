@@ -5,11 +5,16 @@ const { Items } = require('../../models');
 router.route('/')
 // Retrieve all items
 .get((req, res, next) => {
-  Items.findAll()
+  console.log("REACHED API");
+  Items.findAll({where: req.query })
   .then((items) => {
     res.json(items);
   })
-  .catch(next);
+  .catch(function(err) {
+    console.log("ERROR:");
+    console.log(err);
+    next();
+  });
 })
 // Create item
 .post((req, res, next) => {

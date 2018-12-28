@@ -75,7 +75,7 @@ module.exports = [
   /* An error has occurred. Return to main page with an error 
      message previously generated. */
   (err, req, res, next) => {
-    console.log(err);
+
     return res.render('index', {
       errors: { msg: err }
     });

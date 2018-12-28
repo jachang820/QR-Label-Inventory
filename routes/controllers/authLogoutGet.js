@@ -6,4 +6,4 @@ module.exports = (req, res) => {
   /* Go to main page. */
   res.redirect('/');
   
-}
+};

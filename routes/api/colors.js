@@ -5,7 +5,6 @@ const { Colors } = require('../../models')
 // Retrieve all colors
 router.route('/')
 .get((req, res, next) => {
-  console.log(req);
   Colors.findAll()
   .then((colors) => {
     res.json(colors);
@@ -14,8 +13,8 @@ router.route('/')
 })
 // Create color
 .post((req, res, next) => {
-  const name = req.body.new_color;
-
+  const name = req.body.name;
+  
   Colors.create({ name })
   .then((color) => {
     res.json(color);

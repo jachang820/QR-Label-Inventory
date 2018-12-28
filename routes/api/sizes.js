@@ -3,10 +3,21 @@ const router = express.Router();
 const { Sizes } = require('../../models')
 
 // Retrieve all sizes
-router.get('/', (req, res, next) => {
+router.route('/')
+.get((req, res, next) => {
   Sizes.findAll()
   .then((sizes) => {
     res.json(sizes);
+  })
+  .catch(next);
+})
+// Create size
+.post((req, res, next) => {
+  const name = req.body.name;
+  
+  Sizes.create({ name })
+  .then((size) => {
+    res.json(size);
   })
   .catch(next);
 })
@@ -22,16 +33,7 @@ router.route('/:name')
   })
   .catch(next);
 })
-// Create size
-.post((req, res, next) => {
-  const name = req.params.name;
 
-  Sizes.create({ name })
-  .then((size) => {
-    res.json(size);
-  })
-  .catch(next);
-})
 // Update size
 .put((req, res, next) => {
   const name = req.params.name;
@@ -39,8 +41,9 @@ router.route('/:name')
 
   Sizes.findOne({ where: { name } })
   .then((size) => {
-    if (active !== undefined)
+    if (active !== undefined && typeof active == 'boolean') {
       size.active = active;
+    }
 
     size.save().then((size) => {
       res.json(size);
