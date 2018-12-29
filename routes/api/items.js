@@ -5,7 +5,6 @@ const { Items } = require('../../models');
 router.route('/')
 // Retrieve all items
 .get((req, res, next) => {
-  console.log("REACHED API");
   Items.findAll({where: req.query })
   .then((items) => {
     res.json(items);

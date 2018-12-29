@@ -2,6 +2,16 @@
 
 <h1>Orders</h1>
 
+{{!-- Errors due to invalid input show up here. --}}
+{{#if errors}}
+<h2>Error:</h2>
+<ul>
+  {{#each errors}}
+    <li>{{this.msg}}</li>
+  {{/each}}
+</ul>
+{{/if}}
+
 <table>
   <tr>
     <th>ID</th>
@@ -29,7 +39,7 @@
 <div id="new-order">
   <h2>New Order</h2>
 
-  <form action="api/factory_orders/parse_order" method="POST">
+  <form action="/orders" method="POST">
     <table id="new-order-table">
       <tr>
         <th>Color</th>

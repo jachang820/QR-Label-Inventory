@@ -1,7 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
-const uuid = require('uuid/v4');
 const { FactoryOrders } = require('../../models')
 
 router.route('/')
@@ -72,51 +70,6 @@ router.route('/:id')
     res.json(count);
   })
   .catch(next);
-});
-
-router.post('/parse_order', async (req, res, next) => {
-  let data = req.body;
-  let itemCount = Object.keys(data).length / 3;
-
-  axios.defaults.baseURL = process.env.API_PATH;
-
-  try {
-    const factoryOrderRes = await axios.post('/factory_orders');
-    const FactoryOrderId = factoryOrderRes.data.id;
-
-    for (let i = 1; i <= itemCount; i++) {
-      const color = data[`color${i}`];
-      const size = data[`size${i}`];
-      let quantity = data[`quantity${i}`];
-
-      let innerbox;
-      let outerbox;
-
-      for (let j = 0; j < quantity; j++) {
-        if (j % 12 == 0) {
-          innerbox = uuid();
-          console.log(innerbox);
-        }
-        if (j % 48 == 0) {
-          outerbox = uuid();
-        }
-
-        await axios.post('/items', {
-          status: 'Ordered',
-          innerbox: innerbox,
-          outerbox: outerbox,
-          ColorName: color,
-          SizeName: size,
-          FactoryOrderId
-        });
-      }
-    }
-    res.redirect(`/orders/${FactoryOrderId}`);
-  }
-  catch (err) {
-    console.log(err);
-    return next(err);
-  }
 });
 
 module.exports = router;

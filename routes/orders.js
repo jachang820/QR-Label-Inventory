@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
+const ordersPost = require('./controllers/ordersPost');
+const ordersValidate = require('./controllers/ordersValidate');
+
 router.get('/', async (req, res, next) => {
   axios.defaults.baseURL = process.env.API_PATH;
   const factoryOrdersRes = await axios.get('/factory_orders');
@@ -12,7 +15,7 @@ router.get('/', async (req, res, next) => {
   const colors = colorsRes.data;
   const sizes = sizesRes.data;
 
-  return await res.render('orders', { factoryOrders, colors, sizes });
+  return res.render('orders', { factoryOrders, colors, sizes });
 });
 
 router.get('/:id', async (req, res, next) => {
@@ -27,5 +30,8 @@ router.get('/:id', async (req, res, next) => {
     items
   });
 });
+
+router.post('/', ordersPost);
+router.post('/validate', ordersValidate);
 
 module.exports = router;
