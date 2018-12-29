@@ -1,47 +1,106 @@
 const axios = require('axios');
 const uuid = require('uuid/v4');
+const { body, validationResult } = require('express-validator/check');
+
+const isValidQuantity = (quantity) => {
+  return parseInt(quantity) && quantity == parseInt(quantity);
+}
 
 module.exports = [
+  body('count').isNumeric().withMessage('blah'),
+
+  // Consolidate colors in database
   async (req, res, next) => {
-    axios.defaults.baseURL = process.env.LOCAL_PATH;
+    axios.defaults.baseURL = process.env.API_PATH;
 
-    let data = req.body;
-    let itemCount = Object.keys(data).length / 3;
+    const colorsRes = await axios.get('/colors');
+    const colors = colorsRes.data;
 
-    // validate inputs
-    let allErrors = [];
+    req.body.colors = colors.map(color => color.name);
+    return next();
+  },
+
+  // Consolidate sizes in database
+  async (req, res, next) => {
+    const sizesRes = await axios.get('/sizes');
+    const sizes = sizesRes.data;
+
+    req.body.sizes = sizes.map(size => size.name);
+    return next();
+  },
+
+  body('colors').custom((colors, { req }) => {
+    let rowsWithErrors = [];
+    let itemCount = req.body.count;
 
     for (let i = 1; i <= itemCount; i++) {
-      const color = data[`color${i}`];
-      const size = data[`size${i}`];
-      const quantity = data[`quantity${i}`];
-
-      const validateRes = await axios.post('/orders/validate', {
-        color,
-        size,
-        quantity
-      });
-
-      const errors = validateRes.data;
-      allErrors.push(...errors);
+      if (!colors.includes(req.body[`color${i}`])) {
+        rowsWithErrors.push(i);
+      }
     }
 
+    if (rowsWithErrors.length > 0) {
+      throw new Error("Invalid color on rows: " + rowsWithErrors.join(', '));
+    } else {
+      return true;
+    }
+  }),
+
+  body('sizes').custom((sizes, { req }) => {
+    let rowsWithErrors = [];
+    let itemCount = req.body.count;
+
+    for (let i = 1; i <= itemCount; i++) {
+      if (!sizes.includes(req.body[`size${i}`])) {
+        rowsWithErrors.push(i);
+      }
+    }
+
+    if (rowsWithErrors.length > 0) {
+      throw new Error("Invalid size on rows: " + rowsWithErrors.join(', '));
+    } else {
+      return true;
+    }
+  }),
+
+  body().custom((body, { req }) => {
+    let rowsWithErrors = [];
+    let itemCount = req.body.count;
+
+    for (let i = 1; i <= itemCount; i++) {
+      if (!isValidQuantity(req.body[`quantity${i}`])) {
+        rowsWithErrors.push(i)
+      }
+    }
+
+    if (rowsWithErrors.length > 0) {
+      throw new Error("Invalid quantity on rows: " + rowsWithErrors.join(', '));
+    } else {
+      return true;
+    }
+  }),
+
+  async (req, res, next) => {
+    let data = req.body;
+    let itemCount = data.count;
+
     // Handle errors
-    if (allErrors.length > 0) {
-      const factoryOrdersRes = await axios.get('/api/factory_orders');
-      const colorsRes = await axios.get('/api/colors');
-      const sizesRes = await axios.get('/api/sizes')
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const factoryOrdersRes = await axios.get('/factory_orders');
+      const colorsRes = await axios.get('/colors');
+      const sizesRes = await axios.get('/sizes')
 
       const factoryOrders = factoryOrdersRes.data;
       const colors = colorsRes.data;
       const sizes = sizesRes.data;
 
-      return res.render('orders', { factoryOrders, colors, sizes, errors: allErrors });
+      return res.render('orders', { factoryOrders, colors, sizes, errors: errors.array() });
     }
 
     // Handle request
     try {
-      const factoryOrderRes = await axios.post('/api/factory_orders');
+      const factoryOrderRes = await axios.post('/factory_orders');
       const FactoryOrderId = factoryOrderRes.data.id;
 
       for (let i = 1; i <= itemCount; i++) {
@@ -60,7 +119,7 @@ module.exports = [
             outerbox = uuid();
           }
 
-          await axios.post('/api/items', {
+          await axios.post('/items', {
             status: 'Ordered',
             innerbox: innerbox,
             outerbox: outerbox,

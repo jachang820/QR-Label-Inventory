@@ -3,7 +3,6 @@ const router = express.Router();
 const axios = require('axios');
 
 const ordersPost = require('./controllers/ordersPost');
-const ordersValidate = require('./controllers/ordersValidate');
 
 router.get('/', async (req, res, next) => {
   axios.defaults.baseURL = process.env.API_PATH;
@@ -32,6 +31,5 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.post('/', ordersPost);
-router.post('/validate', ordersValidate);
 
 module.exports = router;

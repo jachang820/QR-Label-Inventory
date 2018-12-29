@@ -72,6 +72,8 @@
       </tr>
     </table>
 
+    <input type="hidden" value="1" name="count" id="item-count">
+
     <button onClick="addItem()" type="button">New Item</button>
     <input type="submit" value="Submit Order">
   </form>
@@ -82,7 +84,7 @@
 
   function deleteOrder(id) {
     let xhttp = new XMLHttpRequest();
-    xhttp.open("DELETE", `/api/factory_orders/${id}`, true);
+    xhttp.open("DELETE", "/api/factory_orders/" + id, true);
     xhttp.send();
 
     location.reload();
@@ -91,12 +93,13 @@
   function viewOrder(id) {
     let xhttp = new XMLHttpRequest();
 
-    xhttp.open("GET", `/api/factory_orders/${id}`, true);
+    xhttp.open("GET", "/api/factory_orders/" + id, true);
     xhttp.send();
   }
 
   function addItem() {
     itemCount++;
+    document.getElementById('item-count').value = itemCount;
 
     let newRow = document.getElementsByClassName("new-order-row")[0].cloneNode(true);
 
@@ -105,13 +108,13 @@
     deleteButton.setAttribute("onClick", "deleteItem(this)");
 
     let selectColor = newRow.querySelector("#color1");
-    selectColor.id = selectColor.name = `color${itemCount}`;
+    selectColor.id = selectColor.name = "color" + itemCount;
 
     let selectSize = newRow.querySelector("#size1");
-    selectSize.id = selectSize.name = `size${itemCount}`;
+    selectSize.id = selectSize.name = "size" + itemCount;
 
     let inputQuantity = newRow.querySelector("#quantity1");
-    inputQuantity.id = inputQuantity.name = `quantity${itemCount}`;
+    inputQuantity.id = inputQuantity.name = "quantity" + itemCount;
 
     newRow.appendChild(deleteButton);
     document.getElementById("new-order-table").appendChild(newRow);
@@ -123,5 +126,6 @@
 
     table.removeChild(row);
     itemCount--;
+    document.getElementById('item-count').value = itemCount;
   }
 </script>

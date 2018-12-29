@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const secured = require('../middleware/secured');
-const axios = require('axios');
 
 const apiRouter = require('./api/index');
 const authRouter = require('./auth');
