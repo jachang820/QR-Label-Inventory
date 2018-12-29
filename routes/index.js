@@ -22,7 +22,7 @@ router.use('/scan', scanRouter);
 router.use('/styles', stylesRouter);
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', (req, res, next) => {
 	if (req.user && req.user.hash && req.user.emails) {
 		res.redirect('dashboard');
 	} else {
@@ -31,7 +31,7 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET dashboard. */
-router.get('/dashboard', secured(), function(req, res, next) {
+router.get('/dashboard', secured(), (req, res, next) => {
 	const {_raw, _json, ...userProfile } = req.user;
 
 	res.render('dashboard', {

@@ -1,7 +1,16 @@
-<div id="scan-input"></div>
+<link rel="stylesheet" href="/css/scan.css"></link>
 
-<img src="/qr/generate" alt='qrcode'>
+<div id="scan-target">
+	<p id="instructions"></p>
+	<input type="text" id="scan-input"></input>
+</div>
 
+<div id="status">
+
+</div>
+
+<img class="scan-items" src="/qr/generate?wawa=1" alt='qrcode'>
+<img class="scan-items" src="/qr/generate?delay=4" alt='qrcode'>
 
 <table>
 	<thead>
@@ -17,3 +26,6 @@
 	<tbody>
 	</tbody>
 </table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script src="/js/scan.js"></script>

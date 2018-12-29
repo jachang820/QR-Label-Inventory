@@ -16,7 +16,10 @@ module.exports = function() {
        return res.redirect('/auth/logout')
     }
 
-    req.user.role = decoded.role;
+    res.locals.firstname = decoded.firstname;
+    res.locals.lastname = decoded.lastname;
+    res.locals.email = decoded.email;
+    res.locals.role = decoded.role;
     return next();
   }
 }

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { FactoryOrders } = require('../../models')
+const { FactoryOrders } = require('../../models');
 
 router.route('/')
 // Retrieve all factory orders
@@ -14,12 +14,16 @@ router.route('/')
 // Create factory order
 .post((req, res, next) => {
   const label = req.body.label;
-  const arrival_date = req.body.arrival_date;
+  const arrivalDate = req.body.arrivalDate;
+  const numItems = req.body.numItems;
+  const receivedItems = req.body.receivedItems;
   const notes = req.body.notes;
 
   FactoryOrders.create({
     label,
-    arrival_date,
+    arrivalDate,
+    numItems,
+    receivedItems,
     notes
   })
   .then((factoryOrder) => {
@@ -43,15 +47,21 @@ router.route('/:id')
 .put((req, res, next) => {
   const id = req.params.id;
   const label = req.body.label;
-  const arrival_date = req.body.arrival_date;
+  const numItems = req.body.numItems;
+  const receivedItems = req.body.receivedItems;
+  const arrivalDate = req.body.arrivalDate;
   const notes = req.body.notes;
 
   FactoryOrders.findOne({ where: { id } })
   .then((factoryOrder) => {
     if (label !== undefined)
       factoryOrder.label = label;
-    if (arrival_date !== undefined)
-      factoryOrder.arrival_date = arrival_date;
+    if (arrivalDate !== undefined)
+      factoryOrder.arrivalDate = arrivalDate;
+    if (numItems !== undefined)
+      factoryOrder.numItems = numItems;
+    if (receivedItems !== undefined)
+      factoryOrder.receivedItems = receivedItems;
     if (notes !== undefined)
       factoryOrder.notes = notes;
 

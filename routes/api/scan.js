@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { Items, FactoryOrders } = require('../../models')
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+const fn = Sequelize.fn;
 
 const markInStock = async (items) => {
   for (const item of items) {
@@ -21,42 +24,53 @@ const markShippedWithCustomerOrder = async (items, CustomerOrderId) => {
   }
 };
 
+router.get('/in', async (req, res, next) => {
+  const today = (new Date()).toDateString();
+  try {
+    userScans = await Items.findAll({
+      where: {
+        receivedBy: res.locals.email,
+        arrivalDate: {
+          [Op.between]: [today + ' 00:00:00',
+                         today + ' 23:59:59']
+        }
+      },
+      group: ['receivedBy', 'ColorName', 'SizeName'],
+      attributes: ['receivedBy',
+                   'ColorName', 
+                   'SizeName',
+                   [fn('COUNT', 'arrivalDate'), 'Quantity']],
+      order: [[Sequelize.literal('ColorName', 'SizeName')]]
+    });
+
+    return res.json(userScans);
+
+  } catch (err) {
+    return next(err);
+  }
+})
+
 // Scan items into the warehouse
-router.post('/in/:id', (req, res, next) => {
+router.post('/in/:id', async (req, res, next) => {
   const id = req.params.id;
 
-  // Assume id is outerbox
-  Items.findAll({ where: { outerbox: id }})
-  .then(async (items) => {
-    if (items.length > 0) {
-      await markInStock(items);
-      res.json(items);
-      return;
-    }
+  try{
+    let items = await Items.update(
+      { status: req.body.status,
+        arrivalDate: req.body.arrivalDate,
+        receivedBy: req.body.receivedBy },
+      { where: {
+        [Op.or]: [{ id: id },
+                  { innerbox: id },
+                  { outerbox: id }]}
+    });
 
-    // Assumd id is innerbox
-    Items.findAll({ where: { innerbox: id }})
-    .then(async (items) => {
-      if (items.length > 0) {
-        await markInStock(items);
-        res.json(items);
-        return;
-      }
+    return res.json(items);
 
-      // Assume id is item
-      Items.findOne({ where: { id }})
-      .then(async (item) => {
-        if (item) {
-          await markInStock([item]);
-          res.json([item]);
-          return;
-        }
+  } catch (err) {
+    return next(err);
+  }
 
-        res.json();
-      })
-    })
-  })
-  .catch(next);
 });
 
 // Scan items out of the warehouse

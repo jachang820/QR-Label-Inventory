@@ -5,13 +5,12 @@ const { Items } = require('../../models');
 router.route('/')
 // Retrieve all items
 .get((req, res, next) => {
-  console.log("REACHED API");
+
   Items.findAll({where: req.query })
   .then((items) => {
     res.json(items);
   })
   .catch(function(err) {
-    console.log("ERROR:");
     console.log(err);
     next();
   });
@@ -59,10 +58,12 @@ router.route('/:id')
   const status = req.body.status;
   const innerbox = req.body.innerbox;
   const outerbox = req.body.outerbox;
+  const arrivalDate = req.body.arrivalDate;
   const ColorName = req.body.ColorName;
   const SizeName = req.body.SizeName;
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
+  const receivedBy = req.body.receivedBy;
 
   Items.findOne({ where: { id } })
   .then((item) => {
@@ -72,6 +73,8 @@ router.route('/:id')
       item.innerbox = innerbox;
     if (outerbox !== undefined)
       item.outerbox = outerbox;
+    if (arrivalDate !== undefined)
+      item.arrivalDate = arrivalDate;
     if (ColorName !== undefined)
       item.ColorName = ColorName;
     if (SizeName !== undefined)
@@ -80,6 +83,8 @@ router.route('/:id')
       item.FactoryOrderId = FactoryOrderId;
     if (CustomerOrderId !== undefined)
       item.CustomerOrderId = CustomerOrderId;
+    if (receivedBy != undefined)
+      item.receivedBy = receivedBy;
 
     item.save().then((item) => {
       res.json(item);

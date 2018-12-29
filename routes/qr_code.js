@@ -45,5 +45,17 @@ router.get('/generate', function(req, res, next) {
     });
 });
 
+router.get('/barcode', (req, res, next) => {
+  const text = req.query.id;
+  
+  try {
+    const qrcode = qr.imageSync(text, { margin: 1, size: 4 });
+    res.writeHead(200, {'Content-Type': 'image/png'});
+    qrcode.pipe(res);
+  } catch(e) {
+    res.status(500).redirect('/error');
+  }
+})
+
 
 module.exports = router;
