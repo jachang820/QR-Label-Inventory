@@ -26,7 +26,7 @@ router.get('/', function(req, res, next) {
 	if (req.user && req.user.hash && req.user.emails) {
 		res.redirect('dashboard');
 	} else {
-		res.render('index', { title: 'Express' });
+		res.redirect('auth/login');
 	}
 });
 
