@@ -1,4 +1,4 @@
-const { Colors, Sizes, FactoryOrders, 
+const { Colors, Sizes, FactoryOrders,
   CustomerOrders, Items, Users } = require('../models');
 
 async function setup() {
@@ -108,6 +108,6 @@ async function setup() {
 setup().then(() => {
   process.exit();
 }).catch(() => {
-  console.log('Error loading dummy date');
+  console.log('Error loading dummy data');
   process.exit();
 });

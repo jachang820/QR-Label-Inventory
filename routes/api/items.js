@@ -5,7 +5,6 @@ const { Items } = require('../../models');
 router.route('/')
 // Retrieve all items
 .get((req, res, next) => {
-  console.log("REACHED API");
   Items.findAll({where: req.query })
   .then((items) => {
     res.json(items);
@@ -94,6 +93,16 @@ router.route('/:id')
   Items.destroy({ where: { id } })
   .then((count) => {
     res.json(count);
+  })
+  .catch(next);
+});
+
+router.get('/factory_order/:id', (req, res, next) => {
+  const FactoryOrderId = parseInt(req.params.id);
+
+  Items.findAll({ where: { FactoryOrderId }})
+  .then((items) => {
+    res.json(items);
   })
   .catch(next);
 });

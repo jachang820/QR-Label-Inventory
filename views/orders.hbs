@@ -1,1 +1,133 @@
-<p>This is the orders page.</p>
+<link rel="stylesheet" href="/stylesheets/orders.css">
+
+<h1>Orders</h1>
+
+{{!-- Errors due to invalid input show up here. --}}
+{{#if errors}}
+<div id="errors">
+  <h2>Error:</h2>
+  <ul>
+    {{#each errors}}
+      <li>{{this.msg}}</li>
+    {{/each}}
+  </ul>
+</div>
+{{/if}}
+
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Label</th>
+    <th>Arrival Date</th>
+    <th>Notes</th>
+  </tr>
+
+  {{#each factoryOrders}}
+    <tr>
+      <td>
+        <a href="/orders/{{this.id}}">{{this.id}}</a>
+        </td>
+      <td>{{this.label}}</td>
+      <td>{{this.arrival_date}}</td>
+      <td>{{this.notes}}</td>
+      <td>
+        <button onclick="deleteOrder({{this.id}})">Delete</button>
+      </td>
+    </tr>
+  {{/each}}
+
+</table>
+
+<div id="new-order">
+  <h2>New Order</h2>
+
+  <form action="/orders" method="POST">
+    <table id="new-order-table">
+      <tr>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Quantity</th>
+      </tr>
+
+      <tr class="new-order-row">
+        <td>
+          <select id="color1" name="color1">
+            <option>Select a color:</option>
+            {{#each colors}}
+              <option>{{this.name}}</option>
+            {{/each}}
+          </select>
+        </td>
+
+        <td>
+          <select id="size1" name="size1">
+            <option>Select a size:</option>
+            {{#each sizes}}
+              <option>{{this.name}}</option>
+            {{/each}}
+          </select>
+        </td>
+
+        <td>
+          <input id="quantity1" type="number" name="quantity1">
+        </td>
+      </tr>
+    </table>
+
+    <input type="hidden" value="1" name="count" id="item-count">
+
+    <button onClick="addItem()" type="button">New Item</button>
+    <input type="submit" value="Submit Order">
+  </form>
+</div>
+
+<script>
+  let itemCount = 1;
+
+  function deleteOrder(id) {
+    let xhttp = new XMLHttpRequest();
+    xhttp.open("DELETE", "/api/factory_orders/" + id, true);
+    xhttp.onreadystatechange = function(event) {
+      if (xhttp.readyState === 4) {
+        if (xhttp.status === 200) {
+          location.reload();
+        } else {
+          error.innerHTML = "<ul><li>Error: " + xhttp.statusText + "</li></ul>";
+        }
+      }
+    };
+    xhttp.send();
+  }
+
+  function addItem() {
+    itemCount++;
+    document.getElementById('item-count').value = itemCount;
+
+    let newRow = document.getElementsByClassName("new-order-row")[0].cloneNode(true);
+
+    let deleteButton = document.createElement("button")
+    deleteButton.append("Delete");
+    deleteButton.setAttribute("onClick", "deleteItem(this)");
+
+    let selectColor = newRow.querySelector("#color1");
+    selectColor.id = selectColor.name = "color" + itemCount;
+
+    let selectSize = newRow.querySelector("#size1");
+    selectSize.id = selectSize.name = "size" + itemCount;
+
+    let inputQuantity = newRow.querySelector("#quantity1");
+    inputQuantity.id = inputQuantity.name = "quantity" + itemCount;
+
+    newRow.appendChild(deleteButton);
+    document.getElementById("new-order-table").appendChild(newRow);
+  }
+
+  function deleteItem(deleteButton) {
+    let row = deleteButton.parentNode;
+    let table = row.parentNode;
+
+    table.removeChild(row);
+    itemCount--;
+    document.getElementById('item-count').value = itemCount;
+  }
+</script>
