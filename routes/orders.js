@@ -6,9 +6,19 @@ const ordersPost = require('./controllers/ordersPost');
 
 router.get('/', async (req, res, next) => {
   axios.defaults.baseURL = process.env.API_PATH;
-  const factoryOrdersRes = await axios.get('/factory_orders');
-  const colorsRes = await axios.get('/colors');
-  const sizesRes = await axios.get('/sizes')
+  let factoryOrdersRes;
+  let colorsRes
+  let sizesRes;
+
+  try {
+    factoryOrdersRes = await axios.get('/factory_orders');
+    colorsRes = await axios.get('/colors');
+    sizesRes = await axios.get('/sizes')
+  }
+  catch (err) {
+    return next(err);
+  }
+
 
   const factoryOrders = factoryOrdersRes.data;
   const colors = colorsRes.data;

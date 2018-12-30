@@ -3,11 +3,12 @@ const uuid = require('uuid/v4');
 const { body, validationResult } = require('express-validator/check');
 
 const isValidQuantity = (quantity) => {
-  return parseInt(quantity) && quantity == parseInt(quantity);
+  const quantityInt = parseInt(quantity);
+  return quantity == quantityInt && quantityInt > 0;
 }
 
 module.exports = [
-  body('count').isNumeric().withMessage('blah'),
+  body('count').isNumeric().withMessage('Count must be a number.'),
 
   // Consolidate colors in database
   async (req, res, next) => {
