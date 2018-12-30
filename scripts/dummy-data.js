@@ -1,4 +1,4 @@
-const { Colors, Sizes, FactoryOrders, 
+const { Colors, Sizes, FactoryOrders,
   CustomerOrders, Items, Users } = require('../models');
 
 async function setup() {

@@ -29,7 +29,7 @@ router.route('/')
   .then((factoryOrder) => {
     res.json(factoryOrder);
   })
-  .catch(next);
+  .catch(err => next(err));
 });
 
 router.route('/:id')
