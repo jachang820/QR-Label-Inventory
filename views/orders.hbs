@@ -3,16 +3,16 @@
 <h1>Orders</h1>
 
 {{!-- Errors due to invalid input show up here. --}}
-{{#if errors}}
 <div id="errors">
+{{#if errors}}
   <h2>Error:</h2>
   <ul>
     {{#each errors}}
       <li>{{this.msg}}</li>
     {{/each}}
   </ul>
-</div>
 {{/if}}
+</div>
 
 <table>
   <tr>

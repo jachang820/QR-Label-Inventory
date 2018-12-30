@@ -12,13 +12,6 @@ module.exports = (sequelize, DataTypes) => {
     arrivalDate: {
       type: DataTypes.DATE
     },
-    numItems: {
-      type: DataTypes.INTEGER
-    },
-    receivedItems: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0
-    },
     notes: {
       type: DataTypes.STRING
     }

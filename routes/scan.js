@@ -7,4 +7,8 @@ router.get('/', scanGet);
 
 router.post('/', scanPost);
 
+router.get('/test', (req, res, next) => {
+	axios.defaults.baseURL = process.env.API_PATH;
+})
+
 module.exports = router;
