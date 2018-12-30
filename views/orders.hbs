@@ -4,12 +4,14 @@
 
 {{!-- Errors due to invalid input show up here. --}}
 {{#if errors}}
-<h2>Error:</h2>
-<ul>
-  {{#each errors}}
-    <li>{{this.msg}}</li>
-  {{/each}}
-</ul>
+<div id="errors">
+  <h2>Error:</h2>
+  <ul>
+    {{#each errors}}
+      <li>{{this.msg}}</li>
+    {{/each}}
+  </ul>
+</div>
 {{/if}}
 
 <table>
@@ -85,15 +87,15 @@
   function deleteOrder(id) {
     let xhttp = new XMLHttpRequest();
     xhttp.open("DELETE", "/api/factory_orders/" + id, true);
-    xhttp.send();
-
-    location.reload();
-  }
-
-  function viewOrder(id) {
-    let xhttp = new XMLHttpRequest();
-
-    xhttp.open("GET", "/api/factory_orders/" + id, true);
+    xhttp.onreadystatechange = function(event) {
+      if (xhttp.readyState === 4) {
+        if (xhttp.status === 200) {
+          location.reload();
+        } else {
+          error.innerHTML = "<ul><li>Error: " + xhttp.statusText + "</li></ul>";
+        }
+      }
+    };
     xhttp.send();
   }
 
