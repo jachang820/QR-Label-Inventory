@@ -1,7 +1,7 @@
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
-const axios = require('axios');
-const setupAxios = require('../helpers/setupAxios');
+let axios = require('axios');
+const setupAxios = require('../../helpers/setupAxios');
 
 /* Toggles active flag for each selected color. */
 module.exports = (type) => {

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
+let axios = require('axios');
 const setupAxios = require('../helpers/setupAxios');
 
 const ordersPost = require('./controllers/ordersPost');

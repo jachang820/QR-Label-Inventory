@@ -1,6 +1,6 @@
-const axios = require('axios');
+let axios = require('axios');
 const async = require('async');
-const setupAxios = require('../helpers/setupAxios');
+const setupAxios = require('../../helpers/setupAxios');
 
 module.exports = [
 

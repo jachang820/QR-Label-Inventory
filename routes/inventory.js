@@ -1,5 +1,5 @@
 const express = require('express');
-const axios = require('axios');
+let axios = require('axios');
 const router = express.Router();
 const secured = require('../middleware/secured');
 const setupAxios = require('../helpers/setupAxios');

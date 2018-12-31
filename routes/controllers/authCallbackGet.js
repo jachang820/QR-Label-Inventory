@@ -1,7 +1,7 @@
 const passport = require('passport');
-const axios = require('axios');
+let axios = require('axios');
 const jwt = require('jsonwebtoken');
-const setupAxios = require('../helpers/setupAxios');
+const setupAxios = require('../../helpers/setupAxios');
 
 module.exports = [
 
@@ -34,6 +34,7 @@ module.exports = [
      used has been registered. */
   (req, res, next) => {
     axios = setupAxios();
+
     let user = res.locals.user;
     axios.get(`/users/${user.emails[0].value}`).then(response => {
       if (!response.data) {

@@ -1,7 +1,7 @@
-const axios = require('axios');
+let axios = require('axios');
 const uuid = require('uuid/v4');
 const { body, validationResult } = require('express-validator/check');
-const setupAxios = require('../helpers/setupAxios');
+const setupAxios = require('../../helpers/setupAxios');
 
 const isValidQuantity = (quantity) => {
   const quantityInt = parseInt(quantity);

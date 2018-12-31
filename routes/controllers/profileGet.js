@@ -1,8 +1,8 @@
-const axios = require('axios');
+let axios = require('axios');
 const identifySelf = require('../../helpers/identifySelf');
 const { Users } = require('../../models');
 const roles = Users.rawAttributes.role.values;
-const setupAxios = require('../helpers/setupAxios');
+const setupAxios = require('../../helpers/setupAxios');
 
 /* Get the necessary information to populate form. */
 module.exports = [

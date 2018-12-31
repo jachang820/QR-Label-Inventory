@@ -1,7 +1,7 @@
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
-const axios = require('axios');
-const setupAxios = require('../helpers/setupAxios');
+let axios = require('axios');
+const setupAxios = require('../../helpers/setupAxios');
 
 /* Generates middleware lists for creating colors and sizes. */
 module.exports = (type) => {

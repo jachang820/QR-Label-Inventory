@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 /* Sets default values for axios. The token is for security. */
-module.exports = (obj) => {
+module.exports = () => {
 	
   return axios.create({
     baseURL: process.env.API_PATH,

@@ -1,5 +1,5 @@
-const axios = require('axios');
-const setupAxios = require('../helpers/setupAxios');
+let axios = require('axios');
+const setupAxios = require('../../helpers/setupAxios');
 
 /* Delete a user from authorization. */
 module.exports = (req, res, next) => {
