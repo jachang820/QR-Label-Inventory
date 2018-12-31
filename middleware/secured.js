@@ -24,10 +24,10 @@ function serverRequest(req) {
 module.exports = function() {
   return function secured (req, res, next) {
 
-    if (!serverRequest(req)) {    
+    if (!serverRequest(req)) {
 
       let secret = process.env.SECURITY_SECRET;
-      let token = req.user.token; 
+      let token = req.user.token;
 
       try {
         var decoded = jwt.verify(token, secret);
@@ -35,7 +35,7 @@ module.exports = function() {
         req.session.returnTo = req.originalUrl;
          return res.redirect('/auth/logout');
       }
-      
+
       res.locals.firstname = decoded.firstname;
       res.locals.lastname = decoded.lastname;
       res.locals.email = decoded.email;
