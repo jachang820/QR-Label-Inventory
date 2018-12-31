@@ -28,7 +28,7 @@ module.exports = function() {
     if (!serverRequest(req)) {    
 
       let secret = process.env.SECURITY_SECRET;
-      let token = (req.user ? req.user.token : req.body.token); 
+      let token = req.user.token; 
 
       try {
         var decoded = jwt.verify(token, secret);
