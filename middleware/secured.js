@@ -2,22 +2,22 @@ const jwt = require('jsonwebtoken');
 
 /* Determine whether request was made from an axios call
    within the back-end. */
-   function serverRequest(req) {
-    let auth = req.headers.authorization;
-    if (auth && auth.startsWith("Basic ")) {
-      let base64 = auth.substring(6);
-      let pair = Buffer.from(base64, 'base64')
-                       .toString('ascii')
-                       .split(':');
-      if (pair.length === 2 && pair[0] === "server" &&
-        pair[1] === process.env.SERVER_SECRET) {
+function serverRequest(req) {
+  let auth = req.headers.authorization;
+  if (auth && auth.startsWith("Basic ")) {
+    let base64 = auth.substring(6);
+    let pair = Buffer.from(base64, 'base64')
+                     .toString('ascii')
+                     .split(':');
+    if (pair.length === 2 && pair[0] === "server" &&
+      pair[1] === process.env.SERVER_SECRET) {
 
-        return true;
-      }
-    } else {
-      return false;
+      return true;
     }
-   }
+  } else {
+    return false;
+  }
+}
 
 /* Verify that logged in user was authenticated and reaffirm
    the user's role. If user is invalid, log out. */
