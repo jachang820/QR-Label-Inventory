@@ -30,8 +30,7 @@ router.post('/in/:id', (req, res, next) => {
   .then(async (items) => {
     if (items.length > 0) {
       await markInStock(items);
-      res.json(items);
-      return;
+      return res.json(items);
     }
 
     // Assumd id is innerbox
@@ -39,8 +38,7 @@ router.post('/in/:id', (req, res, next) => {
     .then(async (items) => {
       if (items.length > 0) {
         await markInStock(items);
-        res.json(items);
-        return;
+        return res.json(items);
       }
 
       // Assume id is item
@@ -48,11 +46,10 @@ router.post('/in/:id', (req, res, next) => {
       .then(async (item) => {
         if (item) {
           await markInStock([item]);
-          res.json([item]);
-          return;
+          return res.json([item]);
         }
 
-        res.json();
+        return res.json();
       })
     })
   })
@@ -69,8 +66,7 @@ router.post('/out/:id', (req, res, next) => {
   .then(async (items) => {
     if (items.length > 0) {
       await markShippedWithCustomerOrder(items, CustomerOrderId);
-      res.json(items);
-      return;
+      return res.json(items);
     }
 
     // Assumd id is innerbox
@@ -78,8 +74,7 @@ router.post('/out/:id', (req, res, next) => {
     .then(async (items) => {
       if (items.length > 0) {
         await markShippedWithCustomerOrder(items, CustomerOrderId);
-        res.json(items);
-        return;
+        return res.json(items);
       }
 
       // Assume id is item
@@ -87,15 +82,14 @@ router.post('/out/:id', (req, res, next) => {
       .then(async (item) => {
         if (item) {
           await markShippedWithCustomerOrder([item], CustomerOrderId);
-          res.json([item]);
-          return;
+          return res.json([item]);
         }
 
-        res.json();
+        return res.json();
       })
     })
   })
-  .catch(next);
+  .catch(err => next(err));
 });
 
 module.exports = router;

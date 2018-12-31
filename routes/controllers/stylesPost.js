@@ -1,6 +1,7 @@
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
 const axios = require('axios');
+const setupAxios = require('../helpers/setupAxios');
 
 /* Generates middleware lists for creating colors and sizes. */
 module.exports = (type) => {
@@ -16,7 +17,7 @@ module.exports = (type) => {
       .isLength({ min: 1 }).withMessage(`${cap_type} empty.`)
       .isLength({ max: 64 }).withMessage(`${cap_type} too long.`)
       .custom(value => {
-        axios.defaults.baseURL = process.env.API_PATH;
+        axios = setupAxios();
 
         return axios.get(`/${type}s/${value}`).then(response => {
           if (response.data) {

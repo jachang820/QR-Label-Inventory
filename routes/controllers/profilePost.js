@@ -4,6 +4,7 @@ const axios = require('axios');
 const identifySelf = require('../../helpers/identifySelf');
 const { Users } = require('../../models');
 const roles = Users.rawAttributes.role.values;
+const setupAxios = require('../helpers/setupAxios');
 
 module.exports = [
 
@@ -25,7 +26,7 @@ module.exports = [
     .custom(value => {
 
       /* Checks the database to see if the email already exists. */
-      axios.defaults.baseURL = process.env.API_PATH;
+      axios = setupAxios();
       return axios.get('/users/'.concat(value)).then(response => {
         if (response.data) {
           return Promise.reject('Email aready in use');
@@ -69,13 +70,12 @@ module.exports = [
 
     /* List of errors from above validation steps. */
     const errors = validationResult(req);
-    axios.defaults.baseURL = process.env.API_PATH;
 
     if (!errors.isEmpty()) {
       /* There are errors, so return profile page with error messages.
          Keep form filled in with user-entered values. */
       axios.get('/users').then((response) => {
-        const email = req.user.emails[0].value;
+        const email = res.locals.email;
         response.data = identifySelf(response.data, email); 
         return res.render('profile', {
           roles: roles,

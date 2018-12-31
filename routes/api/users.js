@@ -6,8 +6,8 @@ router.route('/')
   /* GET all users */
   .get((req, res, next) => {
     Users.findAll().then((users) => {
-      res.json(users);
-    }).catch(next);
+      return res.json(users);
+    }).catch(err => next(err));
   })
   /* POST new user account. */
   .post((req, res, next) => {
@@ -22,16 +22,16 @@ router.route('/')
       email,
       role
     }).then((user) => {
-      res.json(user);
-    }).catch(next);
+      return res.json(user);
+    }).catch(err => next(err));
   });
 
 router.route('/:email')
   .get((req, res, next) => {
     const params = req.params.email;
     Users.findOne({ where: { 'email': params }}).then((user) => {
-      res.json(user);
-    }).catch(next);
+      return res.json(user);
+    }).catch(err => next(err));
   })
   .put((req, res, next) => {
     const firstname = req.body.firstname;
@@ -54,15 +54,15 @@ router.route('/:email')
         user.role = role;
       }
       user.save().then((user) => {
-        res.json(user);
+        return res.json(user);
       });
-    }).catch(next);
+    }).catch(err => next(err));
   })
   .delete((req, res, next) => {
     const params = req.params.email;
     Users.destroy({ where: { 'email': params }}).then((count) => {
-      res.json(count);
-    }).catch(next);
+      return res.json(count);
+    }).catch(err => next(err));
   });
 
 module.exports = router;

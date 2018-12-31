@@ -1,6 +1,7 @@
 const axios = require('axios');
 const uuid = require('uuid/v4');
 const { body, validationResult } = require('express-validator/check');
+const setupAxios = require('../helpers/setupAxios');
 
 const isValidQuantity = (quantity) => {
   const quantityInt = parseInt(quantity);
@@ -12,7 +13,7 @@ module.exports = [
 
   // Consolidate colors in database
   async (req, res, next) => {
-    axios.defaults.baseURL = process.env.API_PATH;
+    axios = setupAxios();
 
     const colorsRes = await axios.get('/colors');
     const colors = colorsRes.data;
