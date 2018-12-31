@@ -39,6 +39,8 @@ module.exports = [
         throw Error;
       }
       
+      res.locals.firstname = response.data.firstname;
+      res.locals.lastname = response.data.lastname;
       res.locals.email = response.data.email;
       res.locals.role = response.data.role;
       return next();
@@ -54,6 +56,8 @@ module.exports = [
      used to determine user role. */
   (req, res, next) => {
     req.user.token = jwt.sign({
+      firstname: res.locals.firstname,
+      lastname: res.locals.lastname,
       email: res.locals.email,
       role: res.locals.role
     },

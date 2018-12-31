@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Items } = require('../../models');
+const secured = require('../../middleware/secured');
 
 router.route('/')
 // Retrieve all items
