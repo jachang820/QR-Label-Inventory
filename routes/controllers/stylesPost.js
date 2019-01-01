@@ -43,10 +43,12 @@ module.exports = (type) => {
          return to form with error. */
       if (!errors.isEmpty()) {
         axios.get(`/${type}s`).then((response) => {
-          let params = { errors: errors.array() }
-          params[`${type}s`] = response.data;
-          params[`fill_${type}`] = style.name;
-          return res.render('styles', params);
+          res.locals[`${type}s`] = response.data;
+          for (let i = 0; i < response.data.length; i++) {
+            res.locals[`${type}s`][i].style = type;
+          }
+          res.locals[`fill_${type}`] = style.name;
+          return res.render('styles', { errors: errors.array() });
           
         }).catch((err) => {
           err.custom = `Error retrieving ${type}s from database.`;

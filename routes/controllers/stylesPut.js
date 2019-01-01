@@ -28,12 +28,13 @@ module.exports = (type) => {
       const errors = validationResult(req);
 
       axios.get(`/${type}s`).then((response) => {
-        
+
         res.locals[type_pl] = response.data;
+        for (let i = 0; i < response.data.length; i++) {
+          res.locals[type_pl][i].style = type;
+        }
         if (!errors.isEmpty()) {
-          let params = { errors: errors.array() }
-          params[type_pl] = response.data;
-          return res.render('styles', params);
+          return res.render('styles', { errors: errors.array() });
 
         } else {
           return next();
@@ -65,7 +66,7 @@ module.exports = (type) => {
     
     /* Determine which styles have items in that style. */
     async (req, res, next) => {
-      axios.defaults.baseURL = process.env.API_PATH;
+      axios = setupAxios();
 
       /* This is styles selected that matches the database. */
       let styles = res.locals[type_pl];
@@ -96,6 +97,8 @@ module.exports = (type) => {
        the style is set inactive if it was active, and active
        if it was inactive. */
     async (req, res, next) => {
+      axios = setupAxios();
+
       for (let i = 0; i < res.locals[type_pl].length; i++) {
 
         const e = res.locals[type_pl][i];
