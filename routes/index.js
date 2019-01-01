@@ -14,20 +14,26 @@ const qrCodeRouter = require('./qr_code');
 const scanRouter = require('./scan');
 const stylesRouter = require('./styles');
 
-router.use('/api', apiRouter);
-router.use('/auth', authRouter);
-router.use('/inventory', inventoryRouter);
-router.use('/orders', ordersRouter);
-router.use('/profile', profileRouter);
-router.use('/qr', qrCodeRouter);
-router.use('/profile', profileRouter);
-router.use('/scan', scanRouter);
-router.use('/styles', stylesRouter);
+/* Public pages. */
 
 /* GET home page. */
 router.get('/', indexGet);
+router.use('/auth', authRouter);
+
+/* Temporary public pages (for testing purposes). */
+router.use('/qr', qrCodeRouter);
+router.use('/scan', scanRouter);
+
+/* Protected pages. */
+router.use(secured);
+router.use('/api', apiRouter);
+router.use('/inventory', inventoryRouter);
+router.use('/orders', ordersRouter);
+router.use('/profile', profileRouter);
+router.use('/profile', profileRouter);
+router.use('/styles', stylesRouter);
 
 /* GET dashboard. */
-router.get('/dashboard', secured(), dashboardGet);
+router.get('/dashboard', dashboardGet);
 
 module.exports = router;

@@ -1,13 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const secured = require('../middleware/secured');
 
 const stylesGet = require('./controllers/stylesGet');
 const stylesPost = require('./controllers/stylesPost');
 const stylesPut = require('./controllers/stylesPut');
-
-/* Make sure logged in user is a valid user. */
-router.all('*', secured());
 
 /* Show form for managing styles. */
 router.get('/', stylesGet);

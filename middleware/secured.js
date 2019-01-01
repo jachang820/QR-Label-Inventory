@@ -21,32 +21,30 @@ function serverRequest(req) {
 
 /* Verify that logged in user was authenticated and reaffirm
    the user's role. If user is invalid, log out. */
-module.exports = function() {
-  return function secured (req, res, next) {
+module.exports = (req, res, next) => {
 
-    if (!serverRequest(req)) {
+  if (!serverRequest(req)) {
 
-      let secret = process.env.SECURITY_SECRET;
-      let token = req.user.token;
+    let secret = process.env.SECURITY_SECRET;
+    let token = req.user.token;
 
-      try {
-        var decoded = jwt.verify(token, secret);
-      } catch(err) {
-        req.session.returnTo = req.originalUrl;
-         return res.redirect('/auth/logout');
-      }
-
-      res.locals.firstname = decoded.firstname;
-      res.locals.lastname = decoded.lastname;
-      res.locals.email = decoded.email;
-      res.locals.role = decoded.role;
-
-    } else {
-
-      res.locals.role = 'Administrator';
-
+    try {
+      var decoded = jwt.verify(token, secret);
+    } catch(err) {
+      req.session.returnTo = req.originalUrl;
+       return res.redirect('/auth/logout');
     }
 
-    return next();
+    res.locals.firstname = decoded.firstname;
+    res.locals.lastname = decoded.lastname;
+    res.locals.email = decoded.email;
+    res.locals.role = decoded.role;
+
+  } else {
+
+    res.locals.role = 'Administrator';
+
   }
+
+  return next();
 }

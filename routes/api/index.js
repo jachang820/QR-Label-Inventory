@@ -7,9 +7,7 @@ const itemsRouter = require('./items');
 const scanRouter = require('./scan');
 const sizesRouter = require('./sizes');
 const usersRouter = require('./users');
-const secured = require('../../middleware/secured');
 
-router.all('*', secured());
 router.use('/colors', colorsRouter);
 router.use('/customer_orders', customerOrdersRouter);
 router.use('/factory_orders', factoryOrdersRouter);
