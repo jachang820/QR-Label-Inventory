@@ -25,7 +25,7 @@ router.route('/')
   .then((customerOrder) => {
     return res.json(customerOrder);
   })
-  .catch(next => next(err));
+  .catch(err => next(err));
 });
 
 router.route('/:id')
@@ -37,7 +37,7 @@ router.route('/:id')
   .then((customerOrder) => {
     return res.json(customerOrder);
   })
-  .catch(next => next(err));
+  .catch(err => next(err));
 })
 // Update customer order
 .put((req, res, next) => {
