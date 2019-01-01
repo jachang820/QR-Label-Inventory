@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const secured = require('../middleware/secured');
+const auth = require('../middleware/authorize');
 
 const indexGet = require('./controllers/indexGet');
 const dashboardGet = require('./controllers/dashboardGet');
@@ -28,9 +29,9 @@ router.use('/scan', scanRouter);
 router.use(secured);
 router.use('/api', apiRouter);
 router.use('/inventory', inventoryRouter);
-router.use('/orders', ordersRouter);
+router.use('/orders', auth(['A']), ordersRouter);
 router.use('/profile', profileRouter);
-router.use('/styles', stylesRouter);
+router.use('/styles', auth(['A']), stylesRouter);
 
 /* GET dashboard. */
 router.get('/dashboard', dashboardGet);
