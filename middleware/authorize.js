@@ -13,10 +13,9 @@ module.exports = (accepted) => {
 
   return (req, res, next) => {
     /* Compares user role with the start of each accepted value. */
-    for (let i = 0; i < accepted.length; i++) {
-      if (res.locals.role.startsWith(accepted[i])) {
-        return next();
-      }
+    let role = res.locals.role;
+    if (accepted.map(e => role.startsWith(e)).includes(true)) {
+      return next();
     }
 
     /* User unauthorized. */
