@@ -10,7 +10,7 @@
 <form method="post">
   <label for="colors">Colors: </label>
   <select multiple name="colors" size="10" class="list color">
-    {{#each colors}}
+    {{#each @colors}}
       <option value={{this.name}} 
         class="{{#unless active}}in{{/unless}}active color">
           {{this.name}}</option>
@@ -41,7 +41,7 @@
 <form method="post">
   <label for="sizes">Sizes: </label>
   <select multiple name="sizes" size="10" class="list size">
-    {{#each sizes}}
+    {{#each @sizes}}
       <option value={{this.name}} 
         class="{{#unless active}}in{{/unless}}active size">
           {{this.name}}</option>

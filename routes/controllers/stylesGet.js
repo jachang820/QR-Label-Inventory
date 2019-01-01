@@ -28,10 +28,7 @@ module.exports = [
   },
 
   (req, res, next) => {
-    return res.render('styles', {
-      colors: res.locals.colors,
-      sizes: res.locals.sizes
-    });
+    return res.render('styles');
   }
 
 ];
