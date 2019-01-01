@@ -1,5 +1,4 @@
 const passport = require('passport');
-let axios = require('axios');
 const jwt = require('jsonwebtoken');
 const setupAxios = require('../../helpers/setupAxios');
 
@@ -33,12 +32,12 @@ module.exports = [
   /* Match user against database to determine if the email
      used has been registered. */
   (req, res, next) => {
-    axios = setupAxios();
+    const axios = setupAxios();
 
-    let user = res.locals.user;
-    axios.get(`/users/${user.emails[0].value}`).then(response => {
+    let email = res.locals.user.emails[0].value;
+    axios.get(`/users/${email}`).then(response => {
       if (!response.data) {
-        throw Error;
+        throw Error("No users selected.");
       }
       
       res.locals.firstname = response.data.firstname;

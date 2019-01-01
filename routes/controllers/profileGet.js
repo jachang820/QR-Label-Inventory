@@ -1,4 +1,3 @@
-let axios = require('axios');
 const identifySelf = require('../../helpers/identifySelf');
 const { Users } = require('../../models');
 const roles = Users.rawAttributes.role.values;
@@ -9,7 +8,7 @@ module.exports = [
 
   /* Get list of all users from database. */
   (req, res, next) => {
-    axios = setupAxios();
+    const axios = setupAxios();
     axios.get('/users').then((response) => {
       res.locals.allUsers = response.data;
       return next();

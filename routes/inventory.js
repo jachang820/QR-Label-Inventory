@@ -1,5 +1,4 @@
 const express = require('express');
-let axios = require('axios');
 const router = express.Router();
 const secured = require('../middleware/secured');
 const setupAxios = require('../helpers/setupAxios');
@@ -7,7 +6,7 @@ const setupAxios = require('../helpers/setupAxios');
 router.all('*', secured());
 
 router.get('/', (req, res, next) => {
-	axios = setupAxios();
+	const axios = setupAxios();
   axios.get('/items').then((response) => {
     const items = response.data;
 

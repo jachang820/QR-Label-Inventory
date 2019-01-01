@@ -1,6 +1,5 @@
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
-let axios = require('axios');
 const setupAxios = require('../../helpers/setupAxios');
 
 /* Generates middleware lists for creating colors and sizes. */
@@ -17,7 +16,7 @@ module.exports = (type) => {
       .isLength({ min: 1 }).withMessage(`${cap_type} empty.`)
       .isLength({ max: 64 }).withMessage(`${cap_type} too long.`)
       .custom(value => {
-        axios = setupAxios();
+        const axios = setupAxios();
 
         return axios.get(`/${type}s/${value}`).then(response => {
           if (response.data) {
@@ -33,17 +32,18 @@ module.exports = (type) => {
     /* Return error or create new style in database. */
     (req, res, next) => {
       /* This is the new style that was just entered. */
-      var style = {
+      const style = {
         name: req.body[new_type],
       };
 
       const errors = validationResult(req);
+      const axios = setupAxios();
 
       /* An error was found. Retain entered style name and
          return to form with error. */
       if (!errors.isEmpty()) {
         axios.get(`/${type}s`).then((response) => {
-          var params = { errors: errors.array() }
+          let params = { errors: errors.array() }
           params[`${type}s`] = response.data;
           params[`fill_${type}`] = style.name;
           return res.render('styles', params);

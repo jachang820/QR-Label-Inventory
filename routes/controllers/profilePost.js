@@ -1,6 +1,5 @@
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
-let axios = require('axios');
 const identifySelf = require('../../helpers/identifySelf');
 const { Users } = require('../../models');
 const roles = Users.rawAttributes.role.values;
@@ -26,7 +25,7 @@ module.exports = [
     .custom(value => {
 
       /* Checks the database to see if the email already exists. */
-      axios = setupAxios();
+      const axios = setupAxios();
       return axios.get('/users/'.concat(value)).then(response => {
         if (response.data) {
           return Promise.reject('Email aready in use');
@@ -70,6 +69,7 @@ module.exports = [
 
     /* List of errors from above validation steps. */
     const errors = validationResult(req);
+    const axios = setupAxios();
 
     if (!errors.isEmpty()) {
       /* There are errors, so return profile page with error messages.
