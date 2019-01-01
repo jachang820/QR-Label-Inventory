@@ -1,15 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { Colors } = require('../../models')
+const { Colors } = require('../../models');
 
 // Retrieve all colors
 router.route('/')
 .get((req, res, next) => {
   Colors.findAll()
   .then((colors) => {
-    res.json(colors);
+    return res.json(colors);
   })
-  .catch(next);
+  .catch((err) => {
+    return next(err);
+  });
 })
 // Create color
 .post((req, res, next) => {
@@ -17,10 +19,12 @@ router.route('/')
   
   Colors.create({ name })
   .then((color) => {
-    res.json(color);
+    return res.json(color);
   })
-  .catch(next);
-})
+  .catch((err) => {
+    return next(err);
+  });
+});
 
 router.route('/:name')
 // Retrieve single color
@@ -29,9 +33,11 @@ router.route('/:name')
 
   Colors.findOne({ where: { name }})
   .then((color) => {
-    res.json(color);
+    return res.json(color);
   })
-  .catch(next);
+  .catch((err) => {
+    return next(err);
+  });
 })
 // Update color
 .put((req, res, next) => {
@@ -45,10 +51,12 @@ router.route('/:name')
     }
 
     color.save().then((color) => {
-      res.json(color);
+      return res.json(color);
     });
   })
-  .catch(next);
+  .catch((err) => {
+    return next(err);
+  });
 })
 // Delete color
 .delete((req, res, next) => {
@@ -56,9 +64,11 @@ router.route('/:name')
 
   Colors.destroy({ where: { name } })
   .then((count) => {
-    res.json(count);
+    return res.json(count);
   })
-  .catch(next);
+  .catch((err) => {
+    return next(err);
+  });
 });
 
 module.exports = router;

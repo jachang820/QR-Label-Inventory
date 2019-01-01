@@ -7,12 +7,9 @@ router.route('/')
 .get((req, res, next) => {
   Items.findAll({where: req.query })
   .then((items) => {
-    res.json(items);
+    return res.json(items);
   })
-  .catch(function(err) {
-    console.log(err);
-    next();
-  });
+  .catch((err) => next(err));
 })
 // Create item
 .post((req, res, next) => {
@@ -34,9 +31,9 @@ router.route('/')
     CustomerOrderId
   })
   .then((item) => {
-    res.json(item);
+    return res.json(item);
   })
-  .catch(next);
+  .catch(err => next(err));
 });
 
 router.route('/:id')
@@ -46,9 +43,9 @@ router.route('/:id')
 
   Items.findOne({ where: { id }})
   .then((item) => {
-    res.json(item);
+    return res.json(item);
   })
-  .catch(next);
+  .catch((err) => next(err));
 })
 // Update item
 .put((req, res, next) => {
@@ -86,10 +83,10 @@ router.route('/:id')
       item.receivedBy = receivedBy;
 
     item.save().then((item) => {
-      res.json(item);
+      return res.json(item);
     });
   })
-  .catch(next);
+  .catch((err) => next(err));
 })
 // Delete item
 .delete((req, res, next) => {
@@ -97,9 +94,9 @@ router.route('/:id')
 
   Items.destroy({ where: { id } })
   .then((count) => {
-    res.json(count);
+    return res.json(count);
   })
-  .catch(next);
+  .catch(err => next(err));
 });
 
 router.get('/factory_order/:id', (req, res, next) => {
@@ -107,9 +104,9 @@ router.get('/factory_order/:id', (req, res, next) => {
 
   Items.findAll({ where: { FactoryOrderId }})
   .then((items) => {
-    res.json(items);
+    return res.json(items);
   })
-  .catch(next);
+  .catch(err => next(err));
 });
 
 module.exports = router;

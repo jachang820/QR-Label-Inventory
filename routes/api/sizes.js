@@ -7,9 +7,9 @@ router.route('/')
 .get((req, res, next) => {
   Sizes.findAll()
   .then((sizes) => {
-    res.json(sizes);
+    return res.json(sizes);
   })
-  .catch(next);
+  .catch(err => next(err));
 })
 // Create size
 .post((req, res, next) => {
@@ -17,9 +17,9 @@ router.route('/')
   
   Sizes.create({ name })
   .then((size) => {
-    res.json(size);
+    return res.json(size);
   })
-  .catch(next);
+  .catch(err => next(err));
 })
 
 router.route('/:name')
@@ -29,9 +29,9 @@ router.route('/:name')
 
   Sizes.findOne({ where: { name }})
   .then((size) => {
-    res.json(size);
+    return res.json(size);
   })
-  .catch(next);
+  .catch(err => next(err));
 })
 
 // Update size
@@ -46,10 +46,10 @@ router.route('/:name')
     }
 
     size.save().then((size) => {
-      res.json(size);
+      return res.json(size);
     });
   })
-  .catch(next);
+  .catch(err => next(err));
 })
 // Delete size
 .delete((req, res, next) => {
@@ -57,9 +57,9 @@ router.route('/:name')
 
   Sizes.destroy({ where: { name } })
   .then((count) => {
-    res.json(count);
+    return res.json(count);
   })
-  .catch(next);
+  .catch(err => next(err));
 });
 
 module.exports = router;

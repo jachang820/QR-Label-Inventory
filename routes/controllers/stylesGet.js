@@ -1,10 +1,10 @@
-const axios = require('axios');
 const async = require('async');
+const setupAxios = require('../../helpers/setupAxios');
 
 module.exports = [
 
   (req, res, next) => {
-    axios.defaults.baseURL = process.env.API_PATH;
+    const axios = setupAxios();
     axios.get('/colors').then((response) => {
       res.locals.colors = response.data;
       return next();
@@ -16,8 +16,7 @@ module.exports = [
   },
 
   (req, res, next) => {
-    axios.defaults.baseURL = process.env.API_PATH;
-
+    const axios = setupAxios();
     axios.get('/sizes').then((response) => {
       res.locals.sizes = response.data;
       return next();

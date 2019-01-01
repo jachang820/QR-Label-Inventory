@@ -1,12 +1,12 @@
 const express = require('express');
-const axios = require('axios');
 const router = express.Router();
 const secured = require('../middleware/secured');
+const setupAxios = require('../helpers/setupAxios');
 
 router.all('*', secured());
 
 router.get('/', (req, res, next) => {
-	axios.defaults.baseURL = process.env.API_PATH;
+	const axios = setupAxios();
   axios.get('/items').then((response) => {
     const items = response.data;
 

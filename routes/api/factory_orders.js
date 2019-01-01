@@ -7,9 +7,9 @@ router.route('/')
 .get((req, res, next) => {
   FactoryOrders.findAll()
   .then((factoryOrders) => {
-    res.json(factoryOrders);
+    return res.json(factoryOrders);
   })
-  .catch(next);
+  .catch(err => next(err));
 })
 // Create factory order
 .post((req, res, next) => {
@@ -27,7 +27,7 @@ router.route('/')
     notes
   })
   .then((factoryOrder) => {
-    res.json(factoryOrder);
+    return res.json(factoryOrder);
   })
   .catch(err => next(err));
 });
@@ -39,9 +39,9 @@ router.route('/:id')
 
   FactoryOrders.findOne({ where: { id }})
   .then((factoryOrder) => {
-    res.json(factoryOrder);
+    return res.json(factoryOrder);
   })
-  .catch(next);
+  .catch(err => next(err));
 })
 // Update factory order
 .put((req, res, next) => {
@@ -67,19 +67,19 @@ router.route('/:id')
 
     factoryOrder.save()
     .then((factoryOrder) => {
-      res.json(factoryOrder);
+      return res.json(factoryOrder);
     })
   })
-  .catch(next);
+  .catch(err => next(err));
 })
 .delete((req, res, next) => {
   const id = req.params.id;
 
   FactoryOrders.destroy({ where: { id }})
   .then((count) => {
-    res.json(count);
+    return res.json(count);
   })
-  .catch(next);
+  .catch(err => next(err));
 });
 
 module.exports = router;

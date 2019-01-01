@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
+const setupAxios = require('../helpers/setupAxios');
 
 const ordersPost = require('./controllers/ordersPost');
+const secured = require('../middleware/secured');
+
+router.all('*', secured());
 
 router.get('/', async (req, res, next) => {
-  axios.defaults.baseURL = process.env.API_PATH;
+  const axios = setupAxios();
   let factoryOrdersRes;
   let colorsRes
   let sizesRes;
@@ -28,7 +31,7 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/:id', async (req, res, next) => {
-  axios.defaults.baseURL = process.env.API_PATH;
+  const axios = setupAxios();
 
   const orderId = req.params.id;
   const itemsRes = await axios.get(`/items/factory_order/${orderId}`);
