@@ -2,7 +2,8 @@
    go to user dashboard. */
 
 module.exports = (req, res, next) => {
-  if (req.user && req.user.hash && req.user.emails) {
+	console.log(req);
+  if (req.user && req.user.token && req.user.emails) {
     res.redirect('dashboard');
   } else {
     res.render('index', { title: 'Express' });
