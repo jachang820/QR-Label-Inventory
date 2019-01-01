@@ -79,10 +79,6 @@ module.exports = [
   /* An error has occurred. Return to main page with an error 
      message previously generated. */
   (err, req, res, next) => {
-    let obj = {
-      errors: { msg: err.custom }
-    };
-    console.log(obj);
     return res.render('index', {
       errors: [{ msg: err.custom }]
     });

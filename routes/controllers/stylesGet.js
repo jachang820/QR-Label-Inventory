@@ -25,7 +25,6 @@ module.exports = [
       for (let i = 0; i < response.data.length; i++) {
         res.locals.sizes[i].style = 'size';
       }
-      console.log(res.locals.sizes);
       return next();
       
     }).catch((err) => {
