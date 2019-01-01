@@ -42,6 +42,7 @@ window.addEventListener('load', function() {
   function showStyles(type, showActive, showInactive) {
     let actives = document.getElementsByClassName('active ' + type);
     let inactives = document.getElementsByClassName('inactive ' + type);
+
     [].forEach.call(actives, function(e) {
       e.style.display = showActive ? 'block' : 'none';
     });
@@ -53,6 +54,7 @@ window.addEventListener('load', function() {
   /* Register event handler for radios that filter list for either
      all, active, or inactive styles. */
   function registerFilters(type) {
+
     [].forEach.call(selectFilter(type), function(e) {
       e.addEventListener('change', function() {
 

@@ -31,11 +31,7 @@ module.exports = [
   /* Render user management form and all user data. */
   (req, res, next) => {
     return res.render('profile', {
-      roles: roles,
-      firstname: res.locals.firstname,
-      lastname: res.locals.lastname,
-      email: res.locals.email,
-      users: res.locals.allUsers
+      roles: roles
     });
   }
   

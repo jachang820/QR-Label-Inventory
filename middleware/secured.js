@@ -25,11 +25,14 @@ module.exports = (req, res, next) => {
 
   if (!serverRequest(req)) {
 
-    let secret = process.env.SECURITY_SECRET;
-    let token = req.user.token;
+    const secret = process.env.SECURITY_SECRET;
+    const user = req.user;
+    if (!user || !user.token) {
+      return res.redirect('/auth/logout');
+    }
 
     try {
-      var decoded = jwt.verify(token, secret);
+      var decoded = jwt.verify(user.token, secret);
     } catch(err) {
       req.session.returnTo = req.originalUrl;
        return res.redirect('/auth/logout');

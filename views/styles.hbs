@@ -1,66 +1,12 @@
+{{> nav }}
+
 <h1>Manage Styles</h1>
 
 <h4>Colors</h4>
-<form action="/styles/color" method="post"> 
-  <label for="color_text">Add color: </label>
-  <input id="color_text" type="text" name="new_color" value="{{fill_color}}">
-  <input type="submit" name="add_color" value="Add">
-</form>
-
-<form method="post">
-  <label for="colors">Colors: </label>
-  <select multiple name="colors" size="10" class="list color">
-    {{#each colors}}
-      <option value={{this.name}} 
-        class="{{#unless active}}in{{/unless}}active color">
-          {{this.name}}</option>
-    {{/each}}
-  </select>
-  <input type="radio" 
-         name="filter_color" 
-         class="filter color" 
-         id="all-colors"> All
-  <input type="radio" 
-         name="filter_color" 
-         class="filter color" 
-         id="active-colors" checked> Active
-  <input type="radio" 
-         name="filter_color" 
-         class="filter color" 
-         id="inactive-colors"> Inactive
-  <input type="button" class="btn color" value="Toggle Active">
-</form>
+{{> style style="color" listOfStyle=@colors fill=@fill_color }}
 
 <h4>Sizes</h4>
-<form action="/styles/size" method="post"> 
-  <label for="size_text">Add size: </label>
-  <input id="size_text" type="text" name="new_size" value="{{fill_size}}">
-  <input type="submit" name="add_size" value="Add">
-</form>
-
-<form method="post">
-  <label for="sizes">Sizes: </label>
-  <select multiple name="sizes" size="10" class="list size">
-    {{#each sizes}}
-      <option value={{this.name}} 
-        class="{{#unless active}}in{{/unless}}active size">
-          {{this.name}}</option>
-    {{/each}}
-  </select>
-  <input type="radio" 
-         name="filter_size" 
-         class="filter size" 
-         id="all-sizes"> All
-  <input type="radio" 
-         name="filter_size" 
-         class="filter size" 
-         id="active-sizes" checked> Active
-  <input type="radio" 
-         name="filter_size" 
-         class="filter size" 
-         id="inactive-sizes"> Inactive
-  <input type="button" class="btn size" value="Toggle Active">
-</form>
+{{> style style="size" listOfStyle=@sizes fill=@fill_size }}
 
 {{!-- Errors are populated into this structure. --}}
 <p id="show-error">

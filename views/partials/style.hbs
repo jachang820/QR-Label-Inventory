@@ -1,0 +1,29 @@
+<form action="/styles/{{style}}" method="post"> 
+  <label for="{{style}}_text">Add {{style}}: </label>
+  <input id="{{style}}_text" type="text" name="new_{{style}}" value="{{fill}}">
+  <input type="submit" name="add_{{style}}" value="Add">
+</form>
+
+<form method="post">
+  <label for="{{style}}s">List {{style}}s: </label>
+  <select multiple name="{{style}}s" size="10" class="list {{style}}">
+    {{#each listOfStyle}}
+      <option value={{this.name}} 
+        class="{{#unless this.active}}in{{/unless}}active {{this.style}}">
+          {{this.name}}</option>
+    {{/each}}
+  </select>
+  <input type="radio" 
+         name="filter_{{style}}" 
+         class="filter {{style}}" 
+         id="all-{{style}}s"> All
+  <input type="radio" 
+         name="filter_{{style}}" 
+         class="filter {{style}}" 
+         id="active-{{style}}s" checked> Active
+  <input type="radio" 
+         name="filter_{{style}}" 
+         class="filter {{style}}" 
+         id="inactive-{{style}}s"> Inactive
+  <input type="button" class="btn {{style}}" value="Toggle Active">
+</form>

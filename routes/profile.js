@@ -1,12 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const secured = require('../middleware/secured');
 
 const profileGet = require('./controllers/profileGet');
 const profilePost = require('./controllers/profilePost');
 const profileEmailDelete = require('./controllers/profileEmailDelete');
-
-router.all('*', secured());
 
 /* Get all users and populate user management form. */
 router.get('/', profileGet); 

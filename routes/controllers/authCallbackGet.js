@@ -80,7 +80,7 @@ module.exports = [
      message previously generated. */
   (err, req, res, next) => {
     return res.render('index', {
-      errors: { msg: err }
+      errors: [{ msg: err.custom }]
     });
   }
   
