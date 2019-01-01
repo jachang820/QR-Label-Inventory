@@ -30,7 +30,6 @@ router.use('/api', apiRouter);
 router.use('/inventory', inventoryRouter);
 router.use('/orders', ordersRouter);
 router.use('/profile', profileRouter);
-router.use('/profile', profileRouter);
 router.use('/styles', stylesRouter);
 
 /* GET dashboard. */
