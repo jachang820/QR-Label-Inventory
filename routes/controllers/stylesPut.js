@@ -1,6 +1,6 @@
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
-const axios = require('axios');
+const setupAxios = require('../../helpers/setupAxios');
 
 /* Toggles active flag for each selected color. */
 module.exports = (type) => {
@@ -24,7 +24,7 @@ module.exports = (type) => {
     /* Test for validation errors. Return error if found,
        otherwise store list of all styles. */
     (req, res, next) => {
-      axios.defaults.baseURL = process.env.API_PATH;
+      const axios = setupAxios();
       const errors = validationResult(req);
 
       axios.get(`/${type}s`).then((response) => {

@@ -1,6 +1,6 @@
-const axios = require('axios');
 const uuid = require('uuid/v4');
 const { body, validationResult } = require('express-validator/check');
+const setupAxios = require('../../helpers/setupAxios');
 
 const isValidQuantity = (quantity) => {
   const quantityInt = parseInt(quantity);
@@ -12,8 +12,7 @@ module.exports = [
 
   // Consolidate colors in database
   async (req, res, next) => {
-    axios.defaults.baseURL = process.env.API_PATH;
-
+    const axios = setupAxios();
     const colorsRes = await axios.get('/colors');
     const colors = colorsRes.data;
 
@@ -23,6 +22,7 @@ module.exports = [
 
   // Consolidate sizes in database
   async (req, res, next) => {
+    const axios = setupAxios();
     const sizesRes = await axios.get('/sizes');
     const sizes = sizesRes.data;
 
@@ -82,8 +82,9 @@ module.exports = [
   }),
 
   async (req, res, next) => {
-    let data = req.body;
-    let itemCount = data.count;
+    const data = req.body;
+    const itemCount = data.count;
+    const axios = setupAxios();
 
     // Handle errors
     const errors = validationResult(req);

@@ -7,7 +7,9 @@ const session = require('express-session');
 const dotenv = require('dotenv');
 const passport = require('passport');
 const Auth0Strategy = require('passport-auth0');
+const hbs = require('hbs');
 
+const hbsRoles = require('./helpers/hbsRoles');
 const userInViews = require('./middleware/userInViews');
 const indexRouter = require('./routes/index');
 
@@ -49,6 +51,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// register all partials
+hbs.registerPartials(path.join(__dirname, 'views', 'partials'));
+
+// expose locals as template data
+hbs.localsAsTemplateData(app);
+
+// register helper if-role to show views based on user role
+hbsRoles(hbs);
 
 // config session cookie
 var sess = {

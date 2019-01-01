@@ -1,6 +1,8 @@
+{{> nav }}
+
 <h1>User Profile</h1>
-<p>{{firstname}} {{lastname}}</p>
-<p>{{email}}</p>
+<p>{{@firstname}} {{@lastname}}</p>
+<p>{{@email}}</p>
 
 {{!-- Form to add new user. Form receives 'fill_' paramss for default values.
       These are initially empty, but if user enters invalid input, his input
@@ -41,7 +43,7 @@
     <td>Role</td>
   </th>
 
-  {{#each users}}
+  {{#each @allUsers}}
     <tr>
       <td>{{this.firstname}}</td>
       <td>{{this.lastname}}</td>

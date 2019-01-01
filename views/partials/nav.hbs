@@ -1,0 +1,18 @@
+<link rel="stylesheet" href="/css/nav.css"></link>
+
+<nav>
+  <li><a href="/profile">
+  {{#if-role @role "in" "A"}}
+    User Management
+  {{else}}
+    Profile
+  {{/if-role}}
+  </a></li>
+  <li><a href="/inventory">Inventory</a></li>
+  <li><a href="/scan">Scan</a></li>
+  {{#if-role @role "in" "A"}}
+    <li><a href="/orders">Orders</a></li>
+  {{/if-role}}
+  <li><a href="/styles">Manage styles</a></li>
+  <li><a href="/auth/logout">Logout</a></li>
+</nav>

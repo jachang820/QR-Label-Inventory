@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const secured = require('../middleware/secured');
+const auth = require('../middleware/authorize');
+
+const indexGet = require('./controllers/indexGet');
+const dashboardGet = require('./controllers/dashboardGet');
 
 const apiRouter = require('./api/index');
 const authRouter = require('./auth');
@@ -11,34 +15,25 @@ const qrCodeRouter = require('./qr_code');
 const scanRouter = require('./scan');
 const stylesRouter = require('./styles');
 
-router.use('/api', apiRouter);
-router.use('/auth', authRouter);
-router.use('/inventory', inventoryRouter);
-router.use('/orders', ordersRouter);
-router.use('/profile', profileRouter);
-router.use('/qr', qrCodeRouter);
-router.use('/profile', profileRouter);
-router.use('/scan', scanRouter);
-router.use('/styles', stylesRouter);
+/* Public pages. */
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-	if (req.user && req.user.hash && req.user.emails) {
-		res.redirect('dashboard');
-	} else {
-		res.render('index', { title: 'Express' });
-	}
-});
+router.get('/', indexGet);
+router.use('/auth', authRouter);
+
+/* Temporary public pages (for testing purposes). */
+router.use('/qr', qrCodeRouter);
+router.use('/scan', scanRouter);
+
+/* Protected pages. */
+router.use(secured);
+router.use('/api', apiRouter);
+router.use('/inventory', inventoryRouter);
+router.use('/orders', auth(['A']), ordersRouter);
+router.use('/profile', profileRouter);
+router.use('/styles', auth(['A']), stylesRouter);
 
 /* GET dashboard. */
-router.get('/dashboard', secured(), function(req, res, next) {
-	const {_raw, _json, ...userProfile } = req.user;
-
-	res.render('dashboard', {
-		displayName: userProfile.displayName,
-		email: userProfile.emails[0].value,
-		userProfile: JSON.stringify(userProfile, null, 2)
-	})
-});
+router.get('/dashboard', dashboardGet);
 
 module.exports = router;

@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { CustomerOrders } = require('../../models')
+const { CustomerOrders } = require('../../models');
 
 router.route('/')
 // Retrieve all customer orders
 .get((req, res, next) => {
   CustomerOrders.findAll()
   .then((customerOrders) => {
-    res.json(customerOrders);
+    return res.json(customerOrders);
   })
-  .catch(next);
+  .catch((err) => next(err));
 })
 // Create customer order
 .post((req, res, next) => {
@@ -23,9 +23,9 @@ router.route('/')
     notes
   })
   .then((customerOrder) => {
-    res.json(customerOrder);
+    return res.json(customerOrder);
   })
-  .catch(next);
+  .catch(err => next(err));
 });
 
 router.route('/:id')
@@ -35,9 +35,9 @@ router.route('/:id')
 
   CustomerOrders.findOne({ where: { id }})
   .then((customerOrder) => {
-    res.json(customerOrder);
+    return res.json(customerOrder);
   })
-  .catch(next);
+  .catch(err => next(err));
 })
 // Update customer order
 .put((req, res, next) => {
@@ -57,19 +57,19 @@ router.route('/:id')
 
     customerOrder.save()
     .then((customerOrder) => {
-      res.json(customerOrder);
+      return res.json(customerOrder);
     })
   })
-  .catch(next);
+  .catch(err => next(err));
 })
 .delete((req, res, next) => {
   const id = req.params.id;
 
   CustomerOrders.destroy({ where: { id }})
   .then((count) => {
-    res.json(count);
+    return res.json(count);
   })
-  .catch(next);
+  .catch(err => next(err));
 });
 
 module.exports = router;
