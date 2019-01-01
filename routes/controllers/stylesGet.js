@@ -7,6 +7,9 @@ module.exports = [
     const axios = setupAxios();
     axios.get('/colors').then((response) => {
       res.locals.colors = response.data;
+      for (let i = 0; i < response.data.length; i++) {
+        res.locals.colors[i].style = 'color';
+      }
       return next();
       
     }).catch((err) => {
@@ -19,6 +22,9 @@ module.exports = [
     const axios = setupAxios();
     axios.get('/sizes').then((response) => {
       res.locals.sizes = response.data;
+      for (let i = 0; i < response.data.length; i++) {
+        res.locals.sizes[i].style = 'size';
+      }
       return next();
       
     }).catch((err) => {
