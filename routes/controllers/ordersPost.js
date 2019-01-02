@@ -82,26 +82,26 @@ module.exports = [
   }),
 
   async (req, res, next) => {
-    const data = req.body;
-    const itemCount = data.count;
-    const axios = setupAxios();
-
-    // Handle errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const factoryOrdersRes = await axios.get('/factory_orders');
-      const colorsRes = await axios.get('/colors');
-      const sizesRes = await axios.get('/sizes')
-
-      const factoryOrders = factoryOrdersRes.data;
-      const colors = colorsRes.data;
-      const sizes = sizesRes.data;
-
-      return res.render('orders', { factoryOrders, colors, sizes, errors: errors.array() });
-    }
-
-    // Handle request
     try {
+      const data = req.body;
+      const itemCount = data.count;
+      const axios = setupAxios();
+
+      // Handle errors
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const factoryOrdersRes = await axios.get('/factory_orders');
+        const colorsRes = await axios.get('/colors');
+        const sizesRes = await axios.get('/sizes')
+
+        const factoryOrders = factoryOrdersRes.data;
+        const colors = colorsRes.data;
+        const sizes = sizesRes.data;
+
+        return res.render('orders', { factoryOrders, colors, sizes, errors: errors.array() });
+      }
+
+      // Handle request
       const factoryOrderRes = await axios.post('/factory_orders');
       const FactoryOrderId = factoryOrderRes.data.id;
 
@@ -110,31 +110,30 @@ module.exports = [
         const size = data[`size${i}`];
         let quantity = data[`quantity${i}`];
 
-        let innerbox;
-        let outerbox;
+        for (let j = 1; j <= quantity; j++) {
+          const outerbox = uuid();
+          const innerboxInOuterbox = size == 'MEGA' ? 2 : 4;
+          const itemInInnerbox = 12;
 
-        for (let j = 0; j < quantity; j++) {
-          if (j % 12 == 0) {
-            innerbox = uuid();
-          }
-          if (j % 48 == 0) {
-            outerbox = uuid();
-          }
+          for (let k = 0; k < innerboxInOuterbox; k++) {
+            const innerbox = uuid();
 
-          await axios.post('/items', {
-            status: 'Ordered',
-            innerbox: innerbox,
-            outerbox: outerbox,
-            ColorName: color,
-            SizeName: size,
-            FactoryOrderId
-          });
+            for (let l = 0; l < itemInInnerbox; l++) {
+              await axios.post('/items', {
+                status: 'Ordered',
+                innerbox,
+                outerbox,
+                ColorName: color,
+                SizeName: size,
+                FactoryOrderId
+              });
+            }
+          }
         }
       }
       res.redirect(`/orders/${FactoryOrderId}`);
     }
     catch (err) {
-      console.log(err);
       return next(err);
     }
   }
