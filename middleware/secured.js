@@ -22,7 +22,6 @@ function serverRequest(req) {
 /* Verify that logged in user was authenticated and reaffirm
    the user's role. If user is invalid, log out. */
 module.exports = (req, res, next) => {
-
   if (!serverRequest(req)) {
 
     const secret = process.env.SECURITY_SECRET;

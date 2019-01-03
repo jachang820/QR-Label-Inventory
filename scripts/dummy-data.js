@@ -46,6 +46,8 @@ async function setup() {
 
   let items = []
   for (let i = 0; i < 72; i++) {
+    let factoryId;
+    if (i < 48) factoryId = 1;
     let color = colors[i % 4];
     let size = sizes[i % 3];
     if (i % 12 == 0) {
@@ -61,7 +63,8 @@ async function setup() {
       innerbox: inner,
       outerbox: master,
       ColorName: color,
-      SizeName: size
+      SizeName: size,
+      FactoryOrderId: factoryId
     });
   }
 

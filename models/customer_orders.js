@@ -16,6 +16,12 @@ module.exports = (sequelize, DataTypes) => {
 
   CustomerOrders.associate = models => {
     CustomerOrders.hasMany(models.Items);
+    CustomerOrders.belongsTo(models.Users, {
+      foreignKey: 'ShippedBy',
+      targetKey: 'email',
+      constraints: false,
+      allowNull: true
+    });
   }
 
   return CustomerOrders;

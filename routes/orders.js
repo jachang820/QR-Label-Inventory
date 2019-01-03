@@ -1,16 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const setupAxios = require('../helpers/setupAxios');
-
 const ordersPost = require('./controllers/ordersPost');
-const secured = require('../middleware/secured');
-
-router.all('*', secured());
 
 router.get('/', async (req, res, next) => {
   const axios = setupAxios();
   let factoryOrdersRes;
-  let colorsRes
+  let colorsRes;
   let sizesRes;
 
   try {

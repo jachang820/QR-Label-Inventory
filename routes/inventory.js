@@ -11,4 +11,21 @@ router.get('/', (req, res, next) => {
   }).catch(next);
 });
 
+
+/* AJAX view of the inventory. */
+router.get('/view', async (req, res, next) => {
+	const axios = setupAxios();
+	let response;
+	try {
+		response = await axios.post('/inventory/view', { 
+			sort: 'color',
+			sortDirection: 'ASC'
+		});
+	} catch (err) {
+		return next(err);
+	}
+	console.log(response.data);
+	return res.json(response.data);
+})
+
 module.exports = router;

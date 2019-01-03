@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     label: {
       type: DataTypes.STRING
     },
-    arrivalDate: {
+    arrivedAt: {
       type: DataTypes.DATE
     },
     notes: {

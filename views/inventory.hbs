@@ -3,16 +3,20 @@
 <h1>Inventory</h1>
 
 <table>
-  <tr>
-    <th>ID</th>
-    <th>Status</th>
-    <th>Color</th>
-    <th>Size</th>
-    <th>Factory Order</th>
-    <th>Customer Order</th>
-    <th>Inner Box</th>
-    <th>Outer Box</th>
-  </tr>
+  <thead>
+    <tr>
+      <th>MC</th>
+      <th>IC</th>
+      <th>Details</th>
+      <th>Color</th>
+      <th>Size</th>
+      <th>Status</th>
+      <th>Create Date</th>
+      <th>Arrival Date</th>
+      <th>Ship Date</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
 
   {{#each items}}
     <tr>
@@ -29,3 +33,6 @@
 
 </table>
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script src="/js/inventory.js"></script>

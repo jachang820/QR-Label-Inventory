@@ -16,9 +16,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     outerbox: {
       type: DataTypes.UUID
-    },
-    arrivalDate: {
-      type: DataTypes.DATE
     }
   });
 
@@ -27,12 +24,6 @@ module.exports = (sequelize, DataTypes) => {
     Items.belongsTo(models.Sizes);
     Items.belongsTo(models.FactoryOrders);
     Items.belongsTo(models.CustomerOrders);
-    Items.belongsTo(models.Users, {
-      foreignKey: 'receivedBy',
-      targetKey: 'email',
-      constraints: false,
-      allowNull: true
-    });
   }
 
   return Items;
