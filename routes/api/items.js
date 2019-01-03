@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const querystring = require('querystring');
 const { Items } = require('../../models');
 
 router.route('/')
@@ -35,6 +36,14 @@ router.route('/')
   })
   .catch(err => next(err));
 });
+
+router.get('/filter', (req, res, next) => {
+  Items.findAll({ where: req.query })
+  .then((items) => {
+    return res.json(items);
+  })
+  .catch(err => next(err));
+})
 
 router.route('/:id')
 // Retrieve single item
