@@ -55,6 +55,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // register all partials
 hbs.registerPartials(path.join(__dirname, 'views', 'partials'));
 
+// register all helpers
+hbs.registerHelper('ifEquals', function(arg1, arg2, options) {
+  return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+});
+
 // expose locals as template data
 hbs.localsAsTemplateData(app);
 
