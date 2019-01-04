@@ -28,7 +28,7 @@ async function setup() {
     { id: 2 }
   ]);
 
-  await CustomerOrders.bulkCreate([ 
+  await CustomerOrders.bulkCreate([
     { id: 'aee7514d-f202-4f9d-8212-97d9a459cbda' },
     { id: '030837e2-b120-4359-8d16-e4adab83004a' }
   ]);
