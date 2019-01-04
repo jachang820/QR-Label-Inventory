@@ -1,5 +1,32 @@
+<link rel="stylesheet" href="/css/scan.css">
+
 {{> nav }}
 
 <div class="container">
-  <p>This is the scan page.</p>
+	<div id="scan-target">
+		<p id="instructions"></p>
+		<input type="text" id="scan-input"></input>
+	</div>
+
+	<div id="status">
+
+	</div>
+
+	<table>
+		<thead>
+			<tr>
+				<th></th>
+				<th>Id</th>
+				<th>Type</th>
+				<th>Color</th>
+				<th>Size</th>
+				<th>Qty</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script src="/js/scan.js"></script>
