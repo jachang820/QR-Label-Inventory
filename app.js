@@ -103,6 +103,9 @@ app.use((err, req, res, next) => {
     res.locals.status = err.response.status;
     res.locals.statusText = err.response.statusText;
   }
+  if (res.locals.status == null) {
+    res.locals.status = 404;
+  }
 
   if (err.config) {
     res.locals.query = `${err.config.method} ${err.config.url}`;

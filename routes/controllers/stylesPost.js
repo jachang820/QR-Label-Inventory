@@ -43,11 +43,12 @@ module.exports = (type) => {
     (req, res, next) => {
       /* This is the new style that was just entered. */
       const style = {
-        name: req.body[new_type],
+        name: req.body[new_type]
       };
+
       if (type === 'size') {
-        style.innerSize = parseInt(req.body[`${type}_inner`], 10),
-        style.outerSize = parseInt(req.body[`${type}_outer`], 10)
+        style.innerSize = parseInt(req.body[`${type}_inner`], 10);
+        style.outerSize = parseInt(req.body[`${type}_outer`], 10);
       }
 
       const errors = validationResult(req);
@@ -71,9 +72,7 @@ module.exports = (type) => {
 
       /* No errors found, create new style. */
       } else { 
-        axios.post(`/${type}s`, {
-          name: style.name
-        }).then((response) => {
+        axios.post(`/${type}s`, style).then((response) => {
           res.redirect('/styles');
 
         }).catch((err) => {

@@ -14,8 +14,10 @@ router.route('/')
 // Create size
 .post((req, res, next) => {
   const name = req.body.name;
+  const innerSize = req.body.innerSize;
+  const outerSize = req.body.outerSize;
   
-  Sizes.create({ name })
+  Sizes.create({ name, innerSize, outerSize })
   .then((size) => {
     return res.json(size);
   })

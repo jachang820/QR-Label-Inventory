@@ -14,12 +14,12 @@ router.route('/')
 // Create factory order
 .post((req, res, next) => {
   const label = req.body.label;
-  const arrival_date = req.body.arrival_date;
+  const arrivalDate = req.body.arrivalDate;
   const notes = req.body.notes;
 
   FactoryOrders.create({
     label,
-    arrival_date,
+    arrivalDate,
     notes
   })
   .then((factoryOrder) => {
