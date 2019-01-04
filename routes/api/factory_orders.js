@@ -9,7 +9,10 @@ router.route('/')
   .then((factoryOrders) => {
     return res.json(factoryOrders);
   })
-  .catch(err => next(err));
+  .catch(err => {
+    console.log(err);
+    next(err);
+  });
 })
 // Create factory order
 .post((req, res, next) => {
@@ -25,7 +28,10 @@ router.route('/')
   .then((factoryOrder) => {
     return res.json(factoryOrder);
   })
-  .catch(err => next(err));
+  .catch(err => {
+    console.log(err);
+    next(err);
+  });
 });
 
 router.route('/:id')
@@ -37,7 +43,10 @@ router.route('/:id')
   .then((factoryOrder) => {
     return res.json(factoryOrder);
   })
-  .catch(err => next(err));
+  .catch(err => {
+    console.log(err);
+    next(err);
+  });
 })
 // Update factory order
 .put((req, res, next) => {
@@ -60,7 +69,10 @@ router.route('/:id')
       return res.json(factoryOrder);
     })
   })
-  .catch(err => next(err));
+  .catch(err => {
+    console.log(err);
+    next(err);
+  });
 })
 .delete((req, res, next) => {
   const id = req.params.id;
