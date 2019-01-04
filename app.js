@@ -113,7 +113,7 @@ app.use((err, req, res, next) => {
   res.locals.custom = err.custom;
   if (req.app.get('env') === 'development') {
     res.locals.stack = err.stack;
-  } 
+  }
 
   /* This should be the page last visited. */
   res.locals.url = req.originalUrl;
