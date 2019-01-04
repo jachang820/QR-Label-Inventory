@@ -25,6 +25,16 @@ module.exports = (type) => {
         });
       }),
 
+    /* Validate inner carton if size. */
+    body(`${type}_inner`).optional().trim()
+      .isLength({ min: 1 }).withMessage('Inner carton size must be positive.')
+      .isInt().withMessage('Inner carton size must be an integer.'),
+
+    /* Validate master carton if size. */
+    body(`${type}_outer`).optional().trim()
+      .isLength({ min: 1 }).withMessage('Master carton size must be positive.')
+      .isInt().withMessage('Master carton size must be an integer.'),
+
     /* Trim trailing spaces and remove escape characters to prevent
        SQL injections. */
     sanitizeBody(new_type).trim().escape(),
@@ -35,6 +45,10 @@ module.exports = (type) => {
       const style = {
         name: req.body[new_type],
       };
+      if (type === 'size') {
+        style.innerSize = parseInt(req.body[`${type}_inner`], 10),
+        style.outerSize = parseInt(req.body[`${type}_outer`], 10)
+      }
 
       const errors = validationResult(req);
       const axios = setupAxios();
