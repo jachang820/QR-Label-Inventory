@@ -1,86 +1,88 @@
 {{> nav }}
 
-<link rel="stylesheet" href="/stylesheets/orders.css">
+<div class="container">
+  <link rel="stylesheet" href="/stylesheets/orders.css">
 
-<h1>Orders</h1>
+  <h1>Orders</h1>
 
-{{!-- Errors due to invalid input show up here. --}}
-{{#if errors}}
-<div id="errors">
-  <h2>Error:</h2>
-  <ul>
-    {{#each errors}}
-      <li>{{this.msg}}</li>
-    {{/each}}
-  </ul>
-</div>
-{{/if}}
+  {{!-- Errors due to invalid input show up here. --}}
+  {{#if errors}}
+  <div id="errors">
+    <h2>Error:</h2>
+    <ul>
+      {{#each errors}}
+        <li>{{this.msg}}</li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
 
-<table>
-  <tr>
-    <th>ID</th>
-    <th>Label</th>
-    <th>Arrival Date</th>
-    <th>Notes</th>
-  </tr>
-
-  {{#each factoryOrders}}
+  <table>
     <tr>
-      <td>
-        <a href="/orders/{{this.id}}">{{this.id}}</a>
-        </td>
-      <td>{{this.label}}</td>
-      <td>{{this.arrival_date}}</td>
-      <td>{{this.notes}}</td>
-      <td>
-        <button onclick="deleteOrder({{this.id}})">Delete</button>
-      </td>
+      <th>ID</th>
+      <th>Label</th>
+      <th>Arrival Date</th>
+      <th>Notes</th>
     </tr>
-  {{/each}}
 
-</table>
-
-<div id="new-order">
-  <h2>New Order</h2>
-
-  <form action="/orders" method="POST">
-    <table id="new-order-table">
+    {{#each factoryOrders}}
       <tr>
-        <th>Color</th>
-        <th>Size</th>
-        <th>Quantity (MC)</th>
-      </tr>
-
-      <tr class="new-order-row">
         <td>
-          <select id="color1" name="color1">
-            <option>Select a color:</option>
-            {{#each colors}}
-              <option>{{this.name}}</option>
-            {{/each}}
-          </select>
-        </td>
-
+          <a href="/orders/{{this.id}}">{{this.id}}</a>
+          </td>
+        <td>{{this.label}}</td>
+        <td>{{this.arrival_date}}</td>
+        <td>{{this.notes}}</td>
         <td>
-          <select id="size1" name="size1">
-            <option>Select a size:</option>
-            {{#each sizes}}
-              <option>{{this.name}}</option>
-            {{/each}}
-          </select>
-        </td>
-
-        <td>
-          <input id="quantity1" type="number" name="quantity1">
+          <button onclick="deleteOrder({{this.id}})">Delete</button>
         </td>
       </tr>
-    </table>
+    {{/each}}
 
-    <input type="hidden" value="1" name="count" id="item-count">
+  </table>
 
-    <button onClick="addItem()" type="button">New Item</button>
-    <input type="submit" value="Submit Order">
-  </form>
+  <div id="new-order">
+    <h2>New Order</h2>
+
+    <form action="/orders" method="POST">
+      <table id="new-order-table">
+        <tr>
+          <th>Color</th>
+          <th>Size</th>
+          <th>Quantity (MC)</th>
+        </tr>
+
+        <tr class="new-order-row">
+          <td>
+            <select id="color1" name="color1">
+              <option>Select a color:</option>
+              {{#each colors}}
+                <option>{{this.name}}</option>
+              {{/each}}
+            </select>
+          </td>
+
+          <td>
+            <select id="size1" name="size1">
+              <option>Select a size:</option>
+              {{#each sizes}}
+                <option>{{this.name}}</option>
+              {{/each}}
+            </select>
+          </td>
+
+          <td>
+            <input id="quantity1" type="number" name="quantity1">
+          </td>
+        </tr>
+      </table>
+
+      <input type="hidden" value="1" name="count" id="item-count">
+
+      <button onClick="addItem()" type="button">New Item</button>
+      <input type="submit" value="Submit Order">
+    </form>
+  </div>
 </div>
 
 <script>

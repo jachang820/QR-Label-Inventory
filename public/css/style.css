@@ -1,8 +1,17 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: cornsilk;
+}
+
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
+}
+
+.container {
+  margin: 50px;
 }
