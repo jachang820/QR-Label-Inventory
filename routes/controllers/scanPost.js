@@ -21,15 +21,25 @@ module.exports = [
 			const str = "data:image/png;base64," + img.toString('base64');
 
 			let items;
-			axios.put('/scan/out/' + req.body.id).then((response) => {
+			axios.post('/scan/out/' + req.body.id).then((response) => {
 				items = response.data;
+				let html = "";
+				html += `      <tr>\n`;
+				html += `        <td>${items.id}</td>\n`;
+				html += `        <td>${items.status}</td>\n`;
+				html += `        <td>${items.ColorName}</td>\n`;
+				html += `        <td>${items.SizeName}</td>\n`;      
+				html += `        <td>${items.createdAt}</td>\n`;
+				html += `        <td>${items.CustomerOrder.createdAt}</td>\n`;
+				html += `        <td>${items.CustomerOrder.label}</td>\n`;
+				html += `        <td>${items.CustomerOrder.id}</td>\n`;
+				html += `      </tr>\n`;
+
+				return res.json({ qr: str, html: html });
 			}).catch((err) => {
 				err.custom = 'Error retrieving item' + req.body.id + '.';
 				return res.json({ error: err });
 			})
-
-
-			return res.json({ qr: str, id: req.body.id });
 		}
 	}
 

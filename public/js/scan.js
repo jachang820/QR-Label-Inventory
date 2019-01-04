@@ -8,27 +8,36 @@ window.addEventListener('load', function() {
 	let instructions = document.getElementById('instructions');
 	let scanInput = document.getElementById('scan-input');
 	let statusField = document.getElementById('status');
-	let ready = false;
-	instructions.innerText = readyText['false'];
+	let ready;
+
+	function targetReady(status) {
+		ready = status;
+		if (status) {
+			instructions.innerText = readyText['true'];
+			scanTarget.style.background = '#c7fccf';
+		} else {
+			instructions.innerText = readyText['false'];
+			scanTarget.style.background = '#ffbaaf';
+		}
+	}
+
+	targetReady(false);
 	scanInput.value = "";
 
 	scanTarget.addEventListener('click', function(event) {
-		instructions.innerText = readyText['true'];
-		ready = true;
+		targetReady(true);
 		scanInput.focus();
 		event.stopPropagation();
 	});
 
 	document.body.addEventListener('click', function() {
-		instructions.innerText = readyText['false'];
+		targetReady(false);
 		scanInput.blur();
-		ready = false;
 	});
 
 	window.addEventListener('blur', function() {
-		instructions.innerText = readyText['false'];
+		targetReady(false);
 		scanInput.blur();
-		ready = false;
 	})
 
 	scanInput.addEventListener('input', function(e) {
@@ -42,8 +51,8 @@ window.addEventListener('load', function() {
 					if (response.data.error) {
 						statusField.innerHTML = response.data.error;
 					} else {
-						statusField.innerHTML = "<img src='" + response.data.qr + 
-							"'><p>" + response.data.id + "</p>";
+						statusField.innerHTML = "<img src='" + response.data.qr + "'>";
+						document.getElementById('item-data').innerHTML = response.data.html;
 					}
 
 					scanInput.value = "";

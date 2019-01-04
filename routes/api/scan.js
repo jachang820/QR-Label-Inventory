@@ -8,18 +8,17 @@ const fn = Sequelize.fn;
 // Scan items out of the warehouse
 router.post('/out/:id', async (req, res, next) => {
   const id = req.params.id;
+  let items;
   try {
-    const items = await Items.get({
-      where: { 
-        [Op.or]: [{ id: id },
-                  { innerbox: id },
-                  { outerbox: id }]},
+    items = await Items.findOne({
+      where: { id: id },
       include: [
         { model: FactoryOrders },
         { model: CustomerOrders }
       ] 
     });
   } catch (err) {
+    console.log(err);
     return next(err);
   }
 
