@@ -5,6 +5,18 @@
 <div class="container">
   <h1>Inventory</h1>
 
+  {{!-- Errors due to invalid input show up here. --}}
+  {{#if errors}}
+  <div id="errors">
+    <h2>Error:</h2>
+    <ul>
+      {{#each errors}}
+        <li>{{this.msg}}</li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
   <table id="inventory-table">
     <tr>
       <th>ID</th>
@@ -13,8 +25,9 @@
       <th>Size</th>
       <th>Factory Order</th>
       <th>Customer Order</th>
-      <th>Inner Box</th>
-      <th>Outer Box</th>
+      <th>Inner Carton</th>
+      <th>Master Carton</th>
+      <th>Action</th>
     </tr>
 
     {{#each items}}
@@ -24,11 +37,32 @@
         <td>{{this.ColorName}}</td>
         <td>{{this.SizeName}}</td>
         <td>{{this.FactoryOrderId}}</td>
-        <td>{{this.CustomerOrderId}}</td>
+        <td><a href="/customer_orders/{{this.CustomerOrderId}}">{{this.CustomerOrderId}}</a></td>
         <td>{{this.innerbox}}</td>
         <td>{{this.outerbox}}</td>
+        <td>
+          <a href="/item/edit/{{this.id}}"><button class="btn-primary">Edit</button></a>
+          <button class="btn-danger" onclick="deleteItem('{{this.id}}')">Delete</button>
+        </td>
       </tr>
     {{/each}}
 
   </table>
 </div>
+
+<script>
+  function deleteItem(id) {
+    let xhttp = new XMLHttpRequest();
+    xhttp.open("DELETE", "/api/items/" + id, true);
+    xhttp.onreadystatechange = function(event) {
+      if (xhttp.readyState === 4) {
+        if (xhttp.status === 200) {
+          location.reload();
+        } else {
+          error.innerHTML = "<ul><li>Error: " + xhttp.statusText + "</li></ul>";
+        }
+      }
+    };
+    xhttp.send();
+  }
+</script>

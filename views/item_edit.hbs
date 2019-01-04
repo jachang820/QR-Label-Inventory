@@ -1,0 +1,47 @@
+{{> nav }}
+
+<div class="container">
+  <h1>Item {{item.id}}</h1>
+
+  <form action="/item/update/{{item.id}}" method="POST">
+    <label for="status">Status:</label>
+    <input id="status" type="text" name="status" value="{{item.status}}">
+
+    <label for="color">Color:</label>
+    <select id="color" name="color">
+      {{#each colors}}
+        {{#ifEquals this.name ../item.ColorName}}
+          <option selected>{{this.name}}</option>
+        {{else}}
+          <option>{{this.name}}</option>
+        {{/ifEquals}}
+      {{/each}}
+    </select>
+
+    <label for="size">Size:</label>
+    <select id="size" name="size">
+      {{#each sizes}}
+        {{#ifEquals this.name ../item.SizeName}}
+          <option selected>{{this.name}}</option>
+        {{else}}
+          <option>{{this.name}}</option>
+        {{/ifEquals}}
+      {{/each}}
+    </select>
+
+    <label for="factoryOrder">Factory Order:</label>
+    <input id="factoryOrder" type="text" name="factoryOrder" value="{{item.FactoryOrderId}}">
+
+    <label for="customerOrder">Customer Order:</label>
+    <input id="customerOrder" type="text" name="customerOrder" value="{{item.CustomerOrderId}}">
+
+    <label for="innerbox">Inner Carton:</label>
+    <input id="innerbox" type="text" name="innerbox" value="{{item.innerbox}}">
+
+    <label for="outerbox">Master Carton:</label>
+    <input id="outerbox" type="text" name="outerbox" value="{{item.outerbox}}">
+
+    <button class="btn-success">Save</button>
+    <a href="/inventory"><button class="btn-primary" type="button">Cancel</button></a>
+  </form>
+</div>

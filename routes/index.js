@@ -10,6 +10,7 @@ const apiRouter = require('./api/index');
 const authRouter = require('./auth');
 const customerOrdersRouter = require('./customer_orders');
 const inventoryRouter = require('./inventory');
+const itemRouter = require('./item');
 const ordersRouter = require('./orders');
 const profileRouter = require('./profile');
 const qrCodeRouter = require('./qr_code');
@@ -28,6 +29,7 @@ router.use('/qr', qrCodeRouter);
 /* Protected pages. */
 router.use(secured);
 router.use('/api', apiRouter);
+router.use('/item', itemRouter);
 router.use('/inventory', inventoryRouter);
 router.use('/orders', auth(['A']), ordersRouter);
 router.use('/profile', profileRouter);
