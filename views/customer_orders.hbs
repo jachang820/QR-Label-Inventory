@@ -1,9 +1,9 @@
 {{> nav }}
 
 <div class="container">
-  <link rel="stylesheet" href="/stylesheets/orders.css">
+  <link rel="stylesheet" href="/stylesheets/customer_orders.css">
 
-  <h1>Orders</h1>
+  <h1>Customer Orders</h1>
 
   {{!-- Errors due to invalid input show up here. --}}
   {{#if errors}}
@@ -26,10 +26,10 @@
       <th>Action</th>
     </tr>
 
-    {{#each factoryOrders}}
+    {{#each customerOrders}}
       <tr>
         <td>
-          <a href="/orders/{{this.id}}">{{this.id}}</a>
+          <a href="/customer_orders/{{this.id}}">{{this.id}}</a>
           </td>
         <td>{{this.label}}</td>
         <td>{{this.arrival_date}}</td>
@@ -45,17 +45,27 @@
   <div id="new-order">
     <h2>New Order</h2>
 
-    <form action="/orders" method="POST">
+    <form action="/customer_orders" method="POST">
+      <label for="label">Label: </label>
+      <input id="label" type="text" name="label">
+
+      <label for="notes">Notes: </label>
+      <input id="notes" type="text" name="notes">
+
       <table id="new-order-table">
         <tbody>
           <tr>
+            <th>Item</th>
             <th>Color</th>
             <th>Size</th>
-            <th>Quantity (MC)</th>
             <th>Action</th>
           </tr>
 
           <tr class="new-order-row">
+            <td>
+              <input id="item1" type="text" name="item1">
+            </td>
+
             <td>
               <select id="color1" name="color1">
                 <option>Select a color:</option>
@@ -73,11 +83,6 @@
                 {{/each}}
               </select>
             </td>
-
-            <td>
-              <input id="quantity1" type="number" name="quantity1">
-            </td>
-
             <td></td>
           </tr>
         </tbody>
@@ -99,7 +104,7 @@
 
   function deleteOrder(id) {
     let xhttp = new XMLHttpRequest();
-    xhttp.open("DELETE", "/api/factory_orders/" + id, true);
+    xhttp.open("DELETE", "/api/customer_orders/" + id, true);
     xhttp.onreadystatechange = function(event) {
       if (xhttp.readyState === 4) {
         if (xhttp.status === 200) {
@@ -124,16 +129,17 @@
     let deleteButton = document.createElement("button")
     deleteButton.append("Delete");
     deleteButton.setAttribute("class", "btn-danger");
+
     deleteButton.setAttribute("onClick", "deleteItem(this)");
+
+    let inputItem = newRow.querySelector("#item1");
+    inputItem.id = inputItem.name = "item" + itemCount;
 
     let selectColor = newRow.querySelector("#color1");
     selectColor.id = selectColor.name = "color" + itemCount;
 
     let selectSize = newRow.querySelector("#size1");
     selectSize.id = selectSize.name = "size" + itemCount;
-
-    let inputQuantity = newRow.querySelector("#quantity1");
-    inputQuantity.id = inputQuantity.name = "quantity" + itemCount;
 
     td.appendChild(deleteButton);
     newRow.appendChild(td);

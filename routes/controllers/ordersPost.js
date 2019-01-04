@@ -69,7 +69,7 @@ module.exports = [
 
     for (let i = 1; i <= itemCount; i++) {
       if (!isValidQuantity(req.body[`quantity${i}`])) {
-        rowsWithErrors.push(i)
+        rowsWithErrors.push(i);
       }
     }
 

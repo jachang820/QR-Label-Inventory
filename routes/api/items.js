@@ -61,6 +61,32 @@ router.route('/:id')
   })
   .catch((err) => next(err));
 })
+// Create item with id
+.post((req, res, next) => {
+  const id = req.body.id;
+  const status = req.body.status;
+  const innerbox = req.body.innerbox;
+  const outerbox = req.body.outerbox;
+  const ColorName = req.body.ColorName;
+  const SizeName = req.body.SizeName;
+  const FactoryOrderId = req.body.FactoryOrderId;
+  const CustomerOrderId = req.body.CustomerOrderId;
+
+  Items.create({
+    id,
+    status,
+    innerbox,
+    outerbox,
+    ColorName,
+    SizeName,
+    FactoryOrderId,
+    CustomerOrderId
+  })
+  .then((item) => {
+    return res.json(item);
+  })
+  .catch(err => next(err));
+})
 // Update item
 .put((req, res, next) => {
   const id = req.params.id;
@@ -114,6 +140,16 @@ router.get('/factory_order/:id', (req, res, next) => {
   const FactoryOrderId = parseInt(req.params.id);
 
   Items.findAll({ where: { FactoryOrderId }})
+  .then((items) => {
+    return res.json(items);
+  })
+  .catch(err => next(err));
+});
+
+router.get('/customer_order/:id', (req, res, next) => {
+  const CustomerOrderId = req.params.id;
+
+  Items.findAll({ where: { CustomerOrderId }})
   .then((items) => {
     return res.json(items);
   })

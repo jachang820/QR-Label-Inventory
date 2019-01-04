@@ -6,7 +6,7 @@ const ordersPost = require('./controllers/ordersPost');
 router.get('/', async (req, res, next) => {
   const axios = setupAxios();
   let factoryOrdersRes;
-  let colorsRes
+  let colorsRes;
   let sizesRes;
 
   try {

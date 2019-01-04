@@ -24,6 +24,7 @@
       <th>Last Name</th>
       <th>Email</th>
       <th>Role</th>
+      <th>Action</th>
     </tr>
 
     {{#each @allUsers}}
@@ -32,13 +33,15 @@
         <td>{{this.lastname}}</td>
         <td>{{this.email}}</td>
         <td>{{this.role}}</td>
-        {{!-- There will be buttons to delete any user except for the
-              admin himself. --}}
-        {{#unless this.self}}
-        <td><form action="/profile/del/{{this.email}}" method="post">
-          <input class="btn-danger" type="submit" value="Delete">
-        </form></td>
-        {{/unless}}
+        <td>
+          {{!-- There will be buttons to delete any user except for the
+                admin himself. --}}
+          {{#unless this.self}}
+          <form action="/profile/del/{{this.email}}" method="post">
+            <input class="btn-danger" type="submit" value="Delete">
+          </form>
+          {{/unless}}
+        </td>
       </tr>
     {{/each}}
 
