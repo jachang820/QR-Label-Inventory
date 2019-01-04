@@ -18,7 +18,7 @@ module.exports = [
     .isLength({ min: 1 }).withMessage('Last name empty.')
     .isLength({ max: 32 }).withMessage('Last name too long.')
     .isAlpha().withMessage('Last name must be alphabet letters.'),
-  
+
   body('email').trim()
     .isLength({ max: 64 }).withMessage('Email too long.')
     .isEmail().withMessage('Must be a valid email.')
@@ -32,7 +32,7 @@ module.exports = [
         }
       });
     }),
-  
+
   body('role').trim()
     .isLength({ min: 1 }).withMessage('Role unselected.')
     .custom(value => {
@@ -49,11 +49,11 @@ module.exports = [
   /* Sanitize fields to prevent malicious injections,
      checks for escape characters and removes them. */
   sanitizeBody('firstname').trim().escape(),
-  
+
   sanitizeBody('lastname').trim().escape(),
-  
+
   sanitizeBody('email').trim().escape(),
-  
+
   sanitizeBody('role').escape(),
 
   /* Returns error if they exist, otherwise create user. */
@@ -76,13 +76,12 @@ module.exports = [
          Keep form filled in with user-entered values. */
       axios.get('/users').then((response) => {
         const email = res.locals.email;
-        response.data = identifySelf(response.data, email); 
+        res.locals.allUsers = identifySelf(response.data, email);
         return res.render('profile', {
           roles: roles,
           fill_firstname: user.firstname,
           fill_lastname: user.lastname,
           fill_email: user.email,
-          users: response.data,
           errors: errors.array()
         });
 
@@ -90,7 +89,7 @@ module.exports = [
         err.custom = "Error retrieving users from database.";
         return next(err);
       });
-              
+
     } else {
 
       /* There are no errors, so create new user. */

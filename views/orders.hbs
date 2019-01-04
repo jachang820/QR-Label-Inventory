@@ -34,7 +34,7 @@
         <td>{{this.arrival_date}}</td>
         <td>{{this.notes}}</td>
         <td>
-          <button onclick="deleteOrder({{this.id}})">Delete</button>
+          <button class="btn-danger" onclick="deleteOrder({{this.id}})">Delete</button>
         </td>
       </tr>
     {{/each}}
@@ -79,8 +79,10 @@
 
       <input type="hidden" value="1" name="count" id="item-count">
 
-      <button onClick="addItem()" type="button">New Item</button>
-      <input type="submit" value="Submit Order">
+      <button class="btn-primary" onClick="addItem()" type="button">New Item</button>
+      <br>
+      <br>
+      <input class="btn-success" type="submit" value="Submit Order">
     </form>
   </div>
 </div>
@@ -109,8 +111,11 @@
 
     let newRow = document.getElementsByClassName("new-order-row")[0].cloneNode(true);
 
+    let td = document.createElement("td");
+
     let deleteButton = document.createElement("button")
     deleteButton.append("Delete");
+    deleteButton.setAttribute("class", "btn-danger");
     deleteButton.setAttribute("onClick", "deleteItem(this)");
 
     let selectColor = newRow.querySelector("#color1");
@@ -122,7 +127,8 @@
     let inputQuantity = newRow.querySelector("#quantity1");
     inputQuantity.id = inputQuantity.name = "quantity" + itemCount;
 
-    newRow.appendChild(deleteButton);
+    td.appendChild(deleteButton);
+    newRow.appendChild(td);
     document.getElementById("new-order-table").appendChild(newRow);
   }
 
