@@ -2,36 +2,47 @@
 
 <h1>Inventory</h1>
 
-<table>
+<label for="filter_by">Filter: </label>
+<select name="filter_by">
+  <option value="filter_id">Item ID</option>
+</select>
+<form action="/styles/{{style}}" method="post"> 
+  <label for="{{style}}_text">Add {{style}}: </label>
+  <input id="{{style}}_text" type="text" name="new_{{style}}" value="{{fill}}">
+  {{#if isSize~}}
+    <label for="{{style}}_inner">Units per inner carton: </label>
+    <input id="{{style}}_inner" type="number" 
+           name="{{style}}_inner" value="" min="1">
+    <label for="{{style}}_outer">Inner cartons per master carton: </label>
+    <input id="{{style}}_outer" type="number" 
+           name="{{style}}_outer" value="" min="1">
+  {{~/if}}
+  <input type="submit" name="add_{{style}}" value="Add">
+</form>
+
+
+<table id="items-table">
   <thead>
     <tr>
+      <th>Details</th>
       <th>MC</th>
       <th>IC</th>
-      <th>Details</th>
+      <th>PO</th>
       <th>Color</th>
       <th>Size</th>
       <th>Status</th>
       <th>Create Date</th>
       <th>Arrival Date</th>
       <th>Ship Date</th>
-      <th>Notes</th>
+      <th>Label</th>
     </tr>
   </thead>
-
-  {{#each items}}
-    <tr>
-      <td>{{this.id}}</td>
-      <td>{{this.status}}</td>
-      <td>{{this.ColorName}}</td>
-      <td>{{this.SizeName}}</td>
-      <td>{{this.FactoryOrderId}}</td>
-      <td>{{this.CustomerOrderId}}</td>
-      <td>{{this.innerbox}}</td>
-      <td>{{this.outerbox}}</td>
-    </tr>
-  {{/each}}
-
+  <tbody>
+  </tbody>
 </table>
+
+<section id="details-section">
+</section>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>

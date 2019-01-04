@@ -3,10 +3,10 @@
 <h1>Manage Styles</h1>
 
 <h4>Colors</h4>
-{{> style style="color" listOfStyle=@colors fill=@fill_color }}
+{{> style style="color" listOfStyle=@colors fill=@fill_color isSize=false }}
 
 <h4>Sizes</h4>
-{{> style style="size" listOfStyle=@sizes fill=@fill_size }}
+{{> style style="size" listOfStyle=@sizes fill=@fill_size isSize=true }}
 
 {{!-- Errors are populated into this structure. --}}
 <p id="show-error">

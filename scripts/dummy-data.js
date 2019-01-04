@@ -15,9 +15,9 @@ async function setup() {
   colors = colors.map((e) => { return e.name; });
 
   await Sizes.bulkCreate([
-    { name: 'junior' },
-    { name: 'original' },
-    { name: 'MEGA' }
+    { name: 'Junior', innerSize: 12, outerSize: 4 },
+    { name: 'Original', innerSize: 12, outerSize: 4 },
+    { name: 'Mega', innerSize: 12, outerSize: 2 }
   ]);
 
   sizes = await Sizes.findAll();

@@ -13,9 +13,11 @@ router.route('/')
 })
 // Create size
 .post((req, res, next) => {
-  const name = req.body.name;
-  
-  Sizes.create({ name })
+  Sizes.create({ 
+    name: req.body.name, 
+    innerSize: parseInt(req.body.innerSize, 10),
+    outerSize: parseInt(req.body.outerSize, 10)
+  })
   .then((size) => {
     return res.json(size);
   })
@@ -27,7 +29,7 @@ router.route('/:name')
 .get((req, res, next) => {
   const name = req.params.name;
 
-  Sizes.findOne({ where: { name }})
+  Sizes.findOne({ where: { name } })
   .then((size) => {
     return res.json(size);
   })
@@ -38,11 +40,19 @@ router.route('/:name')
 .put((req, res, next) => {
   const name = req.params.name;
   const active = req.body.active;
+  const innerSize = parseInt(req.body.innerSize, 10);
+  const outerSize = parseInt(req.body.outerSize, 10);
 
   Sizes.findOne({ where: { name } })
   .then((size) => {
-    if (active !== undefined && typeof active == 'boolean') {
+    if (active !== undefined && typeof active === 'boolean') {
       size.active = active;
+    }
+    if (innerSize !== undefined && !isNaN(innerSize)) {
+      size.innerSize = innerSize;
+    }
+    if (active !== undefined && !isNaN(outerSize)) {
+      size.outerSize = outerSize;
     }
 
     size.save().then((size) => {

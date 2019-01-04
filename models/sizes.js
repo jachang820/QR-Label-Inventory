@@ -5,6 +5,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       primaryKey: true
     },
+    innerSize: {
+      type: DataTypes.INTEGER
+    },
+    outerSize: {
+      type: DataTypes.INTEGER
+    },
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true

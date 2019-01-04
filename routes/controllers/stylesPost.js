@@ -25,16 +25,32 @@ module.exports = (type) => {
         });
       }),
 
+    /* Validate inner carton if size. */
+    body(`${type}_inner`).trim().optional()
+      .isLength({ min: 1 }).withMessage('Inner carton size must be positive.')
+      .isInt().withMessage('Inner carton size must be an integer.'),
+
+    /* Validate master carton if size. */
+    body(`${type}_outer`).trim().optional()
+      .isLength({ min: 1 }).withMessage('Master carton size must be positive.')
+      .isInt().withMessage('Master carton size must be an integer.'),
+
     /* Trim trailing spaces and remove escape characters to prevent
        SQL injections. */
     sanitizeBody(new_type).trim().escape(),
+    sanitizeBody(`${type}_inner`).trim().escape(),
+    sanitizeBody(`${type}_outer`).trim().escape(),
 
     /* Return error or create new style in database. */
     (req, res, next) => {
       /* This is the new style that was just entered. */
-      const style = {
-        name: req.body[new_type],
+      let style = {
+        name: req.body[new_type]
       };
+      if (type === 'size') {
+        style.innerSize = parseInt(req.body[`${type}_inner`], 10),
+        style.outerSize = parseInt(req.body[`${type}_outer`], 10)
+      }
 
       const errors = validationResult(req);
       const axios = setupAxios();
@@ -57,9 +73,7 @@ module.exports = (type) => {
 
       /* No errors found, create new style. */
       } else { 
-        axios.post(`/${type}s`, {
-          name: style.name
-        }).then((response) => {
+        axios.post(`/${type}s`, style).then((response) => {
           res.redirect('/styles');
 
         }).catch((err) => {
