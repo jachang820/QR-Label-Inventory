@@ -1,31 +1,32 @@
 {{> nav }}
 
-<h1>Inventory</h1>
+<div class="container">
+  <h1>Inventory</h1>
 
-<table>
-  <tr>
-    <th>ID</th>
-    <th>Status</th>
-    <th>Color</th>
-    <th>Size</th>
-    <th>Factory Order</th>
-    <th>Customer Order</th>
-    <th>Inner Box</th>
-    <th>Outer Box</th>
-  </tr>
-
-  {{#each items}}
+  <table>
     <tr>
-      <td>{{this.id}}</td>
-      <td>{{this.status}}</td>
-      <td>{{this.ColorName}}</td>
-      <td>{{this.SizeName}}</td>
-      <td>{{this.FactoryOrderId}}</td>
-      <td>{{this.CustomerOrderId}}</td>
-      <td>{{this.innerbox}}</td>
-      <td>{{this.outerbox}}</td>
+      <th>ID</th>
+      <th>Status</th>
+      <th>Color</th>
+      <th>Size</th>
+      <th>Factory Order</th>
+      <th>Customer Order</th>
+      <th>Inner Box</th>
+      <th>Outer Box</th>
     </tr>
-  {{/each}}
 
-</table>
+    {{#each items}}
+      <tr>
+        <td>{{this.id}}</td>
+        <td>{{this.status}}</td>
+        <td>{{this.ColorName}}</td>
+        <td>{{this.SizeName}}</td>
+        <td>{{this.FactoryOrderId}}</td>
+        <td>{{this.CustomerOrderId}}</td>
+        <td>{{this.innerbox}}</td>
+        <td>{{this.outerbox}}</td>
+      </tr>
+    {{/each}}
 
+  </table>
+</div>

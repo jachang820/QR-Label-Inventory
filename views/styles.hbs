@@ -1,23 +1,25 @@
 {{> nav }}
 
-<h1>Manage Styles</h1>
+<div class="container">
+  <h1>Manage Styles</h1>
 
-<h4>Colors</h4>
-{{> style style="color" listOfStyle=@colors fill=@fill_color }}
+  <h4>Colors</h4>
+  {{> style style="color" listOfStyle=@colors fill=@fill_color }}
 
-<h4>Sizes</h4>
-{{> style style="size" listOfStyle=@sizes fill=@fill_size }}
+  <h4>Sizes</h4>
+  {{> style style="size" listOfStyle=@sizes fill=@fill_size }}
 
-{{!-- Errors are populated into this structure. --}}
-<p id="show-error">
-  {{#if errors}}
-  <ul>
-    {{#each errors}}
-      <li>{{this.msg}}</li>
-    {{/each}}
-  </ul>
-  {{/if}}
-</p>
+  {{!-- Errors are populated into this structure. --}}
+  <p id="show-error">
+    {{#if errors}}
+    <ul>
+      {{#each errors}}
+        <li>{{this.msg}}</li>
+      {{/each}}
+    </ul>
+    {{/if}}
+  </p>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
 <script src="/js/styles.js"></script>

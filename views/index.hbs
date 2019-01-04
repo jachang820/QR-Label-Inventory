@@ -1,18 +1,16 @@
-{{> nav }}
+<link rel="stylesheet" href="css/index.css">
 
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
-<div>
-	{{#unless locals.user}}
-		<h4>You are not logged in! Please <a href="/auth/login">log in</a> to continue.</h4>
-	{{/unless}}
+<div class="container" id="index-container">
+  <img src="images/smokebuddy-logo.png">
+
+  <a href="/auth/login"><button id="login-button">Login</button></a>
+
+  {{!-- Errors due to invalid input show up here. --}}
+  {{#if errors}}
+  <ul>
+    {{#each errors}}
+      <li>{{this.msg}}</li>
+    {{/each}}
+  </ul>
+  {{/if}}
 </div>
-
-{{!-- Errors due to invalid input show up here. --}}
-{{#if errors}}
-<ul>
-  {{#each errors}}
-    <li>{{this.msg}}</li>
-  {{/each}}
-</ul>
-{{/if}}

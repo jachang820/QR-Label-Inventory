@@ -1,0 +1,31 @@
+#index-container {
+  text-align: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  height: 70vh;
+  width: 70vw;
+}
+
+#index-container img {
+  display: block;
+  margin: auto;
+  padding: 50px 0;
+  height: 40vh;
+}
+
+#login-button {
+  background-color: #00A652;
+  padding: 20px 50px;
+  border-radius: 5px;
+  box-shadow: 2px 4px 8px 1px;
+  border: 0;
+  font-size: 40px;
+}
+
+#login-button:hover {
+  background-color: #0C7436;
+}
