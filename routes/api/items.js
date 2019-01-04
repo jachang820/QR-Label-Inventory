@@ -21,6 +21,7 @@ router.route('/')
   const SizeName = req.body.SizeName;
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
+  const qrcode = req.body.qrcode;
 
   Items.create({
     status,
@@ -29,12 +30,16 @@ router.route('/')
     ColorName,
     SizeName,
     FactoryOrderId,
-    CustomerOrderId
+    CustomerOrderId,
+    qrcode
   })
   .then((item) => {
     return res.json(item);
   })
-  .catch(err => next(err));
+  .catch(err => {
+    console.log(err);
+    next(err)}
+    );
 });
 
 router.get('/filter', (req, res, next) => {
@@ -93,6 +98,7 @@ router.route('/:id')
   const SizeName = req.body.SizeName;
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
+  const qrcode = req.body.qrcode;
 
   console.log(`status ${status}`)
   console.log(`innerbox ${innerbox}`)
@@ -124,6 +130,8 @@ router.route('/:id')
     }
     if (SizeName !== undefined) {
       item.SizeName = SizeName;
+    if (qrcode != undefined)
+      item.qrcode = qrcode;
     }
     if (FactoryOrderId !== undefined) {
       if (FactoryOrderId)

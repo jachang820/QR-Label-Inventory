@@ -13,7 +13,7 @@ module.exports = [
       return next();
       
     }).catch((err) => {
-      err.custom("Error retrieving colors from database.");
+      err.custom = "Error retrieving colors from database.";
       return next(err);
     });
   },
@@ -28,7 +28,7 @@ module.exports = [
       return next();
       
     }).catch((err) => {
-      err.custom("Error retrieving sizes from database.");
+      err.custom = "Error retrieving sizes from database.";
       return next(err);
     });
   },

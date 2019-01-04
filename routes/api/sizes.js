@@ -9,17 +9,23 @@ router.route('/')
   .then((sizes) => {
     return res.json(sizes);
   })
-  .catch(err => next(err));
+  .catch(err => {
+    console.log(err);
+    return next(err)});
 })
 // Create size
 .post((req, res, next) => {
   const name = req.body.name;
+  const innerSize = req.body.innerSize;
+  const outerSize = req.body.outerSize;
   
-  Sizes.create({ name })
+  Sizes.create({ name, innerSize, outerSize })
   .then((size) => {
     return res.json(size);
   })
-  .catch(err => next(err));
+  .catch(err => {
+    console.log(err);
+    return next(err)});
 })
 
 router.route('/:name')

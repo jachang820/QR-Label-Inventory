@@ -1,19 +1,21 @@
-<link rel="stylesheet" href="/css/error.css"></link>
+{{> nav }}
+<link rel="stylesheet" href="/css/error.css">
 
-<img src="/images/{{status}}.png" alt="{{statusText}}">
+<div class="container">
+	<img id="error-code" src="/images/{{status}}.png" alt="{{statusText}}">
 
-<h1>
-{{#if custom}}
-  {{custom}}
-{{else}}
-  {{#if message}}
-    {{message}}
-  {{else}}
-    {{statusText}}
-  {{/if}}
-{{/if}}</h1>
+	<h1>
+	{{#if custom}}
+	  {{custom}}
+	{{else}}
+	  {{#if message}}
+	    {{message}}
+	  {{else}}
+	    {{statusText}}
+	  {{/if}}
+	{{/if}}</h1>
 
-<h4>{{#if url}} Error occurred at: {{url}} {{/if}}</h4>
-<h4>{{#if query}} Last query made: {{query}} {{/if}}</h4>
-<pre>{{stack}}</pre>
-
+	<h4>{{#if url}} Error occurred at: {{url}} {{/if}}</h4>
+	<h4>{{#if query}} Last query made: {{query}} {{/if}}</h4>
+	<pre>{{stack}}</pre>
+</div>

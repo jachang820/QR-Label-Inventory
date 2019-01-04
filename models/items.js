@@ -16,6 +16,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     outerbox: {
       type: DataTypes.UUID
+    },
+    qrcode: {
+      type: DataTypes.STRING
     }
   });
 

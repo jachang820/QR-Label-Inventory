@@ -14,9 +14,8 @@ module.exports = [
   async (req, res, next) => {
     const axios = setupAxios();
     const colorsRes = await axios.get('/colors');
-    const colors = colorsRes.data;
 
-    req.body.colors = colors.map(color => color.name);
+    req.body.colors = colorsRes.data;
     return next();
   },
 
@@ -24,18 +23,17 @@ module.exports = [
   async (req, res, next) => {
     const axios = setupAxios();
     const sizesRes = await axios.get('/sizes');
-    const sizes = sizesRes.data;
-
-    req.body.sizes = sizes.map(size => size.name);
+    req.body.sizes = sizesRes.data;
     return next();
   },
 
   body('colors').custom((colors, { req }) => {
     let rowsWithErrors = [];
     let itemCount = req.body.count;
+    let colorNames = req.body.colors.map(color => color.name);
 
     for (let i = 1; i <= itemCount; i++) {
-      if (!colors.includes(req.body[`color${i}`])) {
+      if (!colorNames.includes(req.body[`color${i}`])) {
         rowsWithErrors.push(i);
       }
     }
@@ -50,9 +48,10 @@ module.exports = [
   body('sizes').custom((sizes, { req }) => {
     let rowsWithErrors = [];
     let itemCount = req.body.count;
-
+    let sizeNames = req.body.sizes.map(size => size.name);
+    console.log(req.body.sizes);
     for (let i = 1; i <= itemCount; i++) {
-      if (!sizes.includes(req.body[`size${i}`])) {
+      if (!sizeNames.includes(req.body[`size${i}`])) {
         rowsWithErrors.push(i);
       }
     }
@@ -86,17 +85,14 @@ module.exports = [
       const data = req.body;
       const itemCount = data.count;
       const axios = setupAxios();
+      const colors = req.body.colors;
+      const sizes = req.body.sizes;
 
       // Handle errors
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         const factoryOrdersRes = await axios.get('/factory_orders');
-        const colorsRes = await axios.get('/colors');
-        const sizesRes = await axios.get('/sizes')
-
         const factoryOrders = factoryOrdersRes.data;
-        const colors = colorsRes.data;
-        const sizes = sizesRes.data;
 
         return res.render('orders', { factoryOrders, colors, sizes, errors: errors.array() });
       }
@@ -110,10 +106,18 @@ module.exports = [
         const size = data[`size${i}`];
         let quantity = data[`quantity${i}`];
 
-        for (let j = 1; j <= quantity; j++) {
+        let sizeIndex;
+        for (let j = 0; j < sizes.length; j++) {
+          if (sizes[j].name === size) {
+            sizeIndex = j;
+          }
+        }
+
+        const innerboxInOuterbox = sizes[sizeIndex].outerSize;
+        const itemInInnerbox = sizes[sizeIndex].innerSize;
+
+        for (let j = 0; j < quantity; j++) {
           const outerbox = uuid();
-          const innerboxInOuterbox = size == 'MEGA' ? 2 : 4;
-          const itemInInnerbox = 12;
 
           for (let k = 0; k < innerboxInOuterbox; k++) {
             const innerbox = uuid();

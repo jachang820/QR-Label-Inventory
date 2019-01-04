@@ -1,95 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const { Items, FactoryOrders } = require('../../models')
-
-const markInStock = async (items) => {
-  for (const item of items) {
-    await item.update({ status: 'In Stock'});
-
-    FactoryOrders.findOne({ where: { id: item.FactoryOrderId }})
-    .then((factoryOrder) => {
-      if (!factoryOrder.arrival_date) {
-        factoryOrder.update({ arrival_date: Date.now() })
-      }
-    })
-  }
-};
-
-const markShippedWithCustomerOrder = async (items, CustomerOrderId) => {
-  for (const item of items) {
-    await item.update({ status: 'Shipped', CustomerOrderId });
-  }
-};
-
-// Scan items into the warehouse
-router.post('/in/:id', (req, res, next) => {
-  const id = req.params.id;
-
-  // Assume id is outerbox
-  Items.findAll({ where: { outerbox: id }})
-  .then(async (items) => {
-    if (items.length > 0) {
-      await markInStock(items);
-      return res.json(items);
-    }
-
-    // Assumd id is innerbox
-    Items.findAll({ where: { innerbox: id }})
-    .then(async (items) => {
-      if (items.length > 0) {
-        await markInStock(items);
-        return res.json(items);
-      }
-
-      // Assume id is item
-      Items.findOne({ where: { id }})
-      .then(async (item) => {
-        if (item) {
-          await markInStock([item]);
-          return res.json([item]);
-        }
-
-        return res.json();
-      })
-    })
-  })
-  .catch(next);
-});
+const { Items, FactoryOrders, CustomerOrders } = require('../../models')
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+const fn = Sequelize.fn;
 
 // Scan items out of the warehouse
-router.post('/out/:id', (req, res, next) => {
+router.post('/out/:id', async (req, res, next) => {
   const id = req.params.id;
-  const CustomerOrderId = req.body.CustomerOrdersId;
+  let items;
+  try {
+    items = await Items.findOne({
+      where: { id: id },
+      include: [
+        { model: FactoryOrders },
+        { model: CustomerOrders }
+      ] 
+    });
+  } catch (err) {
+    console.log(err);
+    return next(err);
+  }
 
-  // Assume id is outerbox
-  Items.findAll({ where: { outerbox: id }})
-  .then(async (items) => {
-    if (items.length > 0) {
-      await markShippedWithCustomerOrder(items, CustomerOrderId);
-      return res.json(items);
-    }
-
-    // Assumd id is innerbox
-    Items.findAll({ where: { innerbox: id }})
-    .then(async (items) => {
-      if (items.length > 0) {
-        await markShippedWithCustomerOrder(items, CustomerOrderId);
-        return res.json(items);
-      }
-
-      // Assume id is item
-      Items.findOne({ where: { id }})
-      .then(async (item) => {
-        if (item) {
-          await markShippedWithCustomerOrder([item], CustomerOrderId);
-          return res.json([item]);
-        }
-
-        return res.json();
-      })
-    })
-  })
-  .catch(err => next(err));
+  return res.json(items);
 });
 
 module.exports = router;
