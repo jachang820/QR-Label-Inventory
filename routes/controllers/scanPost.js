@@ -20,12 +20,6 @@ module.exports = [
 			const img = qr.imageSync(req.body.qr, { margin: 1, size: 4 });
 			const str = "data:image/png;base64," + img.toString('base64');
 
-			let params = {
-				status: 'In Stock',
-				arrivalDate: new Date(),
-				receivedBy: res.locals.email
-			};
-
 			let items;
 			axios.put('/scan/out/' + req.body.id).then((response) => {
 				items = response.data;

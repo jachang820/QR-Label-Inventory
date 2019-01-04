@@ -1,9 +1,8 @@
+{{> nav }}
 <link rel="stylesheet" href="/css/error.css">
 
-{{> nav }}
-
 <div class="container">
-	<img src="/images/{{status}}.png" alt="{{statusText}}">
+	<img id="error-code" src="/images/{{status}}.png" alt="{{statusText}}">
 
 	<h1>
 	{{#if custom}}

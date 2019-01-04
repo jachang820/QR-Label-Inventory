@@ -9,7 +9,9 @@ router.route('/')
   .then((sizes) => {
     return res.json(sizes);
   })
-  .catch(err => next(err));
+  .catch(err => {
+    console.log(err);
+    return next(err)});
 })
 // Create size
 .post((req, res, next) => {
@@ -21,7 +23,9 @@ router.route('/')
   .then((size) => {
     return res.json(size);
   })
-  .catch(err => next(err));
+  .catch(err => {
+    console.log(err);
+    return next(err)});
 })
 
 router.route('/:name')
