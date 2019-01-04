@@ -100,24 +100,51 @@ router.route('/:id')
   const CustomerOrderId = req.body.CustomerOrderId;
   const qrcode = req.body.qrcode;
 
+  console.log(`status ${status}`)
+  console.log(`innerbox ${innerbox}`)
+  console.log(`outerbox ${outerbox}`)
+  console.log(`ColorName ${ColorName}`)
+  console.log(`SizeName ${SizeName}`)
+  console.log(`FactoryOrderId ${FactoryOrderId}`)
+  console.log(`CustomerOrderId ${CustomerOrderId}`)
+
   Items.findOne({ where: { id } })
   .then((item) => {
-    if (status !== undefined)
+    if (status !== undefined) {
       item.status = status;
-    if (innerbox !== undefined)
-      item.innerbox = innerbox;
-    if (outerbox !== undefined)
-      item.outerbox = outerbox;
-    if (ColorName !== undefined)
+    }
+    if (innerbox !== undefined) {
+      if (innerbox)
+        item.innerbox = innerbox;
+      else
+        item.innerbox = null;
+    }
+    if (outerbox !== undefined) {
+      if (outerbox)
+        item.outerbox = outerbox;
+      else
+        item.outerbox = null;
+    }
+    if (ColorName !== undefined) {
       item.ColorName = ColorName;
-    if (SizeName !== undefined)
+    }
+    if (SizeName !== undefined) {
       item.SizeName = SizeName;
-    if (FactoryOrderId !== undefined)
-      item.FactoryOrderId = FactoryOrderId;
-    if (CustomerOrderId !== undefined)
-      item.CustomerOrderId = CustomerOrderId;
-    if (qrcode !== undefined)
+    if (qrcode != undefined)
       item.qrcode = qrcode;
+    }
+    if (FactoryOrderId !== undefined) {
+      if (FactoryOrderId)
+        item.FactoryOrderId = FactoryOrderId;
+      else
+        item.FactoryOrderId = null;
+    }
+    if (CustomerOrderId !== undefined) {
+      if (CustomerOrderId)
+        item.CustomerOrderId = CustomerOrderId;
+      else
+        item.CustomerOrderId = null;
+    }
 
     item.save().then((item) => {
       return res.json(item);
