@@ -8,6 +8,7 @@ const dashboardGet = require('./controllers/dashboardGet');
 
 const apiRouter = require('./api/index');
 const authRouter = require('./auth');
+const customerOrdersRouter = require('./customer_orders');
 const inventoryRouter = require('./inventory');
 const ordersRouter = require('./orders');
 const profileRouter = require('./profile');
@@ -23,7 +24,6 @@ router.use('/auth', authRouter);
 
 /* Temporary public pages (for testing purposes). */
 router.use('/qr', qrCodeRouter);
-router.use('/scan', scanRouter);
 
 /* Protected pages. */
 router.use(secured);
@@ -31,6 +31,8 @@ router.use('/api', apiRouter);
 router.use('/inventory', inventoryRouter);
 router.use('/orders', auth(['A']), ordersRouter);
 router.use('/profile', profileRouter);
+router.use('/scan', scanRouter);
+router.use('/customer_orders', customerOrdersRouter);
 router.use('/styles', auth(['A']), stylesRouter);
 
 /* GET dashboard. */
