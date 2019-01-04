@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "jest",
-    "db-setup": "psql postgres < ./scripts/db-setup.sql",
+    "db-setup": "sudo -u postgres psql < ./scripts/db-setup.sql",
     "dummy-data": "node scripts/dummy-data.js"
   },
   "engines": {
