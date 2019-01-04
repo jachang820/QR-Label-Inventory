@@ -15,9 +15,9 @@ async function setup() {
   colors = colors.map((e) => { return e.name; });
 
   await Sizes.bulkCreate([
-    { name: 'junior' },
-    { name: 'original' },
-    { name: 'MEGA' }
+    { name: 'junior', innerSize: 12, outerSize: 4 },
+    { name: 'original', innerSize: 12, outerSize: 4 },
+    { name: 'MEGA', innerSize: 12, outerSize: 2 }
   ]);
 
   sizes = await Sizes.findAll();
@@ -55,13 +55,16 @@ async function setup() {
       }
     }
 
+    let uuid = uuidv4();
+
     items.push({
-      id: uuidv4(),
+      id: uuid,
       status: 'Ordered',
       innerbox: inner,
       outerbox: master,
       ColorName: color,
-      SizeName: size
+      SizeName: size,
+      qrcode: `http://www.smokebuddy.com/?id=${uuid}`
     });
   }
 
