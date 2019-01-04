@@ -23,6 +23,7 @@
       <th>Label</th>
       <th>Arrival Date</th>
       <th>Notes</th>
+      <th>Action</th>
     </tr>
 
     {{#each factoryOrders}}
@@ -46,35 +47,41 @@
 
     <form action="/orders" method="POST">
       <table id="new-order-table">
-        <tr>
-          <th>Color</th>
-          <th>Size</th>
-          <th>Quantity (MC)</th>
-        </tr>
+        <tbody>
+          <tr>
+            <th>Color</th>
+            <th>Size</th>
+            <th>Quantity (MC)</th>
+            <th>Action</th>
+          </tr>
 
-        <tr class="new-order-row">
-          <td>
-            <select id="color1" name="color1">
-              <option>Select a color:</option>
-              {{#each colors}}
-                <option>{{this.name}}</option>
-              {{/each}}
-            </select>
-          </td>
+          <tr class="new-order-row">
+            <td>
+              <select id="color1" name="color1">
+                <option>Select a color:</option>
+                {{#each colors}}
+                  <option>{{this.name}}</option>
+                {{/each}}
+              </select>
+            </td>
 
-          <td>
-            <select id="size1" name="size1">
-              <option>Select a size:</option>
-              {{#each sizes}}
-                <option>{{this.name}}</option>
-              {{/each}}
-            </select>
-          </td>
+            <td>
+              <select id="size1" name="size1">
+                <option>Select a size:</option>
+                {{#each sizes}}
+                  <option>{{this.name}}</option>
+                {{/each}}
+              </select>
+            </td>
 
-          <td>
-            <input id="quantity1" type="number" name="quantity1">
-          </td>
-        </tr>
+            <td>
+              <input id="quantity1" type="number" name="quantity1">
+            </td>
+
+            <td></td>
+          </tr>
+        </tbody>
+
       </table>
 
       <input type="hidden" value="1" name="count" id="item-count">
@@ -110,6 +117,7 @@
     document.getElementById('item-count').value = itemCount;
 
     let newRow = document.getElementsByClassName("new-order-row")[0].cloneNode(true);
+    newRow.children[3].remove();
 
     let td = document.createElement("td");
 
@@ -129,11 +137,11 @@
 
     td.appendChild(deleteButton);
     newRow.appendChild(td);
-    document.getElementById("new-order-table").appendChild(newRow);
+    document.getElementById("new-order-table").children[0].appendChild(newRow);
   }
 
   function deleteItem(deleteButton) {
-    let row = deleteButton.parentNode;
+    let row = deleteButton.parentNode.parentNode;
     let table = row.parentNode;
 
     table.removeChild(row);

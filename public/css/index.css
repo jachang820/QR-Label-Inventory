@@ -18,9 +18,10 @@
 }
 
 #login-button {
+  outline: none;
   background-color: #00A652;
   padding: 20px 50px;
-  border-radius: 5px;
+  border-radius: 43.5px;
   box-shadow: 2px 4px 8px 1px;
   border: 0;
   font-size: 40px;
@@ -28,4 +29,8 @@
 
 #login-button:hover {
   background-color: #0C7436;
+}
+
+#login-button:active {
+  box-shadow: 1px 2px 4px 0;
 }
