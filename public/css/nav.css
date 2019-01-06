@@ -1,5 +1,5 @@
 #navbar {
-  height: 50px;
+  height: 40px;
   position: fixed;
   top: 0px;
   left: 0px;
@@ -16,7 +16,7 @@
 
 #navbar li {
   display: table;
-  height: 35px;
+  height: 40px;
   float: left;
 }
 
@@ -34,12 +34,12 @@
 }
 
 #nav-logo {
-  height: 25px;
+  height: 35px;
 }
 
 #profile-photo {
   display: table-cell;
-  height: 25px;
+  height: 30px;
   vertical-align: middle;
   margin: 5px;
 }
