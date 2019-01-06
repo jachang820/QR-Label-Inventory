@@ -1,27 +1,27 @@
 .container {
-	text-align: center;
-	display: block;
+  text-align: center;
+  display: block;
 }
 
 #scan-target {
-	border-width: 2px;
-	border-color: black;
-	border-radius: 5px;
-	border-style: solid;
-	width: 20vw;
-	height: 15vh;
-	text-align: center;
-	display: inline-block;
+  border-width: 2px;
+  border-color: black;
+  border-radius: 5px;
+  border-style: solid;
+  width: 20vw;
+  height: 15vh;
+  text-align: center;
+  display: inline-block;
 }
 
 #scan-input {
-	margin: 0 auto;
+  margin: 0 auto;
 }
 
 #status {
-	margin: 5vh auto;
+  margin: 5vh auto;
 }
 
 table {
-	margin: 5vh auto;
+  margin: 5vh auto;
 }

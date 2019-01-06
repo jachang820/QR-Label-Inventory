@@ -100,37 +100,47 @@ module.exports = [
   }),
 
   async (req, res, next) => {
-    try {
-      const axios = setupAxios();
+    const axios = setupAxios();
 
-      const data = req.body;
-      const itemCount = data.count;
-      const label = data.label;
-      const notes = data.notes;
-      const colors = req.body.colors;
-      const sizes = req.body.sizes;
+    const data = req.body;
+    const itemCount = data.count;
+    const label = data.label;
+    const notes = data.notes;
+    const colors = data.colors;
+    const sizes = data.sizes;
 
-      // Handle errors
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        const customerOrdersRes = await axios.get('/customer_orders');
-        const customerOrders = customerOrdersRes.data;
-
-        return res.render('customer_orders', { customerOrders, colors, sizes, errors: errors.array() });
+    // Handle errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      let customerOrdersRes;
+      try {
+        customerOrdersRes = await axios.get('/customer_orders');
+      } catch (err) { 
+        return next(err) 
       }
+      const customerOrders = customerOrdersRes.data;
 
-      // Handle request
-      const customerOrdersRes = await axios.post('/customer_orders', {
+      return res.render('customer_orders', { customerOrders, colors, sizes, errors: errors.array() });
+    }
+
+    // Handle request
+    let customerOrdersRes;
+    try {
+      customerOrdersRes = await axios.post('/customer_orders', {
         label,
         notes
       });
-      const CustomerOrderId = customerOrdersRes.data.id;
+    } catch (err) {
+      return next(err);
+    }
+    const CustomerOrderId = customerOrdersRes.data.id;
 
-      for (let i = 1; i <= itemCount; i++) {
-        const itemId = data[`item${i}`];
-        const color = data[`color${i}`];
-        const size = data[`size${i}`];
+    for (let i = 1; i <= itemCount; i++) {
+      const itemId = data[`item${i}`];
+      const color = data[`color${i}`];
+      const size = data[`size${i}`];
 
+      try {
         await axios.post(`/items/${itemId}`, {
           id: itemId,
           status: 'Shipped',
@@ -138,12 +148,11 @@ module.exports = [
           SizeName: size,
           CustomerOrderId
         });
+      } catch(err) {
+        return next(err);
       }
-      res.redirect(`/customer_orders/${CustomerOrderId}`);
     }
-    catch (err) {
-      return next(err);
-    }
+    res.redirect(`/customer_orders/${CustomerOrderId}`);
   }
 ]
 

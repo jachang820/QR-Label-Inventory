@@ -18,8 +18,5 @@ module.exports = async (req, res, next) => {
     items[i].num = i + 1;
   }
 
-  res.render('orders_detail', {
-    order,
-    items
-  });
+  res.render('orders_detail', { order, items });
 };

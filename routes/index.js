@@ -37,7 +37,4 @@ router.use('/scan', scanRouter);
 router.use('/customer_orders', customerOrdersRouter);
 router.use('/styles', auth(['A']), stylesRouter);
 
-/* GET dashboard. */
-router.get('/dashboard', dashboardGet);
-
 module.exports = router;

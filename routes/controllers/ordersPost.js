@@ -80,83 +80,85 @@ module.exports = [
   }),
 
   async (req, res, next) => {
-    try {
-      const data = req.body;
-      const itemCount = data.count;
-      const axios = setupAxios();
-      const label = data.label;
-      const notes = data.notes;
-      const colors = req.body.colors;
-      const sizes = req.body.sizes;
+    const data = req.body;
+    const itemCount = data.count;
+    const axios = setupAxios();
+    const label = data.label;
+    const notes = data.notes;
+    const colors = req.body.colors;
+    const sizes = req.body.sizes;
 
-      // Handle errors
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        const factoryOrdersRes = await axios.get('/factory_orders');
-        const factoryOrders = factoryOrdersRes.data;
-
-        return res.render('orders', { factoryOrders, colors, sizes, errors: errors.array() });
-      }
-
-      // Handle request
-      const factoryOrderRes = await axios.post('/factory_orders', {
-        label,
-        notes
-      });
-      const FactoryOrderId = factoryOrderRes.data.id;
-      let itemsList = [];
-
-      for (let i = 1; i <= itemCount; i++) {
-        const color = data[`color${i}`];
-        const size = data[`size${i}`];
-        let quantity = data[`quantity${i}`];
-
-        let sizeIndex;
-        for (let j = 0; j < sizes.length; j++) {
-          if (sizes[j].name === size) {
-            sizeIndex = j;
-          }
-        }
-
-        const outerSize = sizes[sizeIndex].outerSize;
-        const innerSize = sizes[sizeIndex].innerSize;
-
-        for (let j = 0; j < quantity; j++) {
-          const outerbox = uuid();
-
-          for (let k = 0; k < outerSize; k++) {
-            const innerbox = uuid();
-
-            for (let l = 0; l < innerSize; l++) {
-              const itemId = uuid();
-              let index = i * quantity * outerSize * innerSize;
-              index += j * outerSize * innerSize;
-              index += k * innerSize + l;
-              itemsList.push({
-                id: itemId,
-                status: 'Ordered',
-                innerbox: innerbox,
-                outerbox: outerbox,
-                ColorName: color,
-                SizeName: size,
-                FactoryOrderId: FactoryOrderId,
-                qrcode: `http://www.smokebuddy.com/?id=${itemId}`
-              });
-            }
-          }
-        }
-      }
-
+    // Handle errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      let factorOrdersRes;
       try {
-        await axios.post('/items/bulk', { bulk: itemsList });
-      } catch(err) {
+        factoryOrdersRes = await axios.get('/factory_orders');
+      } catch (err) {
         return next(err);
       }
-      res.redirect(`/orders/${FactoryOrderId}`);
+      const factoryOrders = factoryOrdersRes.data;
+
+      return res.render('orders', { factoryOrders, colors, sizes, errors: errors.array() });
     }
-    catch (err) {
+
+    // Handle request
+    let factoryOrdersRes
+    try {
+      factoryOrdersRes = await axios.post('/factory_orders', { label, notes });
+    } catch (err) {
       return next(err);
     }
+    const FactoryOrderId = factoryOrdersRes.data.id;
+    let itemsList = [];
+
+    for (let i = 1; i <= itemCount; i++) {
+      const color = data[`color${i}`];
+      const size = data[`size${i}`];
+      let quantity = data[`quantity${i}`];
+
+      let sizeIndex;
+      for (let j = 0; j < sizes.length; j++) {
+        if (sizes[j].name === size) {
+          sizeIndex = j;
+        }
+      }
+
+      const outerSize = sizes[sizeIndex].outerSize;
+      const innerSize = sizes[sizeIndex].innerSize;
+
+      for (let j = 0; j < quantity; j++) {
+        const outerbox = uuid();
+
+        for (let k = 0; k < outerSize; k++) {
+          const innerbox = uuid();
+
+          for (let l = 0; l < innerSize; l++) {
+            const itemId = uuid();
+            let index = i * quantity * outerSize * innerSize;
+            index += j * outerSize * innerSize;
+            index += k * innerSize + l;
+            itemsList.push({
+              id: itemId,
+              status: 'Ordered',
+              innerbox: innerbox,
+              outerbox: outerbox,
+              ColorName: color,
+              SizeName: size,
+              FactoryOrderId: FactoryOrderId,
+              qrcode: `http://www.smokebuddy.com/?id=${itemId}`
+            });
+          }
+        }
+      }
+    }
+
+    try {
+      await axios.post('/items/bulk', { bulk: itemsList });
+    } catch(err) {
+      return next(err);
+    }
+    res.redirect(`/orders/${FactoryOrderId}`);
   }
-]
+];
 
