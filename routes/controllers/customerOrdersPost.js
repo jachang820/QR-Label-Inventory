@@ -9,9 +9,8 @@ module.exports = [
   async (req, res, next) => {
     const axios = setupAxios();
     const colorsRes = await axios.get('/colors');
-    const colors = colorsRes.data;
 
-    req.body.colors = colors.map(color => color.name);
+    req.body.colors = colorsRes.data;
     return next();
   },
 
@@ -19,18 +18,18 @@ module.exports = [
   async (req, res, next) => {
     const axios = setupAxios();
     const sizesRes = await axios.get('/sizes');
-    const sizes = sizesRes.data;
 
-    req.body.sizes = sizes.map(size => size.name);
+    req.body.sizes = sizesRes.data;
     return next();
   },
 
   body('colors').custom((colors, { req }) => {
     let rowsWithErrors = [];
-    let itemCount = req.body.count;
+    const itemCount = req.body.count;
+    const colorNames = req.body.colors.map(color => color.name);
 
     for (let i = 1; i <= itemCount; i++) {
-      if (!colors.includes(req.body[`color${i}`])) {
+      if (!colorNames.includes(req.body[`color${i}`])) {
         rowsWithErrors.push(i);
       }
     }
@@ -44,10 +43,11 @@ module.exports = [
 
   body('sizes').custom((sizes, { req }) => {
     let rowsWithErrors = [];
-    let itemCount = req.body.count;
+    const itemCount = req.body.count;
+    const sizeNames = req.body.sizes.map(size => size.name);
 
     for (let i = 1; i <= itemCount; i++) {
-      if (!sizes.includes(req.body[`size${i}`])) {
+      if (!sizeNames.includes(req.body[`size${i}`])) {
         rowsWithErrors.push(i);
       }
     }
@@ -107,17 +107,14 @@ module.exports = [
       const itemCount = data.count;
       const label = data.label;
       const notes = data.notes;
+      const colors = req.body.colors;
+      const sizes = req.body.sizes;
 
       // Handle errors
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         const customerOrdersRes = await axios.get('/customer_orders');
-        const colorsRes = await axios.get('/colors');
-        const sizesRes = await axios.get('/sizes')
-
         const customerOrders = customerOrdersRes.data;
-        const colors = colorsRes.data;
-        const sizes = sizesRes.data;
 
         return res.render('customer_orders', { customerOrders, colors, sizes, errors: errors.array() });
       }

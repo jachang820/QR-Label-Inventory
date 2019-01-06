@@ -2,11 +2,12 @@
 
 <div class="container">
   <h1>Order {{order.id}}</h1>
-  <p>Label: {{order.label}}</p>
+  <p>Invoice #: {{order.label}}</p>
   <p>Notes: {{order.notes}}</p>
 
   <table>
     <tr>
+      <th>#</th>
       <th>ID</th>
       <th>Status</th>
       <th>Color</th>
@@ -19,6 +20,7 @@
 
     {{#each items}}
       <tr>
+        <td>{{this.num}}</td>
         <td>{{this.id}}</td>
         <td>{{this.status}}</td>
         <td>{{this.ColorName}}</td>

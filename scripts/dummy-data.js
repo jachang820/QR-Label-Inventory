@@ -24,8 +24,8 @@ async function setup() {
   sizes = sizes.map((e) => { return e.name });
 
   await FactoryOrders.bulkCreate([
-    { id: 1 },
-    { id: 2 }
+    { },
+    { }
   ]);
 
   await CustomerOrders.bulkCreate([
@@ -46,6 +46,12 @@ async function setup() {
 
   let items = []
   for (let i = 0; i < 72; i++) {
+    let orderId;
+    if (i < 48) {
+      orderId = 1;
+    } else {
+      orderId = 2;
+    }
     let color = colors[i % 4];
     let size = sizes[i % 3];
     if (i % 12 == 0) {
@@ -55,16 +61,17 @@ async function setup() {
       }
     }
 
-    let uuid = uuidv4();
+    let id = i + 1;
 
     items.push({
-      id: uuid,
+      id: uuidv4(),
       status: 'Ordered',
       innerbox: inner,
       outerbox: master,
       ColorName: color,
       SizeName: size,
-      qrcode: `http://www.smokebuddy.com/?id=${uuid}`
+      FactoryOrderId: orderId,
+      qrcode: `http://www.smokebuddy.com/?id=${id}`
     });
   }
 

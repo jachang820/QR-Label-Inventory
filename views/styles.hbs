@@ -1,14 +1,21 @@
 {{> nav }}
 
+<link rel="stylesheet" href="css/styles.css">
+
 <div class="container">
   <h1>Manage Styles</h1>
 
-  <h4>Colors</h4>
-  {{> style style="color" listOfStyle=@colors fill=@fill_color isSize=false }}
+  <div class="category">
+    <h4>Colors</h4>
+    {{> style style="color" listOfStyle=@colors fill=@fill_color isSize=false }}
+  </div>
 
-  <h4>Sizes</h4>
-  {{> style style="size" listOfStyle=@sizes fill=@fill_size isSize=true }}
-
+  
+  <div class="category">
+    <h4>Sizes</h4>
+    {{> style style="size" listOfStyle=@sizes fill=@fill_size isSize=true }}
+  </div>
+  
   {{!-- Errors are populated into this structure. --}}
   <p id="show-error">
     {{#if errors}}

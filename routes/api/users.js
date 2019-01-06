@@ -5,7 +5,9 @@ const { Users } = require('../../models');
 router.route('/')
   /* GET all users */
   .get((req, res, next) => {
-    Users.findAll().then((users) => {
+    Users.findAll({
+      order: [['createdAt', 'ASC']]
+    }).then((users) => {
       return res.json(users);
     }).catch(err => next(err));
   })

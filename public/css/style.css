@@ -29,30 +29,36 @@ input[type=text], input[type=number], select {
   margin: 5px 0;
 }
 
+#notes {
+  width: 30vw;
+}
+
 .btn-primary {
   background-color: lightblue;
-  padding: 5px 10px;
-  border-radius: 5px;
-  border: 0;
-  box-shadow: 1px 2px 4px 0 #333333;
 }
 
 .btn-success {
   background-color: lime;
-  padding: 5px 10px;
-  border-radius: 5px;
-  border: 0;
-  box-shadow: 1px 2px 4px 0 #333333;
 }
 
 .btn-danger {
   background-color: red;
+  
+}
+
+.btn {
+  margin: 1vh;
+  margin-top: 5px;
   padding: 5px 10px;
   border-radius: 5px;
   border: 0;
   box-shadow: 1px 2px 4px 0 #333333;
+  cursor: pointer;
 }
 
+.btn:active {
+  box-shadow: 1px 1px 2px 0;
+}
 
 
 table {

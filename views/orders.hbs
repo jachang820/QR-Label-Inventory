@@ -1,7 +1,7 @@
 {{> nav }}
 
 <div class="container">
-  <link rel="stylesheet" href="/stylesheets/orders.css">
+  <link rel="stylesheet" href="/css/orders.css">
 
   <h1>Orders</h1>
 
@@ -20,7 +20,8 @@
   <table>
     <tr>
       <th>ID</th>
-      <th>Label</th>
+      <th>Invoice #</th>
+      <th>Size</th>
       <th>Arrival Date</th>
       <th>Notes</th>
       <th>Action</th>
@@ -32,10 +33,11 @@
           <a href="/orders/{{this.id}}">{{this.id}}</a>
           </td>
         <td>{{this.label}}</td>
+        <td>{{this.size}}</td>
         <td>{{this.arrival_date}}</td>
         <td>{{this.notes}}</td>
         <td>
-          <button class="btn-danger" onclick="deleteOrder({{this.id}})">Delete</button>
+          <button class="btn btn-danger" onclick="deleteOrder({{this.id}})">Delete</button>
         </td>
       </tr>
     {{/each}}
@@ -46,6 +48,12 @@
     <h2>New Order</h2>
 
     <form action="/orders" method="POST">
+      <label for="label">Invoice #: </label>
+      <input id="label" type="text" name="label">
+
+      <label for="notes">Notes: </label>
+      <input id="notes" type="text" name="notes">
+
       <table id="new-order-table">
         <tbody>
           <tr>
@@ -75,7 +83,7 @@
             </td>
 
             <td>
-              <input id="quantity1" type="number" name="quantity1">
+              <input id="quantity1" type="number" name="quantity1" min="1">
             </td>
 
             <td></td>
@@ -86,10 +94,10 @@
 
       <input type="hidden" value="1" name="count" id="item-count">
 
-      <button class="btn-primary" onClick="addItem()" type="button">New Item</button>
+      <button class="btn btn-primary" onClick="addItem()" type="button">New Item</button>
       <br>
       <br>
-      <input class="btn-success" type="submit" value="Submit Order">
+      <input class="btn btn-success" type="submit" value="Submit Order">
     </form>
   </div>
 </div>

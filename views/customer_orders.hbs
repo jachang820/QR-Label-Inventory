@@ -20,7 +20,7 @@
   <table>
     <tr>
       <th>ID</th>
-      <th>Label</th>
+      <th>Invoice #</th>
       <th>Arrival Date</th>
       <th>Notes</th>
       <th>Action</th>
@@ -35,7 +35,7 @@
         <td>{{this.arrival_date}}</td>
         <td>{{this.notes}}</td>
         <td>
-          <button class="btn-danger" onclick="deleteOrder('{{this.id}}')">Delete</button>
+          <button class="btn btn-danger" onclick="deleteOrder('{{this.id}}')">Delete</button>
         </td>
       </tr>
     {{/each}}
@@ -46,7 +46,7 @@
     <h2>New Order</h2>
 
     <form action="/customer_orders" method="POST">
-      <label for="label">Label: </label>
+      <label for="label">Invoice #: </label>
       <input id="label" type="text" name="label">
 
       <label for="notes">Notes: </label>
@@ -91,10 +91,10 @@
 
       <input type="hidden" value="1" name="count" id="item-count">
 
-      <button class="btn-primary" onClick="addItem()" type="button">New Item</button>
+      <button class="btn btn-primary" onClick="addItem()" type="button">New Item</button>
       <br>
       <br>
-      <input class="btn-success" type="submit" value="Submit Order">
+      <input class="btn btn-success" type="submit" value="Submit Order">
     </form>
   </div>
 </div>

@@ -2,8 +2,8 @@
 
 <nav id="navbar">
   <ul>
-    <li><img id="nav-logo" src="/images/smokebuddy-logo-nav.png"></li>
-    <li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="http://www.smokebuddy.com">
+      <img id="nav-logo" src="/images/smokebuddy-logo-nav.png"></a></li>
     <li><a href="/profile">
     {{#if-role @role "in" "A"}}
       User Management
@@ -19,5 +19,6 @@
     {{/if-role}}
     <li><a href="/styles">Manage Styles</a></li>
     <li><a href="/auth/logout">Logout</a></li>
+    <li><img src={{@user_picture}} id="profile-photo" alt="User photo"></li>
   </ul>
 </nav>

@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { CustomerOrders } = require('../../models');
+const { CustomerOrders, Items } = require('../../models');
 
 router.route('/')
 // Retrieve all customer orders
 .get((req, res, next) => {
-  CustomerOrders.findAll()
+  CustomerOrders.findAll({
+    order: [['createdAt', 'ASC']]
+  })
   .then((customerOrders) => {
     return res.json(customerOrders);
   })
@@ -14,12 +16,10 @@ router.route('/')
 // Create customer order
 .post((req, res, next) => {
   const label = req.body.label;
-  const arrival_date = req.body.arrival_date;
   const notes = req.body.notes;
 
   CustomerOrders.create({
     label,
-    arrival_date,
     notes
   })
   .then((customerOrder) => {
@@ -33,7 +33,10 @@ router.route('/:id')
 .get((req, res, next) => {
   const id = req.params.id;
 
-  CustomerOrders.findOne({ where: { id }})
+  CustomerOrders.findOne({ 
+    where: { id },
+    include: [{model: Items}]
+  })
   .then((customerOrder) => {
     return res.json(customerOrder);
   })
@@ -43,15 +46,12 @@ router.route('/:id')
 .put((req, res, next) => {
   const id = req.params.id;
   const label = req.body.label;
-  const arrival_date = req.body.arrival_date;
   const notes = req.body.notes;
 
   CustomerOrders.findOne({ where: { id } })
   .then((customerOrder) => {
     if (label !== undefined)
       customerOrder.label = label;
-    if (arrival_date !== undefined)
-      customerOrder.arrival_date = arrival_date;
     if (notes !== undefined)
       customerOrder.notes = notes;
 

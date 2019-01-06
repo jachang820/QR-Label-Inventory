@@ -42,6 +42,13 @@ router.route('/')
     );
 });
 
+router.route('/bulk')
+.post((req, res, next) => {
+  Items.bulkCreate(req.body.bulk).then(() => {
+    return res.json({});
+  }).catch(err => next(err));
+});
+
 router.get('/filter', (req, res, next) => {
   Items.findAll({ where: req.query })
   .then((items) => {
@@ -110,40 +117,25 @@ router.route('/:id')
 
   Items.findOne({ where: { id } })
   .then((item) => {
-    if (status !== undefined) {
+    if (statuses.includes(status)) {
       item.status = status;
-    }
-    if (innerbox !== undefined) {
-      if (innerbox)
-        item.innerbox = innerbox;
-      else
-        item.innerbox = null;
-    }
-    if (outerbox !== undefined) {
-      if (outerbox)
-        item.outerbox = outerbox;
-      else
-        item.outerbox = null;
-    }
-    if (ColorName !== undefined) {
+    if (innerbox > 0)
+      item.innerbox = innerbox;
+    if (outerbox > 0)
+      item.outerbox = outerbox;
+    if (arrivalDate > 0)
+      item.arrivalDate = arrivalDate;
+    if (typeof ColorName === 'string' && ColorName.length > 0)
       item.ColorName = ColorName;
     }
-    if (SizeName !== undefined) {
+    if (typeof SizeName === 'string' && SizeName.length > 0) {
       item.SizeName = SizeName;
-    if (qrcode != undefined)
+    if (FactoryOrderId > 0)
+      item.FactoryOrderId = FactoryOrderId;
+    if (CustomerOrderId > 0)
+      item.CustomerOrderId = CustomerOrderId;
+    if (typeof qrcode === 'string' && qrcode.length > 0)
       item.qrcode = qrcode;
-    }
-    if (FactoryOrderId !== undefined) {
-      if (FactoryOrderId)
-        item.FactoryOrderId = FactoryOrderId;
-      else
-        item.FactoryOrderId = null;
-    }
-    if (CustomerOrderId !== undefined) {
-      if (CustomerOrderId)
-        item.CustomerOrderId = CustomerOrderId;
-      else
-        item.CustomerOrderId = null;
     }
 
     item.save().then((item) => {
@@ -159,26 +151,6 @@ router.route('/:id')
   Items.destroy({ where: { id } })
   .then((count) => {
     return res.json(count);
-  })
-  .catch(err => next(err));
-});
-
-router.get('/factory_order/:id', (req, res, next) => {
-  const FactoryOrderId = parseInt(req.params.id);
-
-  Items.findAll({ where: { FactoryOrderId }})
-  .then((items) => {
-    return res.json(items);
-  })
-  .catch(err => next(err));
-});
-
-router.get('/customer_order/:id', (req, res, next) => {
-  const CustomerOrderId = req.params.id;
-
-  Items.findAll({ where: { CustomerOrderId }})
-  .then((items) => {
-    return res.json(items);
   })
   .catch(err => next(err));
 });

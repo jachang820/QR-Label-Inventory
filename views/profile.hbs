@@ -38,7 +38,7 @@
                 admin himself. --}}
           {{#unless this.self}}
           <form action="/profile/del/{{this.email}}" method="post">
-            <input class="btn-danger" type="submit" value="Delete">
+            <input class="btn btn-danger" type="submit" value="Delete">
           </form>
           {{/unless}}
         </td>
@@ -70,6 +70,6 @@
       {{/each}}
     </select>
 
-    <input class="btn-success" type="submit" value="Create">
+    <input class="btn btn-success" type="submit" value="Create">
   </form>
 </div>

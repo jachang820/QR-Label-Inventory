@@ -73,7 +73,7 @@ module.exports = [
   (req, res, next) => {
     const returnTo = req.session.returnTo;
     delete req.session.returnTo;
-    return res.redirect(returnTo || '/dashboard');
+    return res.redirect(returnTo || '/customer_orders');
   }, 
 
   /* An error has occurred. Return to main page with an error 

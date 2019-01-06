@@ -42,6 +42,9 @@ module.exports = (req, res, next) => {
     res.locals.lastname = decoded.lastname;
     res.locals.email = decoded.email;
     res.locals.role = decoded.role;
+    if (req.user.picture) {
+      res.locals.user_picture = req.user.picture;
+    }
 
   } else {
 

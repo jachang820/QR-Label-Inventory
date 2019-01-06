@@ -14,7 +14,6 @@ module.exports = [
   async (req, res, next) => {
     const axios = setupAxios();
     const colorsRes = await axios.get('/colors');
-
     req.body.colors = colorsRes.data;
     return next();
   },
@@ -29,8 +28,8 @@ module.exports = [
 
   body('colors').custom((colors, { req }) => {
     let rowsWithErrors = [];
-    let itemCount = req.body.count;
-    let colorNames = req.body.colors.map(color => color.name);
+    const itemCount = req.body.count;
+    const colorNames = req.body.colors.map(color => color.name);
 
     for (let i = 1; i <= itemCount; i++) {
       if (!colorNames.includes(req.body[`color${i}`])) {
@@ -47,9 +46,9 @@ module.exports = [
 
   body('sizes').custom((sizes, { req }) => {
     let rowsWithErrors = [];
-    let itemCount = req.body.count;
-    let sizeNames = req.body.sizes.map(size => size.name);
-    console.log(req.body.sizes);
+    const itemCount = req.body.count;
+    const sizeNames = req.body.sizes.map(size => size.name);
+
     for (let i = 1; i <= itemCount; i++) {
       if (!sizeNames.includes(req.body[`size${i}`])) {
         rowsWithErrors.push(i);
@@ -85,6 +84,8 @@ module.exports = [
       const data = req.body;
       const itemCount = data.count;
       const axios = setupAxios();
+      const label = data.label;
+      const notes = data.notes;
       const colors = req.body.colors;
       const sizes = req.body.sizes;
 
@@ -98,8 +99,12 @@ module.exports = [
       }
 
       // Handle request
-      const factoryOrderRes = await axios.post('/factory_orders');
+      const factoryOrderRes = await axios.post('/factory_orders', {
+        label,
+        notes
+      });
       const FactoryOrderId = factoryOrderRes.data.id;
+      let itemsList = [];
 
       for (let i = 1; i <= itemCount; i++) {
         const color = data[`color${i}`];
@@ -113,27 +118,39 @@ module.exports = [
           }
         }
 
-        const innerboxInOuterbox = sizes[sizeIndex].outerSize;
-        const itemInInnerbox = sizes[sizeIndex].innerSize;
+        const outerSize = sizes[sizeIndex].outerSize;
+        const innerSize = sizes[sizeIndex].innerSize;
 
         for (let j = 0; j < quantity; j++) {
           const outerbox = uuid();
 
-          for (let k = 0; k < innerboxInOuterbox; k++) {
+          for (let k = 0; k < outerSize; k++) {
             const innerbox = uuid();
 
-            for (let l = 0; l < itemInInnerbox; l++) {
-              await axios.post('/items', {
+            for (let l = 0; l < innerSize; l++) {
+              const itemId = uuid();
+              let index = i * quantity * outerSize * innerSize;
+              index += j * outerSize * innerSize;
+              index += k * innerSize + l;
+              itemsList.push({
+                id: itemId,
                 status: 'Ordered',
-                innerbox,
-                outerbox,
+                innerbox: innerbox,
+                outerbox: outerbox,
                 ColorName: color,
                 SizeName: size,
-                FactoryOrderId
+                FactoryOrderId: FactoryOrderId,
+                qrcode: `http://www.smokebuddy.com/?id=${itemId}`
               });
             }
           }
         }
+      }
+
+      try {
+        await axios.post('/items/bulk', { bulk: itemsList });
+      } catch(err) {
+        return next(err);
       }
       res.redirect(`/orders/${FactoryOrderId}`);
     }

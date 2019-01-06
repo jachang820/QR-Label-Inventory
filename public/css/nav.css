@@ -1,21 +1,32 @@
+#navbar {
+  height: 50px;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+}
+
 #navbar ul {
   list-style-type: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
   overflow: hidden;
   background-color: #333;
 }
 
 #navbar li {
+  display: table;
+  height: 35px;
   float: left;
 }
 
 #navbar li a {
-  display: block;
+  display: table-cell;
   color: white;
   text-align: center;
-  padding: 14px 16px;
+  padding: 0px 15px;
   text-decoration: none;
+  vertical-align: middle;
 }
 
 #navbar li a:hover {
@@ -23,7 +34,12 @@
 }
 
 #nav-logo {
-  height: 40px;
-  padding: 0 10px;
+  height: 25px;
+}
+
+#profile-photo {
+  display: table-cell;
+  height: 25px;
   vertical-align: middle;
+  margin: 5px;
 }
