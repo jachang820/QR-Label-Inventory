@@ -18,6 +18,10 @@ const scanRouter = require('./scan');
 const stylesRouter = require('./styles');
 
 /* Public pages. */
+router.all('/', (req, res, next) => {
+	res.locals.css = ['index.css'];
+	return next();
+});
 
 /* GET home page. */
 router.get('/', indexGet);

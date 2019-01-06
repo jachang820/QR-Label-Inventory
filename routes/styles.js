@@ -5,6 +5,11 @@ const stylesGet = require('./controllers/stylesGet');
 const stylesPost = require('./controllers/stylesPost');
 const stylesPut = require('./controllers/stylesPut');
 
+router.all('*', (req, res, next) => {
+	res.locals.css = ['styles.css'];
+	return next();
+})
+
 /* Show form for managing styles. */
 router.get('/', stylesGet);
 
