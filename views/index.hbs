@@ -1,13 +1,13 @@
-<link rel="stylesheet" href="css/index.css">
+<link rel="stylesheet" href="/css/index.css">
 
 <div class="container" id="index-container">
-  <img src="images/smokebuddy-logo.png">
+  <img src="/images/smokebuddy-logo.png">
 
   <a href="/auth/login"><button id="login-button">Login</button></a>
 
   {{!-- Errors due to invalid input show up here. --}}
   {{#if errors}}
-  <ul>
+  <ul id="errors-list">
     {{#each errors}}
       <li>{{this.msg}}</li>
     {{/each}}

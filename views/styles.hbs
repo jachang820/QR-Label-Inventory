@@ -17,7 +17,7 @@
   {{!-- Errors are populated into this structure. --}}
   <p id="show-error">
     {{#if errors}}
-    <ul>
+    <ul id="errors-list">
       {{#each errors}}
         <li>{{this.msg}}</li>
       {{/each}}

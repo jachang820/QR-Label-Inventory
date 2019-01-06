@@ -87,6 +87,7 @@ module.exports = [
     const notes = data.notes;
     const colors = req.body.colors;
     const sizes = req.body.sizes;
+    console.log(data);
 
     // Handle errors
     const errors = validationResult(req);

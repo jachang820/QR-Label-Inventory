@@ -96,3 +96,8 @@ table th {
   background-color: #333;
   color: white;
 }
+
+#errors-list {
+  list-style-type: none;
+  color: red;
+}

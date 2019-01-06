@@ -8,7 +8,7 @@
   <h1>All Users</h1>
   {{!-- Errors due to invalid input show up here. --}}
   {{#if errors}}
-  <ul>
+  <ul id="errors-list">
     {{#each errors}}
       <li>{{this.msg}}</li>
     {{/each}}
