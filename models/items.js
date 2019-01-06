@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.STRING,
       defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
+      primaryKey: true
     },
     status: {
       type: DataTypes.ENUM,

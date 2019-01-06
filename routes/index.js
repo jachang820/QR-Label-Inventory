@@ -26,14 +26,6 @@ router.use('/auth', authRouter);
 /* Temporary public pages (for testing purposes). */
 router.use('/qr', qrCodeRouter);
 
-const setupAxios = require('../helpers/setupAxios');
-router.get('/test', async (req, res, next) => {
-	const axios = setupAxios();
-	let response = await axios.get('/items');
-	console.log(response.data);
-	next();
-});
-
 /* Protected pages. */
 router.use(secured);
 router.use('/api', apiRouter);

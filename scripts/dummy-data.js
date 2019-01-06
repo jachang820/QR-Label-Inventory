@@ -61,10 +61,10 @@ async function setup() {
       }
     }
 
-    let id = i + 1;
+    let id = uuidv4();
 
     items.push({
-      id: uuidv4(),
+      id: id,
       status: 'Ordered',
       innerbox: inner,
       outerbox: master,
