@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
 const { Items } = require('../../models');
+const uuid = require('uuid/v4');
 
 router.route('/')
 // Retrieve all items
@@ -44,7 +45,34 @@ router.route('/')
 
 router.route('/bulk')
 .post((req, res, next) => {
-  Items.bulkCreate(req.body.bulk).then(() => {
+  const items = req.body.items;
+  let itemsList = [];
+  for (let i = 0; i < items.length; i++) {
+    
+    for (let j = 0; j < items[i].quantity; j++) {
+      const outerbox = uuid();
+      
+      for (let k = 0; k < items[i].outerSize; k++) {
+        const innerbox = uuid();
+
+        for (let l = 0; l < items[i].innerSize; l++) {
+          const itemId = uuid();
+          itemsList.push({
+            id: itemId,
+            status: 'Ordered',
+            innerbox: innerbox,
+            outerbox: outerbox,
+            ColorName: items[i].color,
+            SizeName: items[i].size,
+            FactoryOrderId: req.body.orderId,
+            qrcode: `http://www.smokebuddy.com/?id=${itemId}`
+          });
+        }
+      }
+    }
+  }
+  console.log(itemsList);
+  Items.bulkCreate(itemsList).then(() => {
     return res.json({});
   }).catch(err => next(err));
 });

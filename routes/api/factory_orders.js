@@ -15,7 +15,6 @@ router.route('/')
     group: ['FactoryOrders.id']
   })
   .then((factoryOrders) => {
-    console.log(factoryOrders);
     return res.json(factoryOrders);
   })
   .catch(err => {
