@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
 const { Items } = require('../../models');
+const uuid = require('uuid/v4');
 
 router.route('/')
 // Retrieve all items
@@ -40,6 +41,40 @@ router.route('/')
     console.log(err);
     next(err)}
     );
+});
+
+router.route('/bulk')
+.post((req, res, next) => {
+  const items = req.body.items;
+  let itemsList = [];
+  for (let i = 0; i < items.length; i++) {
+    
+    for (let j = 0; j < items[i].quantity; j++) {
+      const outerbox = uuid();
+      
+      for (let k = 0; k < items[i].outerSize; k++) {
+        const innerbox = uuid();
+
+        for (let l = 0; l < items[i].innerSize; l++) {
+          const itemId = uuid();
+          itemsList.push({
+            id: itemId,
+            status: 'Ordered',
+            innerbox: innerbox,
+            outerbox: outerbox,
+            ColorName: items[i].color,
+            SizeName: items[i].size,
+            FactoryOrderId: req.body.orderId,
+            qrcode: `http://www.smokebuddy.com/?id=${itemId}`
+          });
+        }
+      }
+    }
+  }
+  console.log(itemsList);
+  Items.bulkCreate(itemsList).then(() => {
+    return res.json({});
+  }).catch(err => next(err));
 });
 
 router.get('/filter', (req, res, next) => {
@@ -110,40 +145,25 @@ router.route('/:id')
 
   Items.findOne({ where: { id } })
   .then((item) => {
-    if (status !== undefined) {
+    if (statuses.includes(status)) {
       item.status = status;
-    }
-    if (innerbox !== undefined) {
-      if (innerbox)
-        item.innerbox = innerbox;
-      else
-        item.innerbox = null;
-    }
-    if (outerbox !== undefined) {
-      if (outerbox)
-        item.outerbox = outerbox;
-      else
-        item.outerbox = null;
-    }
-    if (ColorName !== undefined) {
+    if (innerbox > 0)
+      item.innerbox = innerbox;
+    if (outerbox > 0)
+      item.outerbox = outerbox;
+    if (arrivalDate > 0)
+      item.arrivalDate = arrivalDate;
+    if (typeof ColorName === 'string' && ColorName.length > 0)
       item.ColorName = ColorName;
     }
-    if (SizeName !== undefined) {
+    if (typeof SizeName === 'string' && SizeName.length > 0) {
       item.SizeName = SizeName;
-    if (qrcode != undefined)
+    if (FactoryOrderId > 0)
+      item.FactoryOrderId = FactoryOrderId;
+    if (CustomerOrderId > 0)
+      item.CustomerOrderId = CustomerOrderId;
+    if (typeof qrcode === 'string' && qrcode.length > 0)
       item.qrcode = qrcode;
-    }
-    if (FactoryOrderId !== undefined) {
-      if (FactoryOrderId)
-        item.FactoryOrderId = FactoryOrderId;
-      else
-        item.FactoryOrderId = null;
-    }
-    if (CustomerOrderId !== undefined) {
-      if (CustomerOrderId)
-        item.CustomerOrderId = CustomerOrderId;
-      else
-        item.CustomerOrderId = null;
     }
 
     item.save().then((item) => {
@@ -159,26 +179,6 @@ router.route('/:id')
   Items.destroy({ where: { id } })
   .then((count) => {
     return res.json(count);
-  })
-  .catch(err => next(err));
-});
-
-router.get('/factory_order/:id', (req, res, next) => {
-  const FactoryOrderId = parseInt(req.params.id);
-
-  Items.findAll({ where: { FactoryOrderId }})
-  .then((items) => {
-    return res.json(items);
-  })
-  .catch(err => next(err));
-});
-
-router.get('/customer_order/:id', (req, res, next) => {
-  const CustomerOrderId = req.params.id;
-
-  Items.findAll({ where: { CustomerOrderId }})
-  .then((items) => {
-    return res.json(items);
   })
   .catch(err => next(err));
 });

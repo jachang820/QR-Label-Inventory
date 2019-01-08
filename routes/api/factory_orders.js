@@ -1,11 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { FactoryOrders } = require('../../models')
+const { FactoryOrders, Items } = require('../../models')
+const Sequelize = require('sequelize');
 
 router.route('/')
 // Retrieve all factory orders
 .get((req, res, next) => {
-  FactoryOrders.findAll()
+  FactoryOrders.findAll({
+    attributes: {
+      include: [[Sequelize.fn("COUNT", Sequelize.col("Items.id")), "size"]]
+    },
+    include: [{ model: Items, attributes: [] }],
+    order: [['createdAt', 'ASC']],
+    group: ['FactoryOrders.id']
+  })
   .then((factoryOrders) => {
     return res.json(factoryOrders);
   })
@@ -39,7 +47,10 @@ router.route('/:id')
 .get((req, res, next) => {
   const id = req.params.id;
 
-  FactoryOrders.findOne({ where: { id }})
+  FactoryOrders.findOne({ 
+    where: { id },
+    include: [{ model: Items }]
+  })
   .then((factoryOrder) => {
     return res.json(factoryOrder);
   })

@@ -127,6 +127,7 @@ app.use((err, req, res, next) => {
   res.locals.url = req.originalUrl;
 
   /* Render the error page */
+  res.locals.css = ['error.css'];
   res.status(res.locals.status || err.status || 500);
   res.render('error');
 });

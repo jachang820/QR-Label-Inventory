@@ -2,7 +2,13 @@
 <html>
   <head>
     <title>{{title}}</title>
-    <link rel='stylesheet' href='/css/style.css' />
+    <link rel='stylesheet' href='/css/layout.css' />
+    {{#if @logged_in}}
+      <link rel='stylesheet' href='/css/nav.css' />
+    {{/if}}
+    {{#each @css as |sheet|}}
+      <link rel='stylesheet' href='/css/{{sheet}}' />
+    {{/each}}
   </head>
   <body>
     {{{body}}}

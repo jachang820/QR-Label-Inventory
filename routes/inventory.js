@@ -2,16 +2,10 @@ const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
 const setupAxios = require('../helpers/setupAxios');
+const inventoryGet = require('./controllers/inventoryGet');
 const inventoryViewPost = require('./controllers/inventoryViewPost');
 
-router.get('/', (req, res, next) => {
-	const axios = setupAxios();
-  axios.get('/items').then((response) => {
-    const items = response.data;
-
-    res.render('inventory', { items });
-  }).catch(next);
-});
+router.get('/', inventoryGet);
 
 router.post('/view', inventoryViewPost);
 

@@ -18,6 +18,10 @@ const scanRouter = require('./scan');
 const stylesRouter = require('./styles');
 
 /* Public pages. */
+router.all('/', (req, res, next) => {
+	res.locals.css = ['index.css'];
+	return next();
+});
 
 /* GET home page. */
 router.get('/', indexGet);
@@ -36,8 +40,5 @@ router.use('/profile', profileRouter);
 router.use('/scan', scanRouter);
 router.use('/customer_orders', customerOrdersRouter);
 router.use('/styles', auth(['A']), stylesRouter);
-
-/* GET dashboard. */
-router.get('/dashboard', dashboardGet);
 
 module.exports = router;

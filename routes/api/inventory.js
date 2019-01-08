@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { Items, FactoryOrders, CustomerOrders, 
 				Sizes } = require('../../models');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 function sortQuery(sort, direction) {
 

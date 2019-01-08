@@ -9,7 +9,7 @@
     <input id="{{style}}_outer" type="number" 
            name="{{style}}_outer" value="" min="1">
   {{~/if}}
-  <input type="submit" name="add_{{style}}" value="Add">
+  <input type="submit" name="add_{{style}}" class="btn btn-success" value="Add">
 </form>
 
 <form method="post">
@@ -33,5 +33,5 @@
          name="filter_{{style}}" 
          class="filter {{style}}" 
          id="inactive-{{style}}s"> Inactive
-  <input type="button" class="btn {{style}}" value="Toggle Active">
+  <input type="button" class="btn btn-primary {{style}}" value="Toggle Active">
 </form>

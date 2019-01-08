@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="css/inventory.css">
-
 {{> nav }}
 
 <div class="container">
@@ -9,7 +7,7 @@
   {{#if errors}}
   <div id="errors">
     <h2>Error:</h2>
-    <ul>
+    <ul id="errors-list">
       {{#each errors}}
         <li>{{this.msg}}</li>
       {{/each}}
@@ -19,6 +17,7 @@
 
   <table id="inventory-table">
     <tr>
+      <th>#</th>
       <th>ID</th>
       <th>Status</th>
       <th>Color</th>
@@ -32,6 +31,7 @@
 
     {{#each items}}
       <tr>
+        <td>{{this.num}}</td>
         <td>{{this.id}}</td>
         <td>{{this.status}}</td>
         <td>{{this.ColorName}}</td>
@@ -41,8 +41,8 @@
         <td>{{this.innerbox}}</td>
         <td>{{this.outerbox}}</td>
         <td>
-          <a href="/item/edit/{{this.id}}"><button class="btn-primary">Edit</button></a>
-          <button class="btn-danger" onclick="deleteItem('{{this.id}}')">Delete</button>
+          <a href="/item/edit/{{this.id}}"><button class="btn btn-primary">Edit</button></a>
+          <button class="btn btn-danger" onclick="deleteItem('{{this.id}}')">Delete</button>
         </td>
       </tr>
     {{/each}}

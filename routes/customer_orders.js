@@ -1,56 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const setupAxios = require('../helpers/setupAxios');
 
+const customerOrdersGet = require('./controllers/customerOrdersGet');
 const customerOrdersPost = require('./controllers/customerOrdersPost');
+const customerOrdersIdGet = require('./controllers/customerOrdersIdGet');
 
-router.get('/', async (req, res, next) => {
-  const axios = setupAxios();
-  let customerOrdersRes;
-  let colorsRes;
-  let sizesRes;
+/* Show customer orders page. */
+router.get('/', customerOrdersGet);
 
-  try {
-    customerOrdersRes = await axios.get('/customer_orders');
-    colorsRes = await axios.get('/colors');
-    sizesRes = await axios.get('/sizes')
-  }
-  catch (err) {
-    return next(err);
-  }
+/* Get order and items for details page. */
+router.get('/:id', customerOrdersIdGet);
 
-  const customerOrders = customerOrdersRes.data;
-  const colors = colorsRes.data;
-  const sizes = sizesRes.data;
-
-  return res.render('customer_orders', { customerOrders, colors, sizes });
-});
-
-router.get('/:id', async (req, res, next) => {
-  const axios = setupAxios();
-
-  const orderId = req.params.id;
-
-  let ordersRes;
-  let itemsRes;
-
-  try {
-    ordersRes = await axios.get(`customer_orders/${orderId}`);
-    itemsRes = await axios.get(`/items/customer_order/${orderId}`);
-  }
-  catch (err) {
-    return next(err);
-  }
-
-  const order = ordersRes.data;
-  const items = itemsRes.data;
-
-  res.render('customer_orders_detail', {
-    order,
-    items
-  });
-});
-
+/* Add an order. */
 router.post('/', customerOrdersPost);
 
 module.exports = router;

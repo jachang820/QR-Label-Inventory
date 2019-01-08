@@ -9,9 +9,8 @@ module.exports = [
   async (req, res, next) => {
     const axios = setupAxios();
     const colorsRes = await axios.get('/colors');
-    const colors = colorsRes.data;
 
-    req.body.colors = colors.map(color => color.name);
+    req.body.colors = colorsRes.data;
     return next();
   },
 
@@ -19,18 +18,18 @@ module.exports = [
   async (req, res, next) => {
     const axios = setupAxios();
     const sizesRes = await axios.get('/sizes');
-    const sizes = sizesRes.data;
 
-    req.body.sizes = sizes.map(size => size.name);
+    req.body.sizes = sizesRes.data;
     return next();
   },
 
   body('colors').custom((colors, { req }) => {
     let rowsWithErrors = [];
-    let itemCount = req.body.count;
+    const itemCount = req.body.count;
+    const colorNames = req.body.colors.map(color => color.name);
 
     for (let i = 1; i <= itemCount; i++) {
-      if (!colors.includes(req.body[`color${i}`])) {
+      if (!colorNames.includes(req.body[`color${i}`])) {
         rowsWithErrors.push(i);
       }
     }
@@ -44,10 +43,11 @@ module.exports = [
 
   body('sizes').custom((sizes, { req }) => {
     let rowsWithErrors = [];
-    let itemCount = req.body.count;
+    const itemCount = req.body.count;
+    const sizeNames = req.body.sizes.map(size => size.name);
 
     for (let i = 1; i <= itemCount; i++) {
-      if (!sizes.includes(req.body[`size${i}`])) {
+      if (!sizeNames.includes(req.body[`size${i}`])) {
         rowsWithErrors.push(i);
       }
     }
@@ -100,40 +100,47 @@ module.exports = [
   }),
 
   async (req, res, next) => {
-    try {
-      const axios = setupAxios();
+    const axios = setupAxios();
 
-      const data = req.body;
-      const itemCount = data.count;
-      const label = data.label;
-      const notes = data.notes;
+    const data = req.body;
+    const itemCount = data.count;
+    const label = data.label;
+    const notes = data.notes;
+    const colors = data.colors;
+    const sizes = data.sizes;
 
-      // Handle errors
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        const customerOrdersRes = await axios.get('/customer_orders');
-        const colorsRes = await axios.get('/colors');
-        const sizesRes = await axios.get('/sizes')
-
-        const customerOrders = customerOrdersRes.data;
-        const colors = colorsRes.data;
-        const sizes = sizesRes.data;
-
-        return res.render('customer_orders', { customerOrders, colors, sizes, errors: errors.array() });
+    // Handle errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      let customerOrdersRes;
+      try {
+        customerOrdersRes = await axios.get('/customer_orders');
+      } catch (err) { 
+        return next(err) 
       }
+      const customerOrders = customerOrdersRes.data;
 
-      // Handle request
-      const customerOrdersRes = await axios.post('/customer_orders', {
+      return res.render('customer_orders', { customerOrders, colors, sizes, errors: errors.array() });
+    }
+
+    // Handle request
+    let customerOrdersRes;
+    try {
+      customerOrdersRes = await axios.post('/customer_orders', {
         label,
         notes
       });
-      const CustomerOrderId = customerOrdersRes.data.id;
+    } catch (err) {
+      return next(err);
+    }
+    const CustomerOrderId = customerOrdersRes.data.id;
 
-      for (let i = 1; i <= itemCount; i++) {
-        const itemId = data[`item${i}`];
-        const color = data[`color${i}`];
-        const size = data[`size${i}`];
+    for (let i = 1; i <= itemCount; i++) {
+      const itemId = data[`item${i}`];
+      const color = data[`color${i}`];
+      const size = data[`size${i}`];
 
+      try {
         await axios.post(`/items/${itemId}`, {
           id: itemId,
           status: 'Shipped',
@@ -141,12 +148,11 @@ module.exports = [
           SizeName: size,
           CustomerOrderId
         });
+      } catch(err) {
+        return next(err);
       }
-      res.redirect(`/customer_orders/${CustomerOrderId}`);
     }
-    catch (err) {
-      return next(err);
-    }
+    res.redirect(`/customer_orders/${CustomerOrderId}`);
   }
 ]
 

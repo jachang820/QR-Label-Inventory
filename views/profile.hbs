@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="css/profile.css">
-
 {{> nav }}
 
 <div class="container" id="profile-container">
@@ -10,7 +8,7 @@
   <h1>All Users</h1>
   {{!-- Errors due to invalid input show up here. --}}
   {{#if errors}}
-  <ul>
+  <ul id="errors-list">
     {{#each errors}}
       <li>{{this.msg}}</li>
     {{/each}}
@@ -38,7 +36,7 @@
                 admin himself. --}}
           {{#unless this.self}}
           <form action="/profile/del/{{this.email}}" method="post">
-            <input class="btn-danger" type="submit" value="Delete">
+            <input class="btn btn-danger" type="submit" value="Delete">
           </form>
           {{/unless}}
         </td>
@@ -70,6 +68,6 @@
       {{/each}}
     </select>
 
-    <input class="btn-success" type="submit" value="Create">
+    <input class="btn btn-success" type="submit" value="Create">
   </form>
 </div>

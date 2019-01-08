@@ -38,10 +38,14 @@ module.exports = (req, res, next) => {
        return res.redirect('/auth/logout');
     }
 
+    res.locals.logged_in = true;
     res.locals.firstname = decoded.firstname;
     res.locals.lastname = decoded.lastname;
     res.locals.email = decoded.email;
     res.locals.role = decoded.role;
+    if (req.user.picture) {
+      res.locals.user_picture = req.user.picture;
+    }
 
   } else {
 
