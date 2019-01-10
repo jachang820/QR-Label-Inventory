@@ -1,134 +1,137 @@
 const { body, validationResult } = require('express-validator/check');
 const setupAxios = require('../../helpers/setupAxios');
-
-const validateProperty = (req, property, validTest) => {
-  let rowsWithErrors = [];
-  const itemCount = req.body.count;
-
-  for (let i = 1; i <= itemCount; i++) {
-    if (!validTest(req.body[`${property}${i}`])) {
-      rowsWithErrors.push(i);
-    }
-  }
-
-  if (rowsWithErrors.length > 0) {
-    throw new Error(`Invalid ${property} on rows: ${rowsWithErrors.join(', ')}`);
-  } else {
-    return true;
-  }
-}
+const validateProperty = require('../../helpers/validateOrderProperty');
+const arrParser = require('../../middleware/arrParser');
 
 module.exports = [
-  body('count').isNumeric().withMessage('Count must be a number.'),
+  /* Convert array form to object. */
+  arrParser,
 
-  // Consolidate colors in database.
+  /* Makes sure hidden iterator field has not been tempered with. */
+  body('count').isNumeric().withMessage('Count must be a number.')
+               .isInt({ min: 1 }).withMessage('Count must be positive.'),
+
+  /* Consolidate SKUs in database. */
   async (req, res, next) => {
     const axios = setupAxios();
-    const colorsRes = await axios.get('/colors');
-    req.body.colors = colorsRes.data;
+    const skus = await axios.get('/skus');
+    req.body.skus = skus.data;
     return next();
   },
 
-  // Consolidate sizes in database.
+  /* Consolidate sizes in database. */
   async (req, res, next) => {
     const axios = setupAxios();
-    const sizesRes = await axios.get('/sizes');
-    req.body.sizes = sizesRes.data;
+    const sizes = await axios.get('/sizes');
+    req.body.sizes = sizes.data;
     return next();
-  },
+  },  
 
-  // Validate color for each line.
-  body('colors').custom((colors, { req }) => {
-    const colorNames = req.body.colors.map(color => color.name);
-    const validColor = function(color) {
-      return colorNames.includes(color);
-    }
-    return validateProperty(req, 'color', validColor);
+  /* Validate SKU for each line. Formats SKU at the same time. */
+  body().custom((_, { req }) => {
+    const skus = req.body.skus.map(sku => sku.id);
+    const validSKU = (body, i) => {
+      let item = body.items[i];
+      if (item.sku === undefined || typeof item.sku !== 'string') {
+        return false;
+      }
+      item.sku = item.sku.split(' -- ')[0];
+
+      return skus.includes(item.sku);
+    };
+    return validateProperty(req, 'sku', validSKU);
   }),
 
-  // Validate size for each line.
-  body('sizes').custom((sizes, { req }) => {
-    const sizeNames = req.body.sizes.map(size => size.name);
-    const validSize = function(size) {
-      return sizeNames.includes(size);
-    }
-    return validateProperty(req, 'size', validSize);
-  }),
-
-  body().custom((body, { req }) => {
-    const validQuantity = function(quantity) {
-      return Number.isInteger(parseInt(quantity)) && quantity > 0;
-    }
+  /* Validate quantity for each line. Makes sure quantities are integers. */
+  body().custom((_, { req }) => {
+    const validQuantity = (body, i) => {
+      let item = body.items[i];
+      item.quantity = parseInt(item.quantity);
+      if (isNaN(item.quantity)) {
+        return false;
+      }
+      return Number.isInteger(item.quantity) && item.quantity > 0;
+    };
     return validateProperty(req, 'quantity', validQuantity);
   }),
+
+  // Handle errors.
+  async (req, res, next) => {
+    const axios = setupAxios();
+    const skus = req.body.skus;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      let factorOrders;
+      try {
+        factoryOrders = await axios.get('/factory_orders');
+      } catch (err) {
+        return next(err);
+      }
+
+      return res.render('factory_orders', {
+        orders: factoryOrders.data, 
+        skus: skus, 
+        errors: errors.array() });
+    }
+    return next();
+  },
 
   // Organize line items into object.
   (req, res, next) => {
     const itemCount = req.body.count;
     const sizes = req.body.sizes;
-    res.locals.items = [];
-    for (let i = 1; i <= itemCount; i++) {
+    const skus = req.body.skus;
 
-      let sizeIndex;
-      for (let j = 0; j < sizes.length; j++) {
-        if (sizes[j].name === req.body[`size${i}`]) {
-          sizeIndex = j;
+    for (let i = 0; i < itemCount; i++) {
+      
+      let size;
+      let sku;
+
+      for (let j = 0; j < skus.length; j++) {
+        if (skus[j].id === req.body.items[i].sku) {
+          sku = skus[j];
+          break;
         }
       }
 
-      res.locals.items.push({
-        color: req.body[`color${i}`],
-        size: req.body[`size${i}`],
-        quantity: parseInt(req.body[`quantity${i}`]),
-        outerSize: sizes[sizeIndex].outerSize,
-        innerSize: sizes[sizeIndex].innerSize
-      });
-    }
-    return next();
-  },
-
-  // Handle errors.
-  async (req, res, next) => {
-    const axios = setupAxios();
-    const colors = req.body.colors;
-    const sizes = req.body.sizes;
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      let factorOrdersRes;
-      try {
-        factoryOrdersRes = await axios.get('/factory_orders');
-      } catch (err) {
-        return next(err);
+      for (let j = 0; j < sizes.length; j++) {
+        if (sizes[j].name === sku.SizeName) {
+          size = sizes[j];
+          break
+        }
       }
-      const factoryOrders = factoryOrdersRes.data;
 
-      return res.render('orders', { factoryOrders, colors, sizes, 
-                                    errors: errors.array() });
+      req.body.items[i].outerSize = size.outerSize;
+      req.body.items[i].innerSize = size.innerSize;
     }
+
     return next();
   },
 
   // Create factory order.
   async (req, res, next) => {
     const axios = setupAxios();
-    const label = req.body.label;
-    const notes = req.body.notes;
-    let factoryOrdersRes;
+    let factoryOrders;
     try {
-      factoryOrdersRes = await axios.post('/factory_orders', { label, notes });
+      factoryOrders = await axios.post('/factory_orders', { 
+        label: req.body.label, 
+        notes: req.body.notes 
+      });
     } catch (err) {
       return next(err);
     }
-    res.locals.orderId = factoryOrdersRes.data.id;
+
+    res.locals.orderId = factoryOrders.data.id;
     return next();
   },
 
   // Create bulk items.
   async (req, res, next) => {
     const axios = setupAxios();
+
     try {
-      await axios.post('/items/bulk', { items: res.locals.items,
+      await axios.post('/items/bulk', { items: req.body.items,
                                         orderId: res.locals.orderId });
     } catch(err) {
       return next(err);

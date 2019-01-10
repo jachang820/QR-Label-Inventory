@@ -14,15 +14,7 @@
     {{> style style="size" listOfStyle=@sizes fill=@fill_size isSize=true }}
   </div>
   
-  {{!-- Errors are populated into this structure. --}}
-  <p id="show-error">
-    {{#if errors}}
-    <ul id="errors-list">
-      {{#each errors}}
-        <li>{{this.msg}}</li>
-      {{/each}}
-    </ul>
-    {{/if}}
+  {{> error_msg }}
   </p>
 </div>
 

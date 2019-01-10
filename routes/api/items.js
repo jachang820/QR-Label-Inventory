@@ -1,13 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
-const { Items } = require('../../models');
+const { Items, SKUs } = require('../../models');
 const uuid = require('uuid/v4');
 
 router.route('/')
 // Retrieve all items
 .get((req, res, next) => {
-  Items.findAll({where: req.query })
+  Items.findAll({
+    where: req.query,
+    include: [{ model: SKUs }]
+ })
   .then((items) => {
     return res.json(items);
   })
@@ -15,21 +18,21 @@ router.route('/')
 })
 // Create item
 .post((req, res, next) => {
+  const id = req.body.id;
   const status = req.body.status;
   const innerbox = req.body.innerbox;
   const outerbox = req.body.outerbox;
-  const ColorName = req.body.ColorName;
-  const SizeName = req.body.SizeName;
+  const SKUId = req.body.SKUId;
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
   const qrcode = req.body.qrcode;
 
   Items.create({
+    id,
     status,
     innerbox,
     outerbox,
-    ColorName,
-    SizeName,
+    SKUId,
     FactoryOrderId,
     CustomerOrderId,
     qrcode
@@ -39,13 +42,14 @@ router.route('/')
   })
   .catch(err => {
     console.log(err);
-    next(err)}
-    );
+    return next(err);
+  });
 });
 
 router.route('/bulk')
 .post((req, res, next) => {
   const items = req.body.items;
+
   let itemsList = [];
   for (let i = 0; i < items.length; i++) {
     
@@ -62,8 +66,7 @@ router.route('/bulk')
             status: 'Ordered',
             innerbox: innerbox,
             outerbox: outerbox,
-            ColorName: items[i].color,
-            SizeName: items[i].size,
+            SKUId: items[i].sku,
             FactoryOrderId: req.body.orderId,
             qrcode: `http://www.smokebuddy.com/?id=${itemId}`
           });
@@ -74,7 +77,7 @@ router.route('/bulk')
   console.log(itemsList);
   Items.bulkCreate(itemsList).then(() => {
     return res.json({});
-  }).catch(err => next(err));
+  }).catch(err => { console.log(err); next(err) });
 });
 
 router.get('/filter', (req, res, next) => {
@@ -96,81 +99,41 @@ router.route('/:id')
   })
   .catch((err) => next(err));
 })
-// Create item with id
-.post((req, res, next) => {
-  const id = req.body.id;
-  const status = req.body.status;
-  const innerbox = req.body.innerbox;
-  const outerbox = req.body.outerbox;
-  const ColorName = req.body.ColorName;
-  const SizeName = req.body.SizeName;
-  const FactoryOrderId = req.body.FactoryOrderId;
-  const CustomerOrderId = req.body.CustomerOrderId;
-
-  Items.create({
-    id,
-    status,
-    innerbox,
-    outerbox,
-    ColorName,
-    SizeName,
-    FactoryOrderId,
-    CustomerOrderId
-  })
-  .then((item) => {
-    return res.json(item);
-  })
-  .catch(err => next(err));
-})
 // Update item
 .put((req, res, next) => {
   const id = req.params.id;
+  const statuses = Items.rawAttributes.status.values;
 
   const status = req.body.status;
   const innerbox = req.body.innerbox;
   const outerbox = req.body.outerbox;
-  const ColorName = req.body.ColorName;
-  const SizeName = req.body.SizeName;
+  const SKUId = req.body.SKUId;
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
   const qrcode = req.body.qrcode;
 
-  console.log(`status ${status}`)
-  console.log(`innerbox ${innerbox}`)
-  console.log(`outerbox ${outerbox}`)
-  console.log(`ColorName ${ColorName}`)
-  console.log(`SizeName ${SizeName}`)
-  console.log(`FactoryOrderId ${FactoryOrderId}`)
-  console.log(`CustomerOrderId ${CustomerOrderId}`)
-
   Items.findOne({ where: { id } })
   .then((item) => {
-    if (statuses.includes(status)) {
+    if (statuses.includes(status))
       item.status = status;
-    if (innerbox > 0)
+    if (typeof innerbox === 'string' && innerbox.length > 0)
       item.innerbox = innerbox;
-    if (outerbox > 0)
+    if (typeof outerbox === 'string' && outerbox.length > 0)
       item.outerbox = outerbox;
-    if (arrivalDate > 0)
-      item.arrivalDate = arrivalDate;
-    if (typeof ColorName === 'string' && ColorName.length > 0)
-      item.ColorName = ColorName;
-    }
-    if (typeof SizeName === 'string' && SizeName.length > 0) {
-      item.SizeName = SizeName;
+    if (typeof SKUId === 'string' && SKUId.length > 0)
+      item.SKUId = SKUId;
     if (FactoryOrderId > 0)
       item.FactoryOrderId = FactoryOrderId;
-    if (CustomerOrderId > 0)
+    if (typeof CustomerOrderId === 'string' && CustomerOrderId.length > 0)
       item.CustomerOrderId = CustomerOrderId;
     if (typeof qrcode === 'string' && qrcode.length > 0)
       item.qrcode = qrcode;
-    }
-
+    console.log(item);
     item.save().then((item) => {
       return res.json(item);
     });
   })
-  .catch((err) => next(err));
+  .catch((err) => { console.log(err); next(err) });
 })
 // Delete item
 .delete((req, res, next) => {

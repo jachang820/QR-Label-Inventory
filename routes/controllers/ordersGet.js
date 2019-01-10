@@ -1,24 +1,24 @@
 const setupAxios = require('../../helpers/setupAxios');
 
-/* Show factory orders page. */
-module.exports = async (req, res, next) => {
-  const axios = setupAxios();
-  let factoryOrdersRes;
-  let colorsRes;
-  let sizesRes;
+/* Show orders page. */
+module.exports = (orderType) => {
 
-  try {
-    factoryOrdersRes = await axios.get('/factory_orders');
-    colorsRes = await axios.get('/colors');
-    sizesRes = await axios.get('/sizes');
-  }
-  catch (err) {
-    return next(err);
-  }
+  return async (req, res, next) => {
+    const axios = setupAxios();
+    let orders;
+    let skus;
 
-  const factoryOrders = factoryOrdersRes.data;
-  const colors = colorsRes.data;
-  const sizes = sizesRes.data;
+    try {
+      orders = await axios.get(`/${orderType}_orders`);
+      skus = await axios.get('/skus');
+    }
+    catch (err) {
+      return next(err);
+    }
 
-  return res.render('orders', { factoryOrders, colors, sizes });
+    return res.render(`${orderType}_orders`, { 
+      orders: orders.data, 
+      skus: skus.data 
+    });
+  };
 };

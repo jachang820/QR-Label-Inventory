@@ -5,12 +5,5 @@
 
   <a href="/auth/login"><button id="login-button">Login</button></a>
 
-  {{!-- Errors due to invalid input show up here. --}}
-  {{#if errors}}
-  <ul id="errors-list">
-    {{#each errors}}
-      <li>{{this.msg}}</li>
-    {{/each}}
-  </ul>
-  {{/if}}
+  {{> error_msg }}
 </div>

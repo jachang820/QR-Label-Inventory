@@ -4,7 +4,6 @@ const secured = require('../middleware/secured');
 const auth = require('../middleware/authorize');
 
 const indexGet = require('./controllers/indexGet');
-const dashboardGet = require('./controllers/dashboardGet');
 
 const apiRouter = require('./api/index');
 const authRouter = require('./auth');

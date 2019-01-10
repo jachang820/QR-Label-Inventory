@@ -6,14 +6,7 @@
   <h3><strong>Email: </strong>{{@email}}</h3>
 
   <h1>All Users</h1>
-  {{!-- Errors due to invalid input show up here. --}}
-  {{#if errors}}
-  <ul id="errors-list">
-    {{#each errors}}
-      <li>{{this.msg}}</li>
-    {{/each}}
-  </ul>
-  {{/if}}
+  {{> error_msg }}
 
   {{!-- This is a table of all the users. --}}
   <table>

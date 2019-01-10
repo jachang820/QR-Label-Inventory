@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Items, FactoryOrders, CustomerOrders } = require('../../models')
+const { Items, FactoryOrders, CustomerOrders, SKUs } = require('../../models')
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const fn = Sequelize.fn;
@@ -14,7 +14,8 @@ router.post('/out/:id', async (req, res, next) => {
       where: { id: id },
       include: [
         { model: FactoryOrders },
-        { model: CustomerOrders }
+        { model: CustomerOrders },
+        { model: SKUs}
       ] 
     });
   } catch (err) {

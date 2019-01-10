@@ -4,7 +4,7 @@ const setupAxios = require('../../helpers/setupAxios');
 module.exports = (req, res, next) => {
 	const axios = setupAxios();
   axios.get('/items').then((response) => {
-    let items = response.data;
+    const items = response.data;
     for (let i = 0; i < items.length; i++) {
     	items[i].num = i + 1;
     }

@@ -10,21 +10,21 @@
       <th>#</th>
       <th>ID</th>
       <th>Status</th>
-      <th>Color</th>
-      <th>Size</th>
+      <th>SKU</th>
+      <th>UPC</th>
       <th>Factory Order</th>
       <th>Customer Order</th>
       <th>Inner Carton</th>
       <th>Master Carton</th>
     </tr>
 
-    {{#each items}}
+    {{#each order.Items}}
       <tr>
         <td>{{this.num}}</td>
         <td>{{this.id}}</td>
         <td>{{this.status}}</td>
-        <td>{{this.ColorName}}</td>
-        <td>{{this.SizeName}}</td>
+        <td>{{this.SKU.id}}</td>
+        <td>{{this.SKU.upc}}</td>
         <td>{{this.FactoryOrderId}}</td>
         <td>{{this.CustomerOrderId}}</td>
         <td>{{this.innerbox}}</td>

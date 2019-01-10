@@ -10,26 +10,17 @@ router.get('/edit/:id', async (req, res, next) => {
   const axios = setupAxios();
   const id = req.params.id;
 
-  let colorsRes;
-  let sizesRes;
-  let itemsRes;
-
+  let skus;
+  let item;
   try {
-    colorsRes = await axios.get('/colors');
-    sizesRes = await axios.get('/sizes');
-    itemsRes = await axios.get(`/items/${id}`);
+    skus = await axios.get('/skus');
+    item = await axios.get(`/items/${id}`);
   }
   catch (err) {
     return next(err);
   }
 
-  const colors = colorsRes.data;
-  const sizes = sizesRes.data;
-  const item = itemsRes.data;
-
-  console.log(`item ${JSON.stringify(item)}`);
-
-  return res.render('item_edit', { item, colors, sizes })
+  return res.render('item_edit', { item: item.data, skus: skus.data })
 });
 
 router.post('/update/:id', (req, res, next) => {
@@ -37,8 +28,7 @@ router.post('/update/:id', (req, res, next) => {
   const id = req.params.id;
 
   const status = req.body.status;
-  const ColorName = req.body.color;
-  const SizeName = req.body.size;
+  const SKUId = req.body.sku.split(' -- ')[0];
   const FactoryOrderId = req.body.factoryOrder;
   const CustomerOrderId = req.body.customerOrder;
   const innerbox = req.body.innerbox;
@@ -46,8 +36,7 @@ router.post('/update/:id', (req, res, next) => {
 
   axios.put(`/items/${id}`, {
     status,
-    ColorName,
-    SizeName,
+    SKUId,
     FactoryOrderId,
     CustomerOrderId,
     innerbox,
