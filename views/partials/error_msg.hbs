@@ -1,0 +1,10 @@
+{{!-- Errors due to invalid input show up here. --}}
+<div id="errors">
+	{{#if errors}}
+    <ul id="errors-list">
+      {{#each errors}}
+        <li>{{this.msg}}</li>
+      {{/each}}
+    </ul>
+  {{/if}}
+</div>
