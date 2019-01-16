@@ -63,7 +63,7 @@ module.exports = (req, res, next) => {
     if (match.length > 1) {
       match = match.map(e => e.substr(1, e.length - 2));
       match[0] = base;
-      console.log(match);
+      
       populateObject(req.body, match, req.body[key]);
       delete req.body[key];
     }

@@ -1,23 +1,30 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  let SKUs = sequelize.define('SKUs', {
+  let Skus = sequelize.define('Skus', {
     id: {
       type: DataTypes.STRING,
       primaryKey: true
     },
     upc: {
-      type: DataTypes.STRING(12)
+      type: DataTypes.STRING(12),
+      allowNull: false
     },
     active: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      defaultValue: true,
+      allowNull: false
+    },
+    used: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
     }
   });
 
-  SKUs.associate = models => {
-    SKUs.belongsTo(models.Colors);
-    SKUs.belongsTo(models.Sizes);
+  Skus.associate = models => {
+    Skus.belongsTo(models.Colors);
+    Skus.belongsTo(models.Sizes);
   };
 
-  return SKUs;
+  return Skus;
 }

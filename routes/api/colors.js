@@ -43,11 +43,15 @@ router.route('/:name')
 .put((req, res, next) => {
   const name = req.params.name;
   const active = req.body.active;
+  const used = req.body.used;
 
   Colors.findOne({ where: { name } })
   .then((color) => {
-    if (active !== undefined && typeof active == 'boolean') {
+    if (active !== undefined && typeof active === 'boolean') {
       color.active = active;
+    }
+    if (used !== undefined && typeof used === 'boolean') {
+      color.used = used;
     }
 
     color.save().then((color) => {

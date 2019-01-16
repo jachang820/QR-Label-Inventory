@@ -28,7 +28,7 @@ router.post('/update/:id', (req, res, next) => {
   const id = req.params.id;
 
   const status = req.body.status;
-  const SKUId = req.body.sku.split(' -- ')[0];
+  const SkuId = req.body.sku.split(' -- ')[0];
   const FactoryOrderId = req.body.factoryOrder;
   const CustomerOrderId = req.body.customerOrder;
   const innerbox = req.body.innerbox;
@@ -36,7 +36,7 @@ router.post('/update/:id', (req, res, next) => {
 
   axios.put(`/items/${id}`, {
     status,
-    SKUId,
+    SkuId,
     FactoryOrderId,
     CustomerOrderId,
     innerbox,

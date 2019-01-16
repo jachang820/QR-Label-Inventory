@@ -1,42 +1,26 @@
-const async = require('async');
 const setupAxios = require('../../helpers/setupAxios');
+const getModel = require('../../middleware/getModel');
+const prepareList = require('../../middleware/prepareList');
 
-module.exports = [
+/* Generates middleware list to view color and size settings. */
+module.exports = (type) => {
 
-  (req, res, next) => {
-    const axios = setupAxios();
-    axios.get('/colors').then((response) => {
-      res.locals.colors = response.data;
-      for (let i = 0; i < response.data.length; i++) {
-        res.locals.colors[i].style = 'color';
-      }
-      return next();
-      
-    }).catch((err) => {
-      err.custom = "Error retrieving colors from database.";
-      return next(err);
-    });
-  },
+  const types = `${type}s`;
 
-  (req, res, next) => {
-    const axios = setupAxios();
-    axios.get('/sizes').then((response) => {
-      res.locals.sizes = response.data;
-      for (let i = 0; i < response.data.length; i++) {
-        res.locals.sizes[i].style = 'size';
-      }
-      return next();
-      
-    }).catch((err) => {
-      err.custom = "Error retrieving sizes from database.";
-      return next(err);
-    });
-  },
+  return [
 
-  (req, res, next) => {
-    return res.render('styles');
-  }
+    /* Get all of the style type. */
+    getModel(types, 'res', 'name'),
 
-];
+    /* Get object necessary for list all. */
+    prepareList(types),
+
+    /* Render page. */
+    (req, res, next) => {
+      return res.render('listAll');
+    }
+
+  ];
+};
 
   

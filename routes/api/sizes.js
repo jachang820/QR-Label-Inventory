@@ -16,8 +16,8 @@ router.route('/')
 // Create size
 .post((req, res, next) => {
   const name = req.body.name;
-  const innerSize = req.body.innerSize;
-  const outerSize = req.body.outerSize;
+  const innerSize = parseInt(req.body.innerSize);
+  const outerSize = parseInt(req.body.outerSize);
   
   Sizes.create({ name, innerSize, outerSize })
   .then((size) => {
@@ -44,11 +44,15 @@ router.route('/:name')
 .put((req, res, next) => {
   const name = req.params.name;
   const active = req.body.active;
+  const used = req.body.used;
 
   Sizes.findOne({ where: { name } })
   .then((size) => {
-    if (active !== undefined && typeof active == 'boolean') {
+    if (active !== undefined && typeof active === 'boolean') {
       size.active = active;
+    }
+    if (used !== undefined && typeof used === 'boolean') {
+      size.used = used;
     }
 
     size.save().then((size) => {

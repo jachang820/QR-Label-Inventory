@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Items.associate = models => {
-    Items.belongsTo(models.SKUs);
+    Items.belongsTo(models.Skus);
     Items.belongsTo(models.FactoryOrders);
     Items.belongsTo(models.CustomerOrders);
   }

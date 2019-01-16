@@ -1,0 +1,29 @@
+{{> nav }}
+
+<div class="container">
+  <h1>Sizes</h1>
+
+  <div class="add-form">
+    <form action="/styles/size" method="post"> 
+      <label for="size_text">New size </label>
+      <input id="size_text" type="text" name="new_size" value="{{@fill_size}}">
+      <label for="size_inner">Units per inner carton: </label>
+      <input id="size_inner" type="number" 
+             name="size_inner" value="" min="1">
+      <label for="size_outer">Inner cartons per master carton: </label>
+      <input id="size_outer" type="number" 
+             name="size_outer" value="" min="1">
+      <input type="submit" name="add_size" class="btn btn-success" value="Add">
+    </form>
+  </div>
+
+  {{> style style="size" listOfStyle=@sizes }}
+  
+  {{> error_msg }}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script>
+  var type = "size";
+</script>
+<script src="/js/styles.js"></script>

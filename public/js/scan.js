@@ -13,10 +13,10 @@ window.addEventListener('load', function() {
   function targetReady(status) {
     ready = status;
     if (status) {
-      instructions.innerText = readyText['true'];
+      instructions.textContent = readyText['true'];
       scanTarget.style.background = '#c7fccf';
     } else {
-      instructions.innerText = readyText['false'];
+      instructions.textContent = readyText['false'];
       scanTarget.style.background = '#ffbaaf';
     }
   }

@@ -11,10 +11,12 @@ const customerOrdersRouter = require('./customer_orders');
 const inventoryRouter = require('./inventory');
 const itemRouter = require('./item');
 const ordersRouter = require('./orders');
-const profileRouter = require('./profile');
+const accountsRouter = require('./accounts');
 const qrCodeRouter = require('./qr_code');
 const scanRouter = require('./scan');
-const stylesRouter = require('./styles');
+const colorsRouter = require('./colors');
+const sizesRouter = require('./sizes');
+const skusRouter = require('./skus');
 
 /* Public pages. */
 router.all('/', (req, res, next) => {
@@ -23,6 +25,10 @@ router.all('/', (req, res, next) => {
 });
 
 /* GET home page. */
+router.get('/', (req, res, next) => {
+	res.locals.css = ['index.css'];
+	return next();
+})
 router.get('/', indexGet);
 router.use('/auth', authRouter);
 
@@ -35,9 +41,11 @@ router.use('/api', apiRouter);
 router.use('/item', itemRouter);
 router.use('/inventory', inventoryRouter);
 router.use('/orders', auth(['A']), ordersRouter);
-router.use('/profile', profileRouter);
+router.use('/accounts', auth(['A']), accountsRouter);
 router.use('/scan', scanRouter);
 router.use('/customer_orders', customerOrdersRouter);
-router.use('/styles', auth(['A']), stylesRouter);
+router.use('/colors', auth(['A']), colorsRouter);
+router.use('/sizes', auth(['A']), sizesRouter);
+router.use('/skus', auth(['A']), skusRouter);
 
 module.exports = router;

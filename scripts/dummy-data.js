@@ -1,4 +1,4 @@
-const { Colors, Sizes, SKUs, FactoryOrders,
+const { Colors, Sizes, Skus, FactoryOrders,
   CustomerOrders, Items, Users } = require('../models');
 const uuidv4 = require('uuid/v4');
 
@@ -35,7 +35,7 @@ async function setup() {
 
   const upc_pre = '651277420';
 
-  await SKUs.bulkCreate([
+  await Skus.bulkCreate([
     { id: 'OR-BLACK', upc: `${upc_pre}178`, ColorName: 'Black', SizeName: 'Original' },
     { id: 'OR-BLUE', upc: `${upc_pre}161`, ColorName: 'Blue', SizeName: 'Original' },
     { id: 'OR-GREEN', upc: `${upc_pre}154`, ColorName: 'Green', SizeName: 'Original' },
@@ -71,7 +71,7 @@ async function setup() {
     { id: 'M-WHITE', upc: `${upc_pre}352`, ColorName: 'White', SizeName: 'MEGA' }
   ]);
 
-  let skus = await SKUs.findAll();
+  let skus = await Skus.findAll();
   skus = skus.map((e) => { return e.id });
 
   await FactoryOrders.bulkCreate([

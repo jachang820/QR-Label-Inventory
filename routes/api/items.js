@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
-const { Items, SKUs } = require('../../models');
-const uuid = require('uuid/v4');
+const { Items, Skus } = require('../../models');
+const expandLineItems = require('../../helpers/expandLineItems');
 
 router.route('/')
 // Retrieve all items
 .get((req, res, next) => {
   Items.findAll({
     where: req.query,
-    include: [{ model: SKUs }]
+    include: [{ model: Skus }]
  })
   .then((items) => {
     return res.json(items);
@@ -22,7 +22,7 @@ router.route('/')
   const status = req.body.status;
   const innerbox = req.body.innerbox;
   const outerbox = req.body.outerbox;
-  const SKUId = req.body.SKUId;
+  const SkuId = req.body.SkuId;
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
   const qrcode = req.body.qrcode;
@@ -32,7 +32,7 @@ router.route('/')
     status,
     innerbox,
     outerbox,
-    SKUId,
+    SkuId,
     FactoryOrderId,
     CustomerOrderId,
     qrcode
@@ -48,33 +48,11 @@ router.route('/')
 
 router.route('/bulk')
 .post((req, res, next) => {
-  const items = req.body.items;
-
-  let itemsList = [];
-  for (let i = 0; i < items.length; i++) {
-    
-    for (let j = 0; j < items[i].quantity; j++) {
-      const outerbox = uuid();
-      
-      for (let k = 0; k < items[i].outerSize; k++) {
-        const innerbox = uuid();
-
-        for (let l = 0; l < items[i].innerSize; l++) {
-          const itemId = uuid();
-          itemsList.push({
-            id: itemId,
-            status: 'Ordered',
-            innerbox: innerbox,
-            outerbox: outerbox,
-            SKUId: items[i].sku,
-            FactoryOrderId: req.body.orderId,
-            qrcode: `http://www.smokebuddy.com/?id=${itemId}`
-          });
-        }
-      }
-    }
-  }
-  console.log(itemsList);
+  const itemsList = expandLineItems(
+    req.body.items, 
+    req.body.orderId
+  );
+  
   Items.bulkCreate(itemsList).then(() => {
     return res.json({});
   }).catch(err => { console.log(err); next(err) });
@@ -107,7 +85,7 @@ router.route('/:id')
   const status = req.body.status;
   const innerbox = req.body.innerbox;
   const outerbox = req.body.outerbox;
-  const SKUId = req.body.SKUId;
+  const SkuId = req.body.SkuId;
   const FactoryOrderId = req.body.FactoryOrderId;
   const CustomerOrderId = req.body.CustomerOrderId;
   const qrcode = req.body.qrcode;
@@ -120,8 +98,8 @@ router.route('/:id')
       item.innerbox = innerbox;
     if (typeof outerbox === 'string' && outerbox.length > 0)
       item.outerbox = outerbox;
-    if (typeof SKUId === 'string' && SKUId.length > 0)
-      item.SKUId = SKUId;
+    if (typeof SkuId === 'string' && SkuId.length > 0)
+      item.SkuId = SkuId;
     if (FactoryOrderId > 0)
       item.FactoryOrderId = FactoryOrderId;
     if (typeof CustomerOrderId === 'string' && CustomerOrderId.length > 0)

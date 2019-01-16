@@ -58,7 +58,7 @@
               <select id="sku0" name="items[0][sku]">
                 <option>Select a SKU:</option>
                 {{#each skus}}
-                  <option>{{this.id}} -- {{this.upc}}</option>
+                  <option>{{this.id}}</option>
                 {{/each}}
               </select>
             </td>
@@ -98,7 +98,7 @@
 
   function createDeleteButton() {
     let deleteButton = document.createElement("button");
-    deleteButton.innerText = "Delete";
+    deleteButton.textContent = "Delete";
     deleteButton.setAttribute("class", "btn btn-danger");
     deleteButton.addEventListener("click", function() {
       return deleteItem(this)

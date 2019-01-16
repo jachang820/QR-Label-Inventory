@@ -6,15 +6,19 @@ module.exports = (orderType) => {
   return async (req, res, next) => {
     const axios = setupAxios();
     const orderId = req.params.id;
+
+    /* Get data of a specific order. */
     let order;
     try {
       order = await axios.get(`/${orderType}_orders/${orderId}`);
       order = order.data;
+      
     } catch (err) {
       console.log(err);
       return next(err);
     }
-    console.log(order);
+
+    /* Assign numbers to items for visualization. */
     for (let i = 0; i < order.Items.length; i++) {
       order.Items[i].num = i + 1;
     }

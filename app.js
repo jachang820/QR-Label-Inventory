@@ -10,6 +10,7 @@ const Auth0Strategy = require('passport-auth0');
 const hbs = require('hbs');
 
 const hbsRoles = require('./helpers/hbsRoles');
+const hbsEquals = require('./helpers/hbsEquals');
 const userInViews = require('./middleware/userInViews');
 const indexRouter = require('./routes/index');
 
@@ -63,8 +64,9 @@ hbs.registerHelper('ifEquals', function(arg1, arg2, options) {
 // expose locals as template data
 hbs.localsAsTemplateData(app);
 
-// register helper if-role to show views based on user role
+// register Handlebars helpers
 hbsRoles(hbs);
+hbsEquals(hbs);
 
 // config session cookie
 var sess = {

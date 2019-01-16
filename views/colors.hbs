@@ -1,0 +1,23 @@
+{{> nav }}
+
+<div class="container">
+  <h1>Colors</h1>
+
+  <div class="add-form">
+    <form action="/styles/color" method="post"> 
+      <label for="color_text">New color </label>
+      <input id="color_text" type="text" name="new_color" value="{{@fill_color}}">
+      <input type="submit" name="add_color" class="btn btn-success" value="Add">
+    </form>
+  </div>
+
+  {{> style style="color" listOfStyle=@colors }}
+
+  {{> error_msg }}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script>
+  var type = "color";
+</script>
+<script src="/js/styles.js"></script>
