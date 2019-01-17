@@ -1,10 +1,7 @@
-html {
+html, body {
   margin: 0;
   padding: 0;
-  background: -webkit-radial-gradient(white, rgba(128,110,32,0.34));
-  background: radial-gradient(white, rgba(128,110,32,0.34));
-  background-position: fixed;
-  height: 75%;
+  background-color: floralwhite;
 }
 
 body {
@@ -96,26 +93,11 @@ table th {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
-  background-color: #555;
+  background-color: #333;
   color: white;
 }
 
 #errors-list {
   list-style-type: none;
   color: red;
-}
-
-footer {
-  height: 3vh;
-  background-color: #40404b;
-  color: #eee;
-  text-align: center;
-  margin: 0 auto;
-  letter-spacing: 20px;
-  font-weight: bold;
-  position: fixed;
-  left: 0px;
-  top: 97vh;
-  width: 100vw;
-  border-top: 1px solid black;
 }

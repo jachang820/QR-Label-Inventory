@@ -1,24 +1,23 @@
 const setupAxios = require('../../helpers/setupAxios');
+const getModel = require('../../middleware/getModel');
 
 /* Show orders page. */
 module.exports = (orderType) => {
 
-  return async (req, res, next) => {
-    const axios = setupAxios();
-    let orders;
-    let skus;
+  return [
 
-    try {
-      orders = await axios.get(`/${orderType}_orders`);
-      skus = await axios.get('/skus');
-    }
-    catch (err) {
-      return next(err);
-    }
+    /* Get all orders. */
+    getModel(`${orderType}_orders`, 'res'),
 
-    return res.render(`${orderType}_orders`, { 
-      orders: orders.data, 
-      skus: skus.data 
-    });
-  };
+    /* Get all SKUs. */
+    getModel('skus', 'res'),
+
+    /* Render page. */
+    (req, res, next) => {
+      return res.render(`${orderType}_orders`, { 
+        orders: res.locals[`${orderType}_orders`], 
+        skus: res.locals.skus 
+      });
+    }
+  ];
 };

@@ -8,6 +8,7 @@ const arrParser = require('../../middleware/arrParser');
 const getModel = require('../../middleware/getModel');
 
 module.exports = [
+
   /* Convert array form to object. */
   arrParser,
 
