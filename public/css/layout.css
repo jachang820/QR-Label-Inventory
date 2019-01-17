@@ -4,6 +4,7 @@ html {
   background: -webkit-radial-gradient(white, rgba(128,110,32,0.34));
   background: radial-gradient(white, rgba(128,110,32,0.34));
   background-position: fixed;
+  height: 75%;
 }
 
 body {

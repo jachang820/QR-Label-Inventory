@@ -25,7 +25,7 @@ module.exports = [
     return express.Router().use(body('items.*.sku').trim()
       .exists().withMessage("Form transmission failed.")
       .isString().withMessage("SKU must be a string.")
-      .isIn(skus).withMessage("SKU does not exist.")
+      .isIn(skus).withMessage("Invalid SKU selected.")
     )(req, res, next);
   },
 

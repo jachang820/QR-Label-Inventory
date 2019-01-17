@@ -7,6 +7,7 @@ const scanRouter = require('./scan');
 const sizesRouter = require('./sizes');
 const usersRouter = require('./users');
 const skusRouter = require('./skus');
+const labelsRouter = require('./labels');
 
 router.use('/colors', colorsRouter);
 router.use('/customer_orders', ordersRouter('customer'));
@@ -16,5 +17,6 @@ router.use('/scan', scanRouter);
 router.use('/sizes', sizesRouter);
 router.use('/users', usersRouter);
 router.use('/skus', skusRouter);
+router.use('/labels', labelsRouter);
 
 module.exports = router;

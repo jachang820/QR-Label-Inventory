@@ -1,5 +1,5 @@
 const { Colors, Sizes, Skus, FactoryOrders,
-  CustomerOrders, Items, Users } = require('../models');
+  CustomerOrders, Items, Users, Labels } = require('../models');
 const uuidv4 = require('uuid/v4');
 
 async function setup() {
@@ -127,6 +127,11 @@ async function setup() {
   }
 
   await Items.bulkCreate(items);
+
+  await Labels.bulkCreate([
+    { prefix: 'http://www.smokebuddy.com/', style: 'Querystring'},
+    { prefix: 'http://holoshield.net/a/', style: 'Path'}
+  ]);
 
 }
 

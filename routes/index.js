@@ -17,6 +17,7 @@ const scanRouter = require('./scan');
 const colorsRouter = require('./colors');
 const sizesRouter = require('./sizes');
 const skusRouter = require('./skus');
+const labelsRouter = require('./labels');
 
 /* Public pages. */
 router.all('/', (req, res, next) => {
@@ -47,5 +48,6 @@ router.use('/customer_orders', customerOrdersRouter);
 router.use('/colors', auth(['A']), colorsRouter);
 router.use('/sizes', auth(['A']), sizesRouter);
 router.use('/skus', auth(['A']), skusRouter);
+router.use('/labels', auth(['A']), labelsRouter);
 
 module.exports = router;

@@ -9,8 +9,7 @@ module.exports = (model) => {
 		(req, res, next) => {
 			const Models = require('../models')[modelUp];
 			const types = {};
-
-			for (key in res.locals[model][0]) {
+			for (key in Models.rawAttributes) {
 
 				/* Ignore helper fields. */
 				if (Models.rawAttributes[key] === undefined) {
