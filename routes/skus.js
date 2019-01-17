@@ -6,10 +6,10 @@ const skusPost = require('./controllers/skusPost');
 const skusPut = require('./controllers/skusPut');
 
 router.all('*', (req, res, next) => {
-	res.locals.css = ['listAll.css'];
-	res.locals.modelName = 'skus';
-	res.locals.title = 'SKUs';
-	return next();
+  res.locals.css = ['listAll.css'];
+  res.locals.modelName = 'skus';
+  res.locals.title = 'SKUs';
+  return next();
 });
 
 /* Show form for managing SKUs. */

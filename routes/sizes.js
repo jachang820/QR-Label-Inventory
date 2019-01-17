@@ -6,10 +6,10 @@ const stylesPost = require('./controllers/stylesPost');
 const stylesPut = require('./controllers/stylesPut');
 
 router.all('*', (req, res, next) => {
-	res.locals.css = ['listAll.css'];
-	res.locals.modelName = 'sizes';
-	res.locals.title = 'Sizes';
-	return next();
+  res.locals.css = ['listAll.css'];
+  res.locals.modelName = 'sizes';
+  res.locals.title = 'Sizes';
+  return next();
 });
 
 /* Show form for managing sizes. */

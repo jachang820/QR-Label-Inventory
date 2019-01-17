@@ -3,7 +3,7 @@ const uuid = require('uuid/v4');
 /* Create list of item objects for bulkCreate,
    given line items (sku, qty, inner, outer). */
 module.exports = (items, orderId) => {
-	let itemsList = [];
+  let itemsList = [];
   for (let i = 0; i < items.length; i++) {
     
     for (let j = 0; j < items[i].quantity; j++) {

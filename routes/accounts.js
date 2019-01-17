@@ -6,10 +6,10 @@ const accountsPost = require('./controllers/accountsPost');
 const accountsPut = require('./controllers/accountsPut');
 
 router.all('*', (req, res, next) => {
-	res.locals.css = ['listAll.css'];
-	res.locals.modelName = 'accounts';
-	res.locals.title = 'Accounts';
-	return next();
+  res.locals.css = ['listAll.css'];
+  res.locals.modelName = 'accounts';
+  res.locals.title = 'Accounts';
+  return next();
 });
 
 /* Get all users and populate user management form. */
