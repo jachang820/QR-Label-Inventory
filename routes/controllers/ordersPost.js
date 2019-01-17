@@ -9,14 +9,14 @@ module.exports = [
   /* Convert array form to object. */
   arrParser,
 
-  /* Makes sure hidden iterator field has not been tempered with. */
+  /* Makes sure hidden iterator field has not been tampered with. */
   body('count').isNumeric().withMessage('Count must be a number.')
                .isInt({ min: 1 }).withMessage('Count must be positive.'),
 
-  /* Consolidate SKUs in database. */
+  /* Get all SKUs. */
   getModel('skus', 'req', 'id'),
 
-  /* Consolidate sizes in database. */
+  /* Get all sizes. */
   getModel('sizes', 'req'),
 
   /* Validate SKU. */

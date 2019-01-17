@@ -20,16 +20,12 @@ const skusRouter = require('./skus');
 const labelsRouter = require('./labels');
 
 /* Public pages. */
-router.all('/', (req, res, next) => {
+router.all(/^(\/auth)|(\/$)/, (req, res, next) => {
   res.locals.css = ['index.css'];
   return next();
 });
 
 /* GET home page. */
-router.get('/', (req, res, next) => {
-  res.locals.css = ['index.css'];
-  return next();
-})
 router.get('/', indexGet);
 router.use('/auth', authRouter);
 

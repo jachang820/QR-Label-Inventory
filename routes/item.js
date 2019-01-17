@@ -1,49 +1,52 @@
 const express = require('express');
 const router = express.Router();
 const setupAxios = require('../helpers/setupAxios');
+const getModel = require('../middleware/getModel');
 
 router.get('/', (req, res, next) => {
   res.redirect('/inventory');
 })
 
-router.get('/edit/:id', async (req, res, next) => {
-  const axios = setupAxios();
-  const id = req.params.id;
+router.get('/edit/:id', [
 
-  let skus;
-  let item;
-  try {
-    skus = await axios.get('/skus');
-    item = await axios.get(`/items/${id}`);
+  /* Get all SKUs. */
+  getModel('skus', 'res'),
+
+  /* Render edit items page. */
+  async (req, res, next) => {
+    const axios = setupAxios();
+    let item;
+    try {
+      item = await axios.get(`/items/${req.params.id}`);
+    }
+    catch (err) {
+      return next(err);
+    }
+
+    return res.render('item_edit', { 
+      item: item.data 
+    });
   }
-  catch (err) {
+]);
+
+/* Edit item. */
+router.post('/update/:id', async (req, res, next) => {
+  const axios = setupAxios();
+  let response;
+  try {
+    response = await axios.put(`/items/${req.params.id}`, {
+      status: req.body.status,
+      SkuId: req.body.sku.split(' -- ')[0],
+      FactoryOrderId: req.body.factoryOrder,
+      CustomerOrderId: req.body.customerOrder,
+      innerbox: req.body.innerbox,
+      outerbox: req.body.outerbox
+    });
+  } catch (err) {
     return next(err);
   }
 
-  return res.render('item_edit', { item: item.data, skus: skus.data })
-});
-
-router.post('/update/:id', (req, res, next) => {
-  const axios = setupAxios();
-  const id = req.params.id;
-
-  const status = req.body.status;
-  const SkuId = req.body.sku.split(' -- ')[0];
-  const FactoryOrderId = req.body.factoryOrder;
-  const CustomerOrderId = req.body.customerOrder;
-  const innerbox = req.body.innerbox;
-  const outerbox = req.body.outerbox;
-
-  axios.put(`/items/${id}`, {
-    status,
-    SkuId,
-    FactoryOrderId,
-    CustomerOrderId,
-    innerbox,
-    outerbox
-  }).then(() => {
-    res.redirect('/inventory');
-  }).catch((err) => next(err))
+  return res.redirect('/inventory');
 });
 
 module.exports = router;

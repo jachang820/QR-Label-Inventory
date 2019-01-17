@@ -9,12 +9,10 @@
 
     <label for="sku">SKU:</label>
     <select id="sku" name="sku">
-      {{#each skus}}
-        {{#ifEquals this.id ../item.SKUId}}
-          <option selected>{{this.id}} -- {{this.upc}}</option>
-        {{else}}
-          <option>{{this.id}} -- {{this.upc}}</option>
-        {{/ifEquals}}
+      {{#each @skus}}
+        <option{{#eq? this.id ../item.SkuId}} selected{{/eq?}}>
+          {{this.id}} -- {{this.upc}}
+        </option>
       {{/each}}
     </select>
 

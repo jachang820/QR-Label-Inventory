@@ -1,6 +1,9 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const setupAxios = require('../../helpers/setupAxios');
+const https = require('https');
+const fs = require('fs');
+const url = require('url');
 
 module.exports = [
 
@@ -52,6 +55,39 @@ module.exports = [
     })
   },
 
+  /* Save user thumbnail. */
+  (req, res, next) => {
+    /* Download options. */
+    const picUrl = url.parse(res.locals.user.picture);
+    const options = {
+      host: picUrl.hostname,
+      port: 80,
+      path: picUrl.pathname
+    };
+
+    /* Write options. */
+    let email = res.locals.user.emails[0].value.replace('@', '-');
+    const saveAs = `${__dirname}/../../public/images/thumbs/${email}.jpg`;
+    const writeOpts = { encoding: 'binary', flag: 'w' };
+
+    /* GET file by appending chunks of binary data. */
+    const request = https.get(res.locals.user.picture, (response) => {
+      let imagedata = '';
+      response.setEncoding('binary');
+      response.on('data', (chunk) => {
+        imagedata += chunk;
+      });
+
+      /* Save file as /public/images/thumbs/[user email].jpg. */
+      response.on('end', () => {
+        fs.writeFile(saveAs, imagedata, writeOpts, (err) => {
+          if (err) throw err;
+        });
+      });
+    });
+    return next();
+  },
+
   /* Sign a JSON Web Token with a secret to return a security
      signature. The signature along with the secret can be
      used to determine user role. */
@@ -79,6 +115,7 @@ module.exports = [
   /* An error has occurred. Return to main page with an error 
      message previously generated. */
   (err, req, res, next) => {
+    console.log(err);
     return res.render('index', {
       errors: [{ msg: err.custom }]
     });

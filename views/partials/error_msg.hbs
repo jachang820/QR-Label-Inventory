@@ -3,7 +3,7 @@
   {{#if errors}}
     <ul id="errors-list">
       {{#each errors}}
-        <li>{{this.param}}: {{this.msg}}</li>
+        <li>{{#if this.param}}{{this.param}}: {{/if}}{{this.msg}}</li>
       {{/each}}
     </ul>
   {{/if}}

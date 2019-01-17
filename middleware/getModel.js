@@ -5,7 +5,7 @@ const setupAxios = require('../helpers/setupAxios');
    'req' -- req.body
 
    'model' takes a lower-case string, usually plural.
-   'map_to' creates a map to named property, e.g. skusId.
+   'mapTo' creates a map to named property, e.g. skusId.
       It takes a list for multiple maps. */
 module.exports = (model, storage, mapTo) => {
 

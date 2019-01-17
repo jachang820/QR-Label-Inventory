@@ -72,7 +72,7 @@ async function setup() {
   ]);
 
   let skus = await Skus.findAll();
-  skus = skus.map((e) => { return e.id });
+  skus = skus.map(e => e.id );
 
   await FactoryOrders.bulkCreate([
     { },

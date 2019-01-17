@@ -12,7 +12,7 @@ module.exports = [
   /* Convert array form to object. */
   arrParser,
 
-  /* Makes sure hidden iterator field has not been tempered with. */
+  /* Makes sure hidden iterator field has not been tampered with. */
   body('count').isNumeric().withMessage('Count must be a number.')
                .isInt({ min: 1 }).withMessage('Count must be positive.'),
 
