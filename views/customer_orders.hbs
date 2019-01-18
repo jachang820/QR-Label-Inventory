@@ -133,4 +133,11 @@
     itemCount--;
     document.getElementById('item-count').value = itemCount;
   }
+
+  document.addEventListener('keypress', function(event) {
+    if (event.keyCode == 13) {
+      event.preventDefault();
+    }
+  });
+  
 </script>
