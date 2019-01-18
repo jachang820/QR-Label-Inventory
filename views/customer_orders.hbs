@@ -99,6 +99,7 @@
 </div>
 
 <script>
+  
   let itemCount = 1;
 
   function deleteOrder(id) {
@@ -153,4 +154,11 @@
     itemCount--;
     document.getElementById('item-count').value = itemCount;
   }
+
+  document.addEventListener('keypress', function(event) {
+    if (event.keyCode == 13) {
+      event.preventDefault();
+    }
+  });
+
 </script>
