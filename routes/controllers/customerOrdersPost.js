@@ -12,9 +12,20 @@ module.exports = [
   /* Convert array form to object. */
   arrParser,
 
-  /* Makes sure hidden iterator field has not been tampered with. */
-  body('count').isNumeric().withMessage('Count must be a number.')
-               .isInt({ min: 1 }).withMessage('Count must be positive.'),
+  /* Ignore empty new rows. */
+  (req, res, next) => {
+    const count = req.body.items.length;
+    for (let i = count - 1; i >= 0; i--) {
+      if (req.body.items[i].qrcode.trim().length === 0) {
+        req.body.items.pop();
+      }
+    }
+    return next();
+  },
+
+  /* Validate items. */
+  body('items').trim()
+    .not().isEmpty().withMessage("Order must contain at least one item."),
 
   /* Get all labels. */
   getModel('labels', 'req'),
@@ -82,7 +93,6 @@ module.exports = [
 
   /* Trim trailing spaces and remove escape characters to prevent
      SQL injections. */
-  sanitizeBody('count').trim().toInt().escape(),
   sanitizeBody('items.*.skus').trim().escape(),
   sanitizeBody('items.*.qrcode').trim().escape(),
   sanitizeBody('items.*.id').trim().escape(),
@@ -124,9 +134,9 @@ module.exports = [
   // Create customer order.
   async (req, res, next) => {
     const axios = setupAxios();
-    const itemCount = req.body.count;
+    const count = req.body.items.length;
     let itemsList = []
-    for (let i = 0; i < itemCount; i++) {
+    for (let i = 0; i < count; i++) {
       itemsList.push({
         id: req.body.items[i].id,
         status: 'Shipped',

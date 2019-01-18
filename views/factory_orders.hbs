@@ -71,8 +71,6 @@
 
       </table>
 
-      <input type="hidden" value="1" name="count" id="item-count">
-
       <button class="btn btn-primary" onClick="addItem()" type="button">New Item</button>
       <br>
       <br>
@@ -119,13 +117,13 @@
     let inputQuantity = newRow.querySelector("#quantity0");
     inputQuantity.name = "items[" + itemCount + "][quantity]";
     inputQuantity.id = "quantity" + itemCount;
+    inputQuantity.value = "";
 
     newRow.children[2].appendChild(createDeleteButton());
 
     document.getElementById("new-order-table").children[0].appendChild(newRow);
 
     itemCount++;
-    document.getElementById('item-count').value = itemCount;
   }
 
   function deleteItem(deleteButton) {
@@ -134,6 +132,12 @@
 
     table.removeChild(row);
     itemCount--;
-    document.getElementById('item-count').value = itemCount;
   }
+
+  document.addEventListener('keypress', function(event) {
+    if (event.keyCode == 13) {
+      event.preventDefault();
+      addItem();
+    }
+  });
 </script>
