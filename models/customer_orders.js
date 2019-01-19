@@ -7,10 +7,17 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     label: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    type: {
+      type: DataTypes.ENUM,
+      values: ['Retail', 'Wholesale'],
+      allowNull: false
     },
     notes: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: true
     }
   });
 

@@ -35,6 +35,11 @@
     <h2>New Order</h2>
 
     <form action="/customer_orders" method="POST">
+      <select name="type">
+        <option value="Retail" selected>Retail</option>
+        <option value="Wholesale">Wholesale</option>
+      </select>
+
       <label for="label">Invoice #: </label>
       <input id="label" type="text" name="label">
 

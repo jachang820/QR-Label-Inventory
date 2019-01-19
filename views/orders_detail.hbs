@@ -12,8 +12,8 @@
       <th>Status</th>
       <th>SKU</th>
       <th>UPC</th>
-      <th>Factory Order</th>
-      <th>Customer Order</th>
+      <th>Order ID</th>
+      {{#eq? @orderType "customer"}}<th>Type</th>{{/eq?}}
       <th>Inner Carton</th>
       <th>Master Carton</th>
     </tr>
@@ -25,8 +25,12 @@
         <td>{{this.status}}</td>
         <td>{{this.Sku.id}}</td>
         <td>{{this.Sku.upc}}</td>
-        <td>{{this.FactoryOrderId}}</td>
+        {{#eq? @orderType "customer"}}
         <td>{{this.CustomerOrderId}}</td>
+        <td>{{@type}}</td>
+        {{else}}
+        <td>{{this.FactoryOrderId}}</td>
+        {{/eq?}}
         <td>{{this.innerbox}}</td>
         <td>{{this.outerbox}}</td>
       </tr>
