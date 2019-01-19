@@ -6,6 +6,7 @@ module.exports = (orderType) => {
   return async (req, res, next) => {
     const axios = setupAxios();
     const orderId = req.params.id;
+    res.locals.orderType = orderType;
 
     /* Get data of a specific order. */
     let order;
@@ -22,6 +23,8 @@ module.exports = (orderType) => {
     for (let i = 0; i < order.Items.length; i++) {
       order.Items[i].num = i + 1;
     }
+
+    res.locals.type = order.type;
 
     res.render('orders_detail', { order });
   };

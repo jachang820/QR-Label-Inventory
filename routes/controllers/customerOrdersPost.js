@@ -4,6 +4,7 @@ const express = require('express');
 const setupAxios = require('../../helpers/setupAxios');
 const reconstructUrl = require('../../helpers/reconstructUrl');
 const matchedLabel = require('../../helpers/matchedLabel');
+const enumAttr = require('../../helpers/enumAttr');
 const arrParser = require('../../middleware/arrParser');
 const getModel = require('../../middleware/getModel');
 
@@ -26,6 +27,18 @@ module.exports = [
   /* Validate items. */
   body('items').trim()
     .not().isEmpty().withMessage("Order must contain at least one item."),
+
+  /* Validate label. */
+  body('label').trim()
+    .not().isEmpty().withMessage("Invoice number empty."),
+
+  /* Validate type. */
+  (req, res, next) => {
+    const types = enumAttr('customerOrders', 'type');
+    return express.Router().use(body('type').trim()
+      .isIn(types).withMessage("Type must be either Retail or Wholesale.")
+    )(req, res, next);
+  },
 
   /* Get all labels. */
   getModel('labels', 'req'),
@@ -96,6 +109,9 @@ module.exports = [
   sanitizeBody('items.*.skus').trim().escape(),
   sanitizeBody('items.*.qrcode').trim().escape(),
   sanitizeBody('items.*.id').trim().escape(),
+  sanitizeBody('label').trim().escape(),
+  sanitizeBody('notes').trim().escape(),
+  sanitizeBody('type').trim().escape(),
 
   /* Reconstruct URL from effects of sanitize. */
   (req, res, next) => {
@@ -149,6 +165,7 @@ module.exports = [
     try {
       order = await axios.post('/customer_orders', {
         itemsList: itemsList,
+        type: req.body.type,
         label: req.body.label,
         notes: req.body.notes
       });

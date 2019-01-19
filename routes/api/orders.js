@@ -36,6 +36,10 @@ module.exports = (orderType) => {
       notes: req.body.notes
     };
 
+    if (req.body.itemsList) {
+      newOrder.type = req.body.type;
+    }
+
     try {
       transaction = await sequelize.transaction();
 
