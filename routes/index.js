@@ -3,7 +3,7 @@ const router = express.Router();
 const secured = require('../middleware/secured');
 const auth = require('../middleware/authorize');
 
-const indexGet = require('./controllers/indexGet');
+const indexGet = require('../controllers/indexGet');
 
 const apiRouter = require('./api/index');
 const authRouter = require('./auth');
@@ -18,6 +18,7 @@ const colorsRouter = require('./colors');
 const sizesRouter = require('./sizes');
 const skusRouter = require('./skus');
 const labelsRouter = require('./labels');
+const errorRouter = require('./error');
 
 /* Public pages. */
 router.all(/^(\/auth)|(\/$)/, (req, res, next) => {
@@ -45,5 +46,6 @@ router.use('/colors', auth(['A']), colorsRouter);
 router.use('/sizes', auth(['A']), sizesRouter);
 router.use('/skus', auth(['A']), skusRouter);
 router.use('/labels', auth(['A']), labelsRouter);
+router.use('/error', errorRouter);
 
 module.exports = router;

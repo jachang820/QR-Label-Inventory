@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const accountsGet = require('./controllers/accountsGet');
-const accountsPost = require('./controllers/accountsPost');
-const accountsPut = require('./controllers/accountsPut');
+const accountsGet = require('../controllers/accountsGet');
+const accountsPost = require('../controllers/accountsPost');
+const accountsPut = require('../controllers/accountsPut');
 
 router.all('*', (req, res, next) => {
-  res.locals.css = ['listAll.css'];
+  res.locals.css = ['listView.css'];
   res.locals.modelName = 'accounts';
   res.locals.title = 'Accounts';
   return next();

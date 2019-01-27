@@ -1,24 +1,30 @@
 const express = require('express');
-const { FactoryOrders, CustomerOrders, Items, Skus,
+const { FactoryOrder, CustomerOrders, MasterCarton, Sku, Items,
         sequelize } = require('../../models')
 const Sequelize = require('sequelize');
 const expandLineItems = require('../../helpers/expandLineItems');
 
 module.exports = (orderType) => {
   const router = express.Router();
-  const Orders = orderType === 'factory' ? FactoryOrders : CustomerOrders;
+  const Orders = orderType === 'factory' ? FactoryOrder : CustomerOrders;
   orderType = orderType.charAt(0).toUpperCase() + orderType.substr(1);
+  orderType += 'Order';
+  let created = 'created';
+  if (orderType === 'CustomerOrder') {
+    orderType += 's';
+    created += 'At';
+  }
 
   router.route('/')
   // Retrieve all orders
   .get((req, res, next) => {
     Orders.findAll({
       attributes: {
-        include: [[Sequelize.fn("COUNT", Sequelize.col("Items.id")), "size"]]
+        include: [[Sequelize.fn("COUNT", Sequelize.col('Items.id')), "size"]]
       },
       include: [{ model: Items, attributes: [] }],
-      order: [['createdAt', 'ASC']],
-      group: [`${orderType}Orders.id`]
+      order: [[created, 'ASC']],
+      group: [`${orderType}.id`]
     })
     .then((orders) => {
       return res.json(orders);
@@ -82,7 +88,7 @@ module.exports = (orderType) => {
       where: { id },
       include: [{ 
         model: Items,
-        include: [{ model: Skus }] 
+        include: [{ model: Sku }] 
       }]
     })
     .then((order) => {
@@ -97,15 +103,15 @@ module.exports = (orderType) => {
   .put((req, res, next) => {
     const id = req.params.id;
     const label = req.body.label;
-    const arrivalDate = req.body.arrivalDate;
+    const arrival = req.body.arrivalDate;
     const notes = req.body.notes;
 
     Orders.findOne({ where: { id } })
     .then((order) => {
       if (label !== undefined)
         order.label = label;
-      if (orderType === 'Factory' && arrivalDate !== undefined)
-        order.arrivalDate = arrivalDate;
+      if (orderType === 'FactoryOrder' && arrival !== undefined)
+        order.arrival = arrivalDate;
       if (notes !== undefined)
         order.notes = notes;
 

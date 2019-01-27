@@ -21,7 +21,7 @@ module.exports = (qrcode, labels) => {
 
     /* ID is the next term in the path, or the remaining part of
        last term. */
-    if (style === 'Path') {
+    if (style === 'path') {
       return suffix.split('/')[0];
 
     /* ID is in the querystring, with key='id'. */

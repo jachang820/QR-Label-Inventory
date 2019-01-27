@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const setupAxios = require('../helpers/setupAxios');
-const getModel = require('../middleware/getModel');
+const Skus = require('../services/sku');
 
 router.get('/', (req, res, next) => {
   res.redirect('/inventory');
@@ -10,7 +10,11 @@ router.get('/', (req, res, next) => {
 router.get('/edit/:id', [
 
   /* Get all SKUs. */
-  getModel('skus', 'res'),
+  async (req, res, next) => {
+    const skus = new Skus();
+    res.locals.skus = await skus.getListView();
+    return next();
+  },
 
   /* Render edit items page. */
   async (req, res, next) => {

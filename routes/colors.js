@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const stylesGet = require('./controllers/stylesGet');
-const stylesPost = require('./controllers/stylesPost');
-const stylesPut = require('./controllers/stylesPut');
+const stylesGet = require('../controllers/stylesGet');
+const stylesPost = require('../controllers/stylesPost');
+const stylesPut = require('../controllers/stylesPut');
 
 router.all('*', (req, res, next) => {
-  res.locals.css = ['listAll.css'];
+  res.locals.css = ['listView.css'];
   res.locals.modelName = 'colors';
   res.locals.title = 'Colors';
   return next();

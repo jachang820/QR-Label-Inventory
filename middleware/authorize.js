@@ -13,8 +13,9 @@ module.exports = (accepted) => {
 
   return (req, res, next) => {
     /* Compares user role with the start of each accepted value. */
-    let role = res.locals.role;
-    if (accepted.map(e => role.startsWith(e)).includes(true)) {
+    let role = res.locals.role.toUpperCase();
+    accepted = accepted.map(e => e.toUpperCase());
+    if (accepted.filter(e => role.startsWith(e) === true )) {
       return next();
     }
 

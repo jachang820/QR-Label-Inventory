@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
-const { Items, Skus } = require('../../models');
+const { Items, Sku } = require('../../models');
 const expandLineItems = require('../../helpers/expandLineItems');
 
 router.route('/')
@@ -9,7 +9,7 @@ router.route('/')
 .get((req, res, next) => {
   Items.findAll({
     where: req.query,
-    include: [{ model: Skus }]
+    include: [{ model: Sku }]
  })
   .then((items) => {
     return res.json(items);
@@ -77,8 +77,7 @@ router.route('/bulk')
             status: 'Ordered',
             innerbox: innerbox,
             outerbox: outerbox,
-            ColorName: items[i].color,
-            SizeName: items[i].size,
+            SkuId: items[i].sku,
             FactoryOrderId: req.body.orderId,
             qrcode: `http://www.smokebuddy.com/?id=${itemId}`
           });

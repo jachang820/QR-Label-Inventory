@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Items, FactoryOrders, CustomerOrders, 
-				Sizes } = require('../../models');
+const { Items, FactoryOrder, CustomerOrders, 
+				Size } = require('../../models');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
@@ -10,8 +10,8 @@ function sortQuery(sort, direction) {
 	let sortOrder = [
 		['ColorName', 'ASC'],
 		['SizeName', 'ASC'],
-		[FactoryOrders, 'createdAt', 'DESC'],
-		[FactoryOrders, 'arrivedAt', 'ASC'],
+		[FactoryOrder, 'createdAt', 'DESC'],
+		[FactoryOrder, 'arrivedAt', 'ASC'],
 		['outerbox', 'DESC'],
 		['innerbox', 'DESC'],
 		[CustomerOrders, 'createdAt', 'DESC'],
@@ -60,9 +60,9 @@ router.post('/view', async (req, res, next) => {
 		let items = await Items.findAll({
 			where: filterBy,
 			include: [
-				{ model: FactoryOrders }, 
+				{ model: FactoryOrder }, 
 				{ model: CustomerOrders },
-				{ model: Sizes }
+				{ model: Size }
 			],
 			order: sortBy
 		});

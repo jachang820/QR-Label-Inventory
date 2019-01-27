@@ -7,6 +7,9 @@ const matchedLabel = require('../../helpers/matchedLabel');
 const enumAttr = require('../../helpers/enumAttr');
 const arrParser = require('../../middleware/arrParser');
 const getModel = require('../../middleware/getModel');
+const Labels = require('../../services/label');
+const Skus = require('../../services/sku');
+const Sizes = require('../../services/size');
 
 module.exports = [
 
@@ -41,13 +44,26 @@ module.exports = [
   },
 
   /* Get all labels. */
-  getModel('labels', 'req'),
+  async (req, res, next) => {
+    const labels = new Labels();
+    req.body.labels = await labels.getListView();
+    return next();
+  },
 
   /* Get all SKUs. */
-  getModel('skus', 'req', 'id'),
+  async (req, res, next) => {
+    const skus = new Skus();
+    req.body.skus = await skus.getListView();
+    req.body.skusId = Skus.mapColumn(req.body.skus, 'id');
+    return next();
+  },
 
   /* Cet all sizes. */
-  getModel('sizes', 'req'),
+  async (req, res, next) => {
+    const sizes = new Sizes();
+    req.body.sizes = await sizes.getListView();
+    return next();
+  },
 
   /* Validate SKU. */
   (req, res, next) => {
@@ -61,11 +77,13 @@ module.exports = [
 
   /* Get IDs from QR code that matches configured formats. */
   (req, res, next) => {
+    console.log(req.body);
     const items = req.body.items;
     const labels = req.body.labels;
     for (let i = 0; i < items.length; i++) {
       items[i].id = matchedLabel(items[i].qrcode, labels);
     }
+    console.log(req.body);
     return next();
   },
 
@@ -106,21 +124,12 @@ module.exports = [
 
   /* Trim trailing spaces and remove escape characters to prevent
      SQL injections. */
-  sanitizeBody('items.*.skus').trim().escape(),
-  sanitizeBody('items.*.qrcode').trim().escape(),
-  sanitizeBody('items.*.id').trim().escape(),
-  sanitizeBody('label').trim().escape(),
-  sanitizeBody('notes').trim().escape(),
-  sanitizeBody('type').trim().escape(),
-
-  /* Reconstruct URL from effects of sanitize. */
-  (req, res, next) => {
-    for (let i = 0; i < req.body.items.length; i++) {
-      const qr = reconstructUrl(req.body.items[i].qrcode);
-      req.body.items[i].qrcode = qr;
-    }
-    return next();
-  },
+  sanitizeBody('items.*.sku').trim().escape().stripLow(),
+  sanitizeBody('items.*.qrcode').trim().stripLow(),
+  sanitizeBody('items.*.id').trim().escape().stripLow(),
+  sanitizeBody('label').trim().escape().stripLow(),
+  sanitizeBody('notes').trim().escape().stripLow(),
+  sanitizeBody('type').trim().escape().stripLow(),
 
   /* Get all customer orders. */
   getModel('customer_orders', 'res'),

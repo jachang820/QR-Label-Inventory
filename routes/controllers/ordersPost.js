@@ -4,6 +4,8 @@ const setupAxios = require('../../helpers/setupAxios');
 const express = require('express');
 const arrParser = require('../../middleware/arrParser');
 const getModel = require('../../middleware/getModel');
+const Sizes = require('../../services/size');
+const Skus = require('../../services/sku');
 
 module.exports = [
   /* Convert array form to object. */
@@ -25,10 +27,19 @@ module.exports = [
     .not().isEmpty().withMessage("Order must contain at least one item."),
 
   /* Get all SKUs. */
-  getModel('skus', 'req', 'id'),
+  async (req, res, next) => {
+    const skus = new Skus();
+    req.body.skus = await skus.getListView();
+    req.body.skusId = Skus.mapColumn(req.body.skus, 'id');
+    return next();
+  },
 
   /* Get all sizes. */
-  getModel('sizes', 'req'),
+  async (req, res, next) => {
+    const sizes = new Sizes();
+    req.body.sizes = await sizes.getListView();
+    return next();
+  },
 
   /* Validate SKU. */
   (req, res, next) => {
@@ -41,17 +52,14 @@ module.exports = [
   },
 
   /* Validate quantity. */
-  (req, res, next) => {
-    return express.Router().use(body('items.*.quantity').trim()
-      .exists().withMessage("Form transmission failed.")
-      .isInt({ min: 1 }).withMessage("Quantity must be a positive integer.")
-    )(req, res, next);
-  },
+  body('items.*.quantity').trim()
+    .exists().withMessage("Form transmission failed.")
+    .isInt({ min: 1 }).withMessage("Quantity must be a positive integer."),
 
   /* Trim trailing spaces and remove escape characters to prevent
      SQL injections. */
-  sanitizeBody('items.*.skus').trim().escape(),
-  sanitizeBody('items.*.quantity').trim().toInt().escape(),
+  sanitizeBody('items.*.skus').trim().escape().stripLow(),
+  sanitizeBody('items.*.quantity').trim().toInt().escape().stripLow(),
 
   /* Get all factory orders. */
   getModel('factory_orders', 'res'),
@@ -99,14 +107,14 @@ module.exports = [
 
       /* Get size from database corresponding to current SKU. */
       for (let j = 0; j < sizes.length; j++) {
-        if (sizes[j].name === sku.SizeName) {
+        if (sizes[j].name === sku.size) {
           size = sizes[j];
           break;
         }
       }
 
       /* Add packaging properties to items object. */
-      req.body.items[i].outerSize = size.outerSize;
+      req.body.items[i].outerSize = size.masterSize;
       req.body.items[i].innerSize = size.innerSize;
     }
 

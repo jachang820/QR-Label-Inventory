@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Items, FactoryOrders, CustomerOrders, SKUs } = require('../../models')
+const { Items, FactoryOrder, CustomerOrders, Sku } = require('../../models')
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const fn = Sequelize.fn;
@@ -13,9 +13,9 @@ router.post('/out/:id', async (req, res, next) => {
     items = await Items.findOne({
       where: { id: id },
       include: [
-        { model: FactoryOrders },
+        { model: FactoryOrder },
         { model: CustomerOrders },
-        { model: SKUs}
+        { model: Sku}
       ] 
     });
   } catch (err) {

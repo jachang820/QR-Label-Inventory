@@ -82,50 +82,18 @@ app.use(passport.session());
 
 app.use(userInViews());
 app.use('/', indexRouter);
-
-/* Throw 404 if somehow none of the middleware produced any action. */
 app.use((req, res, next) => {
+  res.locals.css = ['error.css'];
   next(createError(404));
-});
+})
 
 /* Show error page with stack trace. Note that the error object
    is as passed in from an axios call. Not all functions
    generate the same fields. In particular, express rarely
    generates its own status codes and messages. */
-app.use((err, req, res, next) => {
-  /* If a header is sent in the middle of this custom error
-     handler, delegate the default handler. */
-  if (res.headersSent) {
-    return next(err);
-  }
-
-  /* These are fields provided by axios. */
-  res.locals.status = err.status;
-  if (err.response) {
-    res.locals.status = err.response.status;
-    res.locals.statusText = err.response.statusText;
-  }
-  if (res.locals.status == null) {
-    res.locals.status = 404;
-  }
-
-  if (err.config) {
-    res.locals.query = `${err.config.method} ${err.config.url}`;
-  }
-
-  /* Provide error stack in development */
-  res.locals.message = err.message;
-  res.locals.custom = err.custom;
-  if (req.app.get('env') === 'development') {
-    res.locals.stack = err.stack;
-  }
-
-  /* This should be the page last visited. */
-  res.locals.url = req.originalUrl;
-
-  /* Render the error page */
-  res.locals.css = ['error.css'];
-  res.status(res.locals.status || err.status || 500);
+app.use('/', (err, req, res, next) => {
+  res.locals.message = "Oops! Something went wrong...";
+  res.locals.status = 404;
   res.render('error');
 });
 

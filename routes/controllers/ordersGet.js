@@ -1,8 +1,11 @@
 const setupAxios = require('../../helpers/setupAxios');
 const getModel = require('../../middleware/getModel');
+const Skus = require('../../services/sku');
 
 /* Show orders page. */
 module.exports = (orderType) => {
+
+  const skus = new Skus();
 
   return [
 
@@ -10,7 +13,10 @@ module.exports = (orderType) => {
     getModel(`${orderType}_orders`, 'res'),
 
     /* Get all SKUs. */
-    getModel('skus', 'res'),
+    async (req, res, next) => {
+      res.locals.skus = await skus.getListView();
+      return next();
+    },
 
     /* Render page. */
     (req, res, next) => {

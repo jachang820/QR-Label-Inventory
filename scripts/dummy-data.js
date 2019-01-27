@@ -1,80 +1,91 @@
-const { Colors, Sizes, Skus, FactoryOrders,
-  CustomerOrders, Items, Users, Labels } = require('../models');
+const { Color, Size, Sku, FactoryOrder,
+  CustomerOrders, Items, Profile, Label,
+  InnerCarton, sequelize } = require('../models');
 const uuidv4 = require('uuid/v4');
 
-async function setup() {
+const setup = async () => {
 
-  await Colors.bulkCreate([
-    { name: 'Black' },
-    { name: 'Blue' },
-    { name: 'Green' },
-    { name: 'Lime' },
-    { name: 'Red' },
-    { name: 'Yellow' },
-    { name: 'Pink' },
-    { name: 'White' },
-    { name: 'Teal' },
-    { name: 'Purple' },
-    { name: 'Orange' },
-    { name: 'Wood' },
-    { name: 'Camo' },
-    { name: 'Tie Dye-Yellow' },
-    { name: 'Tie Dye-Orange' },
-    { name: 'Vegas-Black' },
-    { name: 'Vegas-Red' },
-    { name: 'Cares' },
-    { name: 'Glow in the Dark-White' },
-    { name: 'Glow in the Dark-Blue' }
+  await sequelize.sync({ force: true });
+
+  let cartons = [];
+  for (let i = 0; i < 10; i++) {
+    cartons.push({});
+  }
+  await InnerCarton.bulkCreate(cartons, {
+    individualHooks: true
+  });
+
+  await Color.bulkCreate([
+    { name: 'black', used: true },
+    { name: 'blue', used: true },
+    { name: 'green', used: true },
+    { name: 'lime', used: true },
+    { name: 'red', used: true },
+    { name: 'yellow', used: true },
+    { name: 'pink', used: true },
+    { name: 'white', used: true },
+    { name: 'teal', used: true },
+    { name: 'purple', used: true },
+    { name: 'orange', used: true },
+    { name: 'wood', used: true },
+    { name: 'camo', used: true },
+    { name: 'tie dye-yellow', used: true },
+    { name: 'tie dye-orange', used: true },
+    { name: 'vegas-black', used: true },
+    { name: 'vegas-red', used: true },
+    { name: 'cares', used: true },
+    { name: 'glow in the dark-white', used: true },
+    { name: 'glow in the dark-blue', used: true }
   ]);
 
-  await Sizes.bulkCreate([
-    { name: 'Junior', innerSize: 12, outerSize: 4 },
-    { name: 'Original', innerSize: 12, outerSize: 4 },
-    { name: 'MEGA', innerSize: 12, outerSize: 2 }
+  await Size.bulkCreate([
+    { name: 'junior', innerSize: 12, masterSize: 4, used: true },
+    { name: 'original', innerSize: 12, masterSize: 4, used: true },
+    { name: 'mega', innerSize: 12, masterSize: 2, used: true }
   ]);
 
   const upc_pre = '651277420';
 
-  await Skus.bulkCreate([
-    { id: 'OR-BLACK', upc: `${upc_pre}178`, ColorName: 'Black', SizeName: 'Original' },
-    { id: 'OR-BLUE', upc: `${upc_pre}161`, ColorName: 'Blue', SizeName: 'Original' },
-    { id: 'OR-GREEN', upc: `${upc_pre}154`, ColorName: 'Green', SizeName: 'Original' },
-    { id: 'OR-LIME', upc: `${upc_pre}147`, ColorName: 'Lime', SizeName: 'Original' },
-    { id: 'OR-RED', upc: `${upc_pre}116`, ColorName: 'Red', SizeName: 'Original' },
-    { id: 'OR-PINK', upc: `${upc_pre}130`, ColorName: 'Pink', SizeName: 'Original' },
-    { id: 'OR-WHITE', upc: `${upc_pre}185`, ColorName: 'White', SizeName: 'Original' },
-    { id: 'OR-TEAL', upc: `${upc_pre}208`, ColorName: 'Teal', SizeName: 'Original' },
-    { id: 'OR-PURPLE', upc: `${upc_pre}192`, ColorName: 'Purple', SizeName: 'Original' },
-    { id: 'OR-WOOD', upc: `${upc_pre}253`, ColorName: 'Wood', SizeName: 'Original' },
-    { id: 'OR-CAMO', upc: `${upc_pre}284`, ColorName: 'Camo', SizeName: 'Original' },
-    { id: 'OR-TIEDYE-YLW', upc: `${upc_pre}291`, ColorName: 'Tie Dye-Yellow', SizeName: 'Original' },
-    { id: 'OR-TIEDYE-ORG', upc: `${upc_pre}291`, ColorName: 'Tie Dye-Orange', SizeName: 'Original' },
-    { id: 'OR-VEGASBLACK', upc: `${upc_pre}321`, ColorName: 'Vegas-Black', SizeName: 'Original' },
-    { id: 'OR-VEGASRED', upc: `${upc_pre}321`, ColorName: 'Vegas-Red', SizeName: 'Original' },
-    { id: 'OR-CARES', upc: `${upc_pre}338`, ColorName: 'Cares', SizeName: 'Original' },
-    { id: 'OR-GLOW-WHITE', upc: `${upc_pre}246`, ColorName: 'Glow in the Dark-White', SizeName: 'Original' },
-    { id: 'OR-GLOW-BLUE', upc: `${upc_pre}215`, ColorName: 'Glow in the Dark-Blue', SizeName: 'Original' },
-    { id: 'JR-BLACK', upc: `${upc_pre}048`, ColorName: 'Black', SizeName: 'Junior' },
-    { id: 'JR-BLUE', upc: `${upc_pre}093`, ColorName: 'Blue', SizeName: 'Junior' },
-    { id: 'JR-RED', upc: `${upc_pre}024`, ColorName: 'Red', SizeName: 'Junior' },
-    { id: 'JR-YELLOW', upc: `${upc_pre}017`, ColorName: 'Yellow', SizeName: 'Junior' },
-    { id: 'JR-LIME', upc: `${upc_pre}031`, ColorName: 'Lime', SizeName: 'Junior' },
-    { id: 'JR-PINK', upc: `${upc_pre}055`, ColorName: 'Pink', SizeName: 'Junior' },
-    { id: 'JR-WHITE', upc: `${upc_pre}062`, ColorName: 'White', SizeName: 'Junior' },
-    { id: 'JR-TEAL', upc: `${upc_pre}079`, ColorName: 'Teal', SizeName: 'Junior' },
-    { id: 'JR-PURPLE', upc: `${upc_pre}086`, ColorName: 'Purple', SizeName: 'Junior' },
-    { id: 'JR-ORANGE', upc: `${upc_pre}314`, ColorName: 'Orange', SizeName: 'Junior' },
-    { id: 'JR-GLOW-WHITE', upc: `${upc_pre}222`, ColorName: 'Glow in the Dark-White', SizeName: 'Junior' },
-    { id: 'JR-GLOW-BLUE', upc: `${upc_pre}239`, ColorName: 'Glow in the Dark-Blue', SizeName: 'Junior' },
-    { id: 'M-BLACK', upc: `${upc_pre}116`, ColorName: 'Black', SizeName: 'MEGA' },
-    { id: 'M-GREEN', upc: `${upc_pre}284`, ColorName: 'Green', SizeName: 'MEGA' },
-    { id: 'M-WHITE', upc: `${upc_pre}352`, ColorName: 'White', SizeName: 'MEGA' }
+  await Sku.bulkCreate([
+    { id: 'or-black', upc: `${upc_pre}178`, color: 'black', size: 'original' },
+    { id: 'or-blue', upc: `${upc_pre}161`, color: 'blue', size: 'original' },
+    { id: 'or-green', upc: `${upc_pre}154`, color: 'green', size: 'original' },
+    { id: 'or-lime', upc: `${upc_pre}147`, color: 'lime', size: 'original' },
+    { id: 'or-red', upc: `${upc_pre}116`, color: 'red', size: 'original' },
+    { id: 'or-pink', upc: `${upc_pre}130`, color: 'pink', size: 'original' },
+    { id: 'or-white', upc: `${upc_pre}185`, color: 'white', size: 'original' },
+    { id: 'or-teal', upc: `${upc_pre}208`, color: 'teal', size: 'original' },
+    { id: 'or-purple', upc: `${upc_pre}192`, color: 'purple', size: 'original' },
+    { id: 'or-wood', upc: `${upc_pre}253`, color: 'wood', size: 'original' },
+    { id: 'or-camo', upc: `${upc_pre}284`, color: 'camo', size: 'original' },
+    { id: 'or-tiedye-ylw', upc: `${upc_pre}291`, color: 'tie dye-yellow', size: 'original' },
+    { id: 'or-tiedye-org', upc: `${upc_pre}291`, color: 'tie dye-orange', size: 'original' },
+    { id: 'or-vegasblack', upc: `${upc_pre}321`, color: 'vegas-black', size: 'original' },
+    { id: 'or-vegasred', upc: `${upc_pre}321`, color: 'vegas-red', size: 'original' },
+    { id: 'or-cares', upc: `${upc_pre}338`, color: 'cares', size: 'original' },
+    { id: 'or-glow-white', upc: `${upc_pre}246`, color: 'glow in the dark-white', size: 'original' },
+    { id: 'or-glow-blue', upc: `${upc_pre}215`, color: 'glow in the dark-blue', size: 'original' },
+    { id: 'jr-black', upc: `${upc_pre}048`, color: 'black', size: 'junior' },
+    { id: 'jr-blue', upc: `${upc_pre}093`, color: 'blue', size: 'junior' },
+    { id: 'jr-red', upc: `${upc_pre}024`, color: 'red', size: 'junior' },
+    { id: 'jr-yellow', upc: `${upc_pre}017`, color: 'yellow', size: 'junior' },
+    { id: 'jr-lime', upc: `${upc_pre}031`, color: 'lime', size: 'junior' },
+    { id: 'jr-pink', upc: `${upc_pre}055`, color: 'pink', size: 'junior' },
+    { id: 'jr-white', upc: `${upc_pre}062`, color: 'white', size: 'junior' },
+    { id: 'jr-teal', upc: `${upc_pre}079`, color: 'teal', size: 'junior' },
+    { id: 'jr-purple', upc: `${upc_pre}086`, color: 'purple', size: 'junior' },
+    { id: 'jr-orange', upc: `${upc_pre}314`, color: 'orange', size: 'junior' },
+    { id: 'jr-glow-white', upc: `${upc_pre}222`, color: 'glow in the dark-white', size: 'junior' },
+    { id: 'jr-glow-blue', upc: `${upc_pre}239`, color: 'glow in the dark-blue', size: 'junior' },
+    { id: 'm-black', upc: `${upc_pre}116`, color: 'black', size: 'mega' },
+    { id: 'm-green', upc: `${upc_pre}284`, color: 'green', size: 'mega' },
+    { id: 'm-white', upc: `${upc_pre}352`, color: 'white', size: 'mega' }
   ]);
 
-  let skus = await Skus.findAll();
+  let skus = await Sku.findAll();
   skus = skus.map(e => e.id );
 
-  await FactoryOrders.bulkCreate([
+  await FactoryOrder.bulkCreate([
     { },
     { }
   ]);
@@ -88,15 +99,15 @@ async function setup() {
       label: 'Sample2' }
   ]);
 
-  await Users.bulkCreate([
-    { firstname: 'Jonathan',
-      lastname: 'Chang',
+  await Profile.bulkCreate([
+    { firstName: 'Jonathan',
+      lastName: 'Chang',
       email: 'j.a.chang820@gmail.com',
-      role: 'Administrator'},
-    { firstname: 'Alex',
-      lastname: 'Chen',
+      role: 'administrator'},
+    { firstName: 'Alex',
+      lastName: 'Chen',
       email: 'aqchen@g.ucla.edu',
-      role: 'Administrator' }
+      role: 'administrator' }
   ]);
 
   let items = []
@@ -124,7 +135,7 @@ async function setup() {
       status: 'Ordered',
       innerbox: inner,
       outerbox: master,
-      SKUId: sku,
+      SkuId: sku,
       FactoryOrderId: orderId,
       qrcode: `http://www.smokebuddy.com/?id=${id}`
     });
@@ -132,9 +143,9 @@ async function setup() {
 
   await Items.bulkCreate(items);
 
-  await Labels.bulkCreate([
-    { prefix: 'http://www.smokebuddy.com/', style: 'Querystring'},
-    { prefix: 'http://holoshield.net/a/', style: 'Path'}
+  await Label.bulkCreate([
+    { prefix: 'http://www.smokebuddy.com/', style: 'querystring'},
+    { prefix: 'http://holoshield.net/a/', style: 'path'}
   ]);
 
 }
