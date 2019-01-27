@@ -102,6 +102,7 @@ table th {
 
 #errors-list {
   list-style-type: none;
+  padding-left: 0;
   color: red;
 }
 

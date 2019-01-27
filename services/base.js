@@ -6,6 +6,7 @@ class BaseService {
 
   async getListView() {
     let list = await this.repo.list();
+    if (list.length === 0) return [];
     list = BaseService._addListStatus(list);
     return list;
   }
@@ -18,6 +19,7 @@ class BaseService {
 
   async get(id) {
     let model = await this.repo.get(id);
+    if (!model) return null;  
     model = BaseService._addListStatus(model);
     return model[0];
   }
