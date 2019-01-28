@@ -18,8 +18,7 @@ router.get('/filter', (req, res, next) => {
     outerbox: req.query.outerbox,
     CustomerOrderId: req.query.CustomerOrderId,
     FactoryOrderId: req.query.FactoryOrderId,
-    ColorName: req.query.ColorName,
-    SizeName: req.query.SizeName
+    SkuId: req.query.SkuId
   };
 
   for (prop in apiQuery) {

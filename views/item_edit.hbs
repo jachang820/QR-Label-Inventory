@@ -7,25 +7,12 @@
     <label for="status">Status:</label>
     <input id="status" type="text" name="status" value="{{item.status}}">
 
-    <label for="color">Color:</label>
-    <select id="color" name="color">
-      {{#each colors}}
-        {{#ifEquals this.name ../item.ColorName}}
-          <option selected>{{this.name}}</option>
-        {{else}}
-          <option>{{this.name}}</option>
-        {{/ifEquals}}
-      {{/each}}
-    </select>
-
-    <label for="size">Size:</label>
-    <select id="size" name="size">
-      {{#each sizes}}
-        {{#ifEquals this.name ../item.SizeName}}
-          <option selected>{{this.name}}</option>
-        {{else}}
-          <option>{{this.name}}</option>
-        {{/ifEquals}}
+    <label for="sku">SKU:</label>
+    <select id="sku" name="sku">
+      {{#each @skus}}
+        <option{{#eq? this.id ../item.SkuId}} selected{{/eq?}}>
+          {{this.id}} -- {{this.upc}}
+        </option>
       {{/each}}
     </select>
 

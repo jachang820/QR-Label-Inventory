@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const authLoginGet = require('./controllers/authLoginGet');
-const authCallbackGet = require('./controllers/authCallbackGet');
-const authLogoutGet = require('./controllers/authLogoutGet');
+const authLoginGet = require('../controllers/authLoginGet');
+const authCallbackGet = require('../controllers/authCallbackGet');
+const authLogoutGet = require('../controllers/authLogoutGet');
 
 /* Authenticate with Auth0. */
 router.get('/login', authLoginGet);

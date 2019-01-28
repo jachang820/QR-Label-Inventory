@@ -4,34 +4,24 @@
 
   <h1>Customer Orders</h1>
 
-  {{!-- Errors due to invalid input show up here. --}}
-  {{#if errors}}
-  <div id="errors">
-    <h2>Error:</h2>
-    <ul id="errors-list">
-      {{#each errors}}
-        <li>{{this.msg}}</li>
-      {{/each}}
-    </ul>
-  </div>
-  {{/if}}
+  {{> error_msg }}
 
   <table>
     <tr>
       <th>ID</th>
       <th>Invoice #</th>
-      <th>Arrival Date</th>
+      <th>Size</th>
       <th>Notes</th>
       <th>Action</th>
     </tr>
 
-    {{#each customerOrders}}
+    {{#each orders}}
       <tr>
         <td>
           <a href="/customer_orders/{{this.id}}">{{this.id}}</a>
           </td>
         <td>{{this.label}}</td>
-        <td>{{this.arrival_date}}</td>
+        <td>{{this.size}}</td>
         <td>{{this.notes}}</td>
         <td>
           <button class="btn btn-danger" onclick="deleteOrder('{{this.id}}')">Delete</button>
@@ -45,6 +35,11 @@
     <h2>New Order</h2>
 
     <form action="/customer_orders" method="POST">
+      <select name="type">
+        <option value="Retail" selected>Retail</option>
+        <option value="Wholesale">Wholesale</option>
+      </select>
+
       <label for="label">Invoice #: </label>
       <input id="label" type="text" name="label">
 
@@ -55,30 +50,20 @@
         <tbody>
           <tr>
             <th>Item</th>
-            <th>Color</th>
-            <th>Size</th>
+            <th>SKU</th>
             <th>Action</th>
           </tr>
 
           <tr class="new-order-row">
             <td>
-              <input id="item1" type="text" name="item1">
+              <input id="qrcode0" type="text" name="items[0][qrcode]">
             </td>
 
             <td>
-              <select id="color1" name="color1">
-                <option>Select a color:</option>
-                {{#each colors}}
-                  <option>{{this.name}}</option>
-                {{/each}}
-              </select>
-            </td>
-
-            <td>
-              <select id="size1" name="size1">
-                <option>Select a size:</option>
-                {{#each sizes}}
-                  <option>{{this.name}}</option>
+              <select id="sku0" name="items[0][sku]">
+                <option>Select a SKU:</option>
+                {{#each skus}}
+                  <option>{{this.id}}</option>
                 {{/each}}
               </select>
             </td>
@@ -87,8 +72,6 @@
         </tbody>
 
       </table>
-
-      <input type="hidden" value="1" name="count" id="item-count">
 
       <button class="btn btn-primary" onClick="addItem()" type="button">New Item</button>
       <br>
@@ -116,33 +99,33 @@
     xhttp.send();
   }
 
+  function createDeleteButton() {
+    let deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.setAttribute("class", "btn btn-danger");
+    deleteButton.addEventListener("click", function() {
+      return deleteItem(this)
+    });
+    return deleteButton;
+  }
+
   function addItem() {
-    itemCount++;
-    document.getElementById('item-count').value = itemCount;
-
     let newRow = document.getElementsByClassName("new-order-row")[0].cloneNode(true);
-    newRow.children[3].remove();
 
-    let td = document.createElement("td");
+    let inputItem = newRow.querySelector("#qrcode0");
+    inputItem.name = "items[" + itemCount + "][qrcode]";
+    inputItem.id = "qrcode" + itemCount;
+    inputItem.value = "";
 
-    let deleteButton = document.createElement("button")
-    deleteButton.append("Delete");
-    deleteButton.setAttribute("class", "btn-danger");
+    let selectSKU = newRow.querySelector("#sku0");
+    selectSKU.name = "items[" + itemCount + "][sku]";
+    selectSKU.id = "sku" + itemCount;
 
-    deleteButton.setAttribute("onClick", "deleteItem(this)");
+    newRow.children[2].appendChild(createDeleteButton());
 
-    let inputItem = newRow.querySelector("#item1");
-    inputItem.id = inputItem.name = "item" + itemCount;
-
-    let selectColor = newRow.querySelector("#color1");
-    selectColor.id = selectColor.name = "color" + itemCount;
-
-    let selectSize = newRow.querySelector("#size1");
-    selectSize.id = selectSize.name = "size" + itemCount;
-
-    td.appendChild(deleteButton);
-    newRow.appendChild(td);
     document.getElementById("new-order-table").children[0].appendChild(newRow);
+
+    itemCount++;
   }
 
   function deleteItem(deleteButton) {
@@ -151,6 +134,12 @@
 
     table.removeChild(row);
     itemCount--;
-    document.getElementById('item-count').value = itemCount;
   }
+
+  document.addEventListener('keypress', function(event) {
+    if (event.keyCode == 13) {
+      event.preventDefault();
+      addItem();
+    }
+  });
 </script>

@@ -23,9 +23,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Items.associate = models => {
-    Items.belongsTo(models.Colors);
-    Items.belongsTo(models.Sizes);
-    Items.belongsTo(models.FactoryOrders);
+    Items.belongsTo(models.Sku);
+    Items.belongsTo(models.FactoryOrder);
     Items.belongsTo(models.CustomerOrders);
   }
 

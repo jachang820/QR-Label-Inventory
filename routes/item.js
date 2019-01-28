@@ -1,60 +1,56 @@
 const express = require('express');
 const router = express.Router();
 const setupAxios = require('../helpers/setupAxios');
+const Skus = require('../services/sku');
 
 router.get('/', (req, res, next) => {
   res.redirect('/inventory');
 })
 
-router.get('/edit/:id', async (req, res, next) => {
-  const axios = setupAxios();
-  const id = req.params.id;
+router.get('/edit/:id', [
 
-  let colorsRes;
-  let sizesRes;
-  let itemsRes;
+  /* Get all SKUs. */
+  async (req, res, next) => {
+    const skus = new Skus();
+    res.locals.skus = await skus.getListView();
+    return next();
+  },
 
-  try {
-    colorsRes = await axios.get('/colors');
-    sizesRes = await axios.get('/sizes');
-    itemsRes = await axios.get(`/items/${id}`);
+  /* Render edit items page. */
+  async (req, res, next) => {
+    const axios = setupAxios();
+    let item;
+    try {
+      item = await axios.get(`/items/${req.params.id}`);
+    }
+    catch (err) {
+      return next(err);
+    }
+
+    return res.render('item_edit', { 
+      item: item.data 
+    });
   }
-  catch (err) {
+]);
+
+/* Edit item. */
+router.post('/update/:id', async (req, res, next) => {
+  const axios = setupAxios();
+  let response;
+  try {
+    response = await axios.put(`/items/${req.params.id}`, {
+      status: req.body.status,
+      SkuId: req.body.sku.split(' -- ')[0],
+      FactoryOrderId: req.body.factoryOrder,
+      CustomerOrderId: req.body.customerOrder,
+      innerbox: req.body.innerbox,
+      outerbox: req.body.outerbox
+    });
+  } catch (err) {
     return next(err);
   }
 
-  const colors = colorsRes.data;
-  const sizes = sizesRes.data;
-  const item = itemsRes.data;
-
-  console.log(`item ${JSON.stringify(item)}`);
-
-  return res.render('item_edit', { item, colors, sizes })
-});
-
-router.post('/update/:id', (req, res, next) => {
-  const axios = setupAxios();
-  const id = req.params.id;
-
-  const status = req.body.status;
-  const ColorName = req.body.color;
-  const SizeName = req.body.size;
-  const FactoryOrderId = req.body.factoryOrder;
-  const CustomerOrderId = req.body.customerOrder;
-  const innerbox = req.body.innerbox;
-  const outerbox = req.body.outerbox;
-
-  axios.put(`/items/${id}`, {
-    status,
-    ColorName,
-    SizeName,
-    FactoryOrderId,
-    CustomerOrderId,
-    innerbox,
-    outerbox
-  }).then(() => {
-    res.redirect('/inventory');
-  }).catch((err) => next(err))
+  return res.redirect('/inventory');
 });
 
 module.exports = router;

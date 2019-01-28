@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
-const customerOrdersGet = require('./controllers/customerOrdersGet');
+const ordersGet = require('./controllers/ordersGet');
 const customerOrdersPost = require('./controllers/customerOrdersPost');
-const customerOrdersIdGet = require('./controllers/customerOrdersIdGet');
+const ordersIdGet = require('./controllers/ordersIdGet');
 
 /* Show customer orders page. */
-router.get('/', customerOrdersGet);
+router.get('/', ordersGet('customer'));
 
 /* Get order and items for details page. */
-router.get('/:id', customerOrdersIdGet);
+router.get('/:id', ordersIdGet('customer'));
 
 /* Add an order. */
 router.post('/', customerOrdersPost);

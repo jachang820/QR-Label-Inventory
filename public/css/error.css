@@ -1,8 +1,4 @@
-body {
-  background-color: #ffffff;
-}
-
 #error-code {
-  width: 80vw;
-  text-align: center;
+  height: 70vh;
+  margin: auto;
 }

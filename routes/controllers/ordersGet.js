@@ -1,24 +1,29 @@
 const setupAxios = require('../../helpers/setupAxios');
+const getModel = require('../../middleware/getModel');
+const Skus = require('../../services/sku');
 
-/* Show factory orders page. */
-module.exports = async (req, res, next) => {
-  const axios = setupAxios();
-  let factoryOrdersRes;
-  let colorsRes;
-  let sizesRes;
+/* Show orders page. */
+module.exports = (orderType) => {
 
-  try {
-    factoryOrdersRes = await axios.get('/factory_orders');
-    colorsRes = await axios.get('/colors');
-    sizesRes = await axios.get('/sizes');
-  }
-  catch (err) {
-    return next(err);
-  }
+  const skus = new Skus();
 
-  const factoryOrders = factoryOrdersRes.data;
-  const colors = colorsRes.data;
-  const sizes = sizesRes.data;
+  return [
 
-  return res.render('orders', { factoryOrders, colors, sizes });
+    /* Get all orders. */
+    getModel(`${orderType}_orders`, 'res'),
+
+    /* Get all SKUs. */
+    async (req, res, next) => {
+      res.locals.skus = await skus.getListView();
+      return next();
+    },
+
+    /* Render page. */
+    (req, res, next) => {
+      return res.render(`${orderType}_orders`, { 
+        orders: res.locals[`${orderType}_orders`], 
+        skus: res.locals.skus 
+      });
+    }
+  ];
 };

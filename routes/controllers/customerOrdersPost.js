@@ -1,158 +1,188 @@
-const uuid = require('uuid/v4');
 const { body, validationResult } = require('express-validator/check');
+const { sanitizeBody } = require('express-validator/filter');
+const express = require('express');
 const setupAxios = require('../../helpers/setupAxios');
+const reconstructUrl = require('../../helpers/reconstructUrl');
+const matchedLabel = require('../../helpers/matchedLabel');
+const enumAttr = require('../../helpers/enumAttr');
+const arrParser = require('../../middleware/arrParser');
+const getModel = require('../../middleware/getModel');
+const Labels = require('../../services/label');
+const Skus = require('../../services/sku');
+const Sizes = require('../../services/size');
 
 module.exports = [
-  body('count').isNumeric().withMessage('Count must be a number.'),
 
-  // Consolidate colors in database
-  async (req, res, next) => {
-    const axios = setupAxios();
-    const colorsRes = await axios.get('/colors');
+  /* Convert array form to object. */
+  arrParser,
 
-    req.body.colors = colorsRes.data;
+  /* Ignore empty new rows. */
+  (req, res, next) => {
+    const count = req.body.items.length;
+    for (let i = count - 1; i >= 0; i--) {
+      if (req.body.items[i].qrcode.trim().length === 0) {
+        req.body.items.pop();
+      }
+    }
     return next();
   },
 
-  // Consolidate sizes in database
-  async (req, res, next) => {
-    const axios = setupAxios();
-    const sizesRes = await axios.get('/sizes');
+  /* Validate items. */
+  body('items').trim()
+    .not().isEmpty().withMessage("Order must contain at least one item."),
 
-    req.body.sizes = sizesRes.data;
+  /* Validate label. */
+  body('label').trim()
+    .not().isEmpty().withMessage("Invoice number empty."),
+
+  /* Validate type. */
+  (req, res, next) => {
+    const types = enumAttr('customerOrders', 'type');
+    return express.Router().use(body('type').trim()
+      .isIn(types).withMessage("Type must be either Retail or Wholesale.")
+    )(req, res, next);
+  },
+
+  /* Get all labels. */
+  async (req, res, next) => {
+    const labels = new Labels();
+    req.body.labels = await labels.getListView();
     return next();
   },
 
-  body('colors').custom((colors, { req }) => {
-    let rowsWithErrors = [];
-    const itemCount = req.body.count;
-    const colorNames = req.body.colors.map(color => color.name);
-
-    for (let i = 1; i <= itemCount; i++) {
-      if (!colorNames.includes(req.body[`color${i}`])) {
-        rowsWithErrors.push(i);
-      }
-    }
-
-    if (rowsWithErrors.length > 0) {
-      throw new Error("Invalid color on rows: " + rowsWithErrors.join(', '));
-    } else {
-      return true;
-    }
-  }),
-
-  body('sizes').custom((sizes, { req }) => {
-    let rowsWithErrors = [];
-    const itemCount = req.body.count;
-    const sizeNames = req.body.sizes.map(size => size.name);
-
-    for (let i = 1; i <= itemCount; i++) {
-      if (!sizeNames.includes(req.body[`size${i}`])) {
-        rowsWithErrors.push(i);
-      }
-    }
-
-    if (rowsWithErrors.length > 0) {
-      throw new Error("Invalid size on rows: " + rowsWithErrors.join(', '));
-    } else {
-      return true;
-    }
-  }),
-
-  body().custom(async (body, { req }) => {
-    const axios = setupAxios();
-
-    let rowsWithErrors = [];
-    let itemCount = req.body.count;
-
-    for (let i = 1; i <= itemCount; i++) {
-      const url = req.body[`item${i}`];
-      const regex = /http:\/\/holoshield.net\/a\/([a-zA-Z0-9]*)/;
-
-      const match = url.match(regex);
-
-      if (!match) {
-        rowsWithErrors.push(i);
-        continue;
-      }
-
-      const itemId = match[1];
-      req.body[`item${i}`] = itemId;
-      let itemsRes;
-
-      try {
-        itemsRes = await axios.get(`items/${itemId}`);
-      }
-      catch (err) {
-        throw err;
-      }
-
-      if (itemsRes.data) {
-        rowsWithErrors.push(i);
-      }
-    }
-
-    if (rowsWithErrors.length > 0) {
-      throw new Error("Invalid item on rows: " + rowsWithErrors.join(', '));
-    } else {
-      return true;
-    }
-  }),
-
+  /* Get all SKUs. */
   async (req, res, next) => {
+    const skus = new Skus();
+    req.body.skus = await skus.getListView();
+    req.body.skusId = Skus.mapColumn(req.body.skus, 'id');
+    return next();
+  },
+
+  /* Cet all sizes. */
+  async (req, res, next) => {
+    const sizes = new Sizes();
+    req.body.sizes = await sizes.getListView();
+    return next();
+  },
+
+  /* Validate SKU. */
+  (req, res, next) => {
+    const skus = req.body.skusId;
+    return express.Router().use(body('items.*.sku').trim()
+      .exists().withMessage("Form transmission failed.")
+      .isString().withMessage("SKU must be a string.")
+      .isIn(skus).withMessage("Invalid SKU selected.")
+    )(req, res, next);
+  },
+
+  /* Get IDs from QR code that matches configured formats. */
+  (req, res, next) => {
+    console.log(req.body);
+    const items = req.body.items;
+    const labels = req.body.labels;
+    for (let i = 0; i < items.length; i++) {
+      items[i].id = matchedLabel(items[i].qrcode, labels);
+    }
+    console.log(req.body);
+    return next();
+  },
+
+  /* Validate IDs from QR codes. */
+  (req, res, next) => {
     const axios = setupAxios();
+    req.body.usedIds = [];
+    return express.Router().use(body('items.*.id').trim()
+      .exists({ checkNull: true }).withMessage("Invalid QR format.")
+      .custom(async (id, { req }) => {
+        /* null values should be caught in previous check. */
+        if (id === null) {
+          return true;
+        }
 
-    const data = req.body;
-    const itemCount = data.count;
-    const label = data.label;
-    const notes = data.notes;
-    const colors = data.colors;
-    const sizes = data.sizes;
+        /* Compare ID against new items. */
+        if (req.body.usedIds.includes(id)) {
+          throw new Error("Duplicate IDs entered.");
+        }
+        req.body.usedIds.push(id);
 
-    // Handle errors
-    const errors = validationResult(req);
+        /* Compare ID against old items. */
+        let item;
+        try { 
+          item = await axios.get(`/items/${id}`);
+        } catch (err) {
+          throw new Error("Check unique ID failed.");
+        }
+
+        if (item.data) {
+          throw new Error("Duplicate ID found.");
+        }
+        
+        return true;
+      })
+    )(req, res, next);
+  },
+
+  /* Trim trailing spaces and remove escape characters to prevent
+     SQL injections. */
+  sanitizeBody('items.*.sku').trim().escape().stripLow(),
+  sanitizeBody('items.*.qrcode').trim().stripLow(),
+  sanitizeBody('items.*.id').trim().escape().stripLow(),
+  sanitizeBody('label').trim().escape().stripLow(),
+  sanitizeBody('notes').trim().escape().stripLow(),
+  sanitizeBody('type').trim().escape().stripLow(),
+
+  /* Get all customer orders. */
+  getModel('customer_orders', 'res'),
+
+  /* Handle errors. */
+  async (req, res, next) => {
+    let errors = validationResult(req);
     if (!errors.isEmpty()) {
-      let customerOrdersRes;
-      try {
-        customerOrdersRes = await axios.get('/customer_orders');
-      } catch (err) { 
-        return next(err) 
+      errors = errors.array();
+      const regex = /^items\[([0-9]+)\]\.([a-z]+)$/;
+      for (let i = 0; i < errors.length; i++) {
+        let match = errors[i].param.match(regex);
+        if (match) {
+          errors[i].param = `Line ${match[1]} (${match[2]})`;
+        }
       }
-      const customerOrders = customerOrdersRes.data;
+      console.log(errors);
+      return res.render('customer_orders', { 
+        orders: res.locals.customer_orders, 
+        skus: req.body.skus, 
+        errors: errors
+      });
+    }
+    return next();
+  },
 
-      return res.render('customer_orders', { customerOrders, colors, sizes, errors: errors.array() });
+  // Create customer order.
+  async (req, res, next) => {
+    const axios = setupAxios();
+    const count = req.body.items.length;
+    let itemsList = []
+    for (let i = 0; i < count; i++) {
+      itemsList.push({
+        id: req.body.items[i].id,
+        status: 'Shipped',
+        SkuId: req.body.items[i].sku,
+        qrcode: req.body.items[i].qrcode
+      });
     }
 
-    // Handle request
-    let customerOrdersRes;
+    let order;
     try {
-      customerOrdersRes = await axios.post('/customer_orders', {
-        label,
-        notes
+      order = await axios.post('/customer_orders', {
+        itemsList: itemsList,
+        type: req.body.type,
+        label: req.body.label,
+        notes: req.body.notes
       });
     } catch (err) {
       return next(err);
     }
-    const CustomerOrderId = customerOrdersRes.data.id;
-
-    for (let i = 1; i <= itemCount; i++) {
-      const itemId = data[`item${i}`];
-      const color = data[`color${i}`];
-      const size = data[`size${i}`];
-
-      try {
-        await axios.post(`/items/${itemId}`, {
-          id: itemId,
-          status: 'Shipped',
-          ColorName: color,
-          SizeName: size,
-          CustomerOrderId
-        });
-      } catch(err) {
-        return next(err);
-      }
-    }
-    res.redirect(`/customer_orders/${CustomerOrderId}`);
+    
+    res.redirect(`/customer_orders/${order.data.id}`);
   }
 ]
 

@@ -1,0 +1,123 @@
+{{> nav }}
+
+<div class="container">
+
+  {{!-- Locals here appear at the top of the page to explain
+        what the page is about. --}}
+  <h1>{{@title}}</h1>
+  <p class="description">{{@description}}</p>
+
+  {{!-- Wrapper div provides positional styling options. --}}
+  <div class="list-all">
+    <table id="list-table">
+      {{!-- Table head generated from keys of @types local. --}}
+      <thead id="list-head">
+        <tr>
+          {{!-- Action column contains icons that act as
+                submission buttons. --}}
+          <th class="action-col">Action</th>
+          {{!-- Color-coded line represents status of each row. --}}
+          <th class="color-coded"></th>
+          {{!-- The remaining rows are populated from data. --}}
+          {{#each @types~}}
+            <th>{{@key}}</th>
+          {{~/each~}}
+        </tr>
+      </thead>
+      
+      {{!-- List body encapsulates functionality to add new line, 
+            as well as act on existing line items. --}}
+      <tbody id="list-body">
+        {{!-- First row contains form elements to add new line.
+              Form elements are generated based on @types derived
+              from database. --}}
+        <tr>
+          <td class="action-col add">
+            <img class="action-icon" src="/images/new.png">
+          </td>
+          <td class="color-coded add"></td>
+          {{#each @types}}
+            {{!-- @key: Database column names,
+                  this.type: Database column type. --}}
+            <td class="{{@key}} add {{this.type}}">
+              {{!-- String fields are entered by inputs. --}}
+              {{#eq? this.type "string"~}}
+                <input type="text" name="{{@key}}" value="">
+              {{~/eq?}}
+              {{!-- Integer fields are entered by numerical inputs.
+                    Minimum allowed input is 1 (non-negative). --}}
+              {{#eq? this.type "integer"~}}
+                <input type="number" name="{{@key}}" value="" min="1">
+              {{~/eq?}}
+              {{!-- Date fields are a label, since they are usually
+                    auto-generated based on current date. This may
+                    need to change on future occasion. --}}
+              {{#eq? this.type "date"~}}
+                <div class="today"></div>
+              {{~/eq?}}
+              {{#eq? this.type "dateonly"~}}
+                <div class="today"></div>
+              {{~/eq?}}
+              {{!-- Enumerated fields are selected from a dropdown
+                    based on database attributes. --}}
+              {{#eq? this.type "enum"~}}
+                <select name="{{@key}}">
+                  <option disabled selected value> Select a {{@key}}: </option>
+                  {{#each this.select}}
+                    <option value="{{this}}">{{this}}</option>
+                  {{/each}}
+                </select>
+              {{~/eq?}}
+              {{!-- Referenced fields are selected from a dropdown
+                    based on associated database GET calls. --}}
+              {{#eq? this.type "reference"~}}
+                <select name="{{@key}}">
+                  <option disabled selected value> Select a {{@key}}: </option>
+                  {{#each this.select}}
+                    <option value="{{this}}">{{this}}</option>
+                  {{/each}}
+                </select>
+              {{~/eq?}}
+              {{!-- Each column contains an error field, where
+                    corresponding errors will be propagated. --}}
+              <ul class="error"></ul>
+            </td>
+          {{/each~}}
+        </tr>
+
+        {{!-- Remaining rows lists existing items, sorted by
+              status: new, used, inactive. --}}
+        {{~#each @list~}}
+          <tr class="{{this.state}}">
+            <td class="action-col {{this.state}}">
+              {{~#eq? this.state 'new'~}}
+                <img class="action-icon" src="/images/remove.png">
+              {{~/eq?~}}
+              {{~#eq? this.state 'used'~}}
+                <img class="action-icon" src="/images/hide.png">
+              {{~/eq?~}}
+              {{~#eq? this.state 'hidden'~}}
+                <img class="action-icon" src="/images/restore.png">
+              {{~/eq?~}}
+            </td>
+            <td class="color-coded {{this.state}}"></td>
+            {{~#each this~}}
+              {{~#neq? @key 'state'~}}
+                <td class="{{@key}}">
+                  {{this}}
+                  <ul class="error"></ul>
+                </td>
+              {{~/neq?~}}
+            {{~/each}}
+          </tr>
+        {{~/each}}
+      </tbody>
+    </table>
+
+    {{!-- Hidden element contains model name necessary for Javascript function. --}}
+    <div id="model-name" class="hidden-name">{{@modelName}}</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script src="/js/listView.js"></script>
