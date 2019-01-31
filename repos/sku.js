@@ -1,22 +1,46 @@
 const SettingsRepo = require('./settings');
 const ColorRepo = require('./color');
 const SizeRepo = require('./size');
-const { Sku } = require('../models');
+const { Sku, Size, Sequelize } = require('../models');
 
 class SkuRepo extends SettingsRepo {
 
-  constructor() {
+  constructor(associate) {
     super(Sku);
 
-    this.assoc = {
-      color: new ColorRepo(),
-      size: new SizeRepo()
-    };
+    if (!associate) {
+      this.assoc = {
+        color: new ColorRepo(),
+        size: new SizeRepo()
+      };
+    }
   }
 
-  async list() { return this._list({ paranoid: false }); }
+  async list(by) { 
+    let opts = { 
+      where: by,
+      paranoid : false
+    };
+    return this._list(opts); }
 
-  async listActive() { return this._list(); }
+  async listWithSize(by) {
+    let opts = { 
+      where: by,
+      attributes: { 
+        include: [
+          [Sequelize.col('Size.innerSize'), 'innerSize'],
+          [Sequelize.col('Size.masterSize'), 'masterSize']
+        ]
+      },
+      include: [{ model: Size, attributes: [] }],
+      paranoid : false
+    };
+    return this._list(opts);    
+  }
+
+  async listActive(by) { 
+    return this._list({ where: by });
+  }
 
   async get(id) {
     return this._get({
@@ -69,10 +93,8 @@ class SkuRepo extends SettingsRepo {
   }
 
   async delete(id) {
-    this.transaction(async (t) => {
-      let sku = await this.get(id);
-
-      await this.cache.get.destroy({ force: true });
+    return this.transaction(async (t) => {
+      let sku = await this._delete({ where: { id: id }}, true);
 
       let color = await this.assoc.color.get(sku.color);
       let size = await this.assoc.size.get(sku.size);
@@ -80,7 +102,6 @@ class SkuRepo extends SettingsRepo {
       if (!color) await this.assoc.color.renew(sku.color);
       if (!size) await this.assoc.size.renew(sku.size);
 
-      this.cache.delete = sku;
       return sku;
 
     });

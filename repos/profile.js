@@ -30,20 +30,13 @@ class ProfileRepo extends SettingsRepo {
   }
 
   async update(email, first, last, new_email) {
-    let values = {
+    return this._update({
       firstName: first,
       lastName: last,
       email: new_email || email
-    };
-    let options = { where: { email: email } };
-
-    let count;
-    try {
-      count = await this.Model.update(values, options);
-    } catch (err) {
-      ProfileRepo._handleErrors(err);
-    }
-    return count;
+    }, {
+      where: { email: email }
+    });
   }
 
   async delete(email) {

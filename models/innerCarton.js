@@ -6,25 +6,27 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
-      primaryKey: true,
-      validate: {
-        isEmpty: {
-          msg: "Cannot enter ID manually."
-        }
-      }
+      primaryKey: true
     },
     serial: {
       type: DataTypes.STRING,
+      unique: true,
       allowNull: true
     },
     alias: {
       type: DataTypes.STRING,
+      unique: true,
       allowNull: true,
       validate: {
         notSerialFormat: serial.notSerialFormat
       }
     }
   }, {
+    timestamps: true,
+    createdAt: 'created',
+    updatedAt: false,
+    paranoid: true,
+    deletedAt: 'hidden',
     hooks: {
       afterCreate: serial.toBase36('I')
     }
@@ -32,10 +34,15 @@ module.exports = (sequelize, DataTypes) => {
 
   InnerCarton.associate = models => {
     InnerCarton.belongsTo(models.MasterCarton, {
-      foreignKey: 'masterId'
+      foreignKey: 'masterId',
+      targetKey: 'serial'
     });
-    InnerCarton.hasMany(models.Items, {
-      foreignKey: 'itemId'
+    InnerCarton.hasMany(models.Item, {
+      foreignKey: 'innerId',
+      targetKey: 'serial'
+    });
+    InnerCarton.belongsTo(models.Sku, {
+      foreignKey: 'sku',
     });
   }
 

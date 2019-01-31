@@ -47,13 +47,14 @@ const toBase36 = (type) => {
     return unit.update({
       serial: format(unit.id, type)
     }, {
+      skip: ['id', 'serial'],
       transaction: options.transaction
     });
   };
 };
 
 const notSerialFormat = (value) => {
-  if (value.includes(SERIAL)) {
+  if (value.includes(PREFIX)) {
     throw new Error("Alias should not be in serial format.");
   }
 };

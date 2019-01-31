@@ -36,23 +36,43 @@ class SettingsRepo {
 
   async _create(modelObj) {
     let model, err;
-    [err, model] = await to(this.Model.create(modelObj));
+    if (Array.isArray(modelObj)) {
+     [err, model] = await to(this.Model.bulkCreate(modelObj, {
+      validate: true,
+      individualHooks: true,
+      returning: true
+     }));
+    } else {
+      [err, model] = await to(this.Model.create(modelObj));  
+    }
     if (err) SettingsRepo._handleErrors(err);
 
     this.cache.create = model;
-    if (!model) return null;
-    else return model.get({ plain: true });
+    if (!model || model.length === 0) {
+      return Array.isArray(model) ? [] : null;
+    } else {
+      if (Array.isArray(model)) {
+        return model.map(e => e.get({ plain: true }));
+      } else {
+        return model.get({ plain: true });
+      }
+    }
+  }
+
+  async _update(query, options) {
+    let ret, err;
+    let opts = Object.assign({ returning: true }, options);
+    [err, ret] = await to(this.Model.update(query, options));
+    if (err) SettingsRepo._handleErrors(err);
+
+    let [count, [models]] = ret;
+    this.cache.update = models;
+    return models.get({ plain: true });
   }
 
   async _use(options, used) {
-    let count, err;
-    [err, count] = await to(this.Model.update({
-      hidden: null,
-      used: used
-    }, options));
-    if (err) SettingsRepo._handleErrors(err);
-
-    return count;
+    const query = { hidden: null, used: used };
+    return this._update(query, options);
   }
 
   async _delete(options, permanent) {
@@ -121,9 +141,15 @@ class SettingsRepo {
     throw new Error("No primary key?!");
   }
 
-  transaction(fun) {
-    return sequelize.transaction(fun)
-      .catch(err => Promise.reject(err));
+  transaction(fun, transaction) {
+    const tx = { transaction: transaction };
+    if (transaction) {
+      return sequelize.transaction(tx, fun)
+        .catch(err => Promise.reject(err));
+    } else {
+      return sequelize.transaction(fun)
+        .catch(err => Promise.reject(err));
+    }
   }
 
   _buildOrder() {

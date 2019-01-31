@@ -1,6 +1,6 @@
 const { Color, Size, Sku, FactoryOrder,
-  CustomerOrders, Items, Profile, Label,
-  InnerCarton, sequelize } = require('../models');
+  CustomerOrder, Item, Profile, Label,
+  InnerCarton, MasterCarton, sequelize } = require('../models');
 const uuidv4 = require('uuid/v4');
 
 const setup = async () => {
@@ -11,9 +11,6 @@ const setup = async () => {
   for (let i = 0; i < 10; i++) {
     cartons.push({});
   }
-  await InnerCarton.bulkCreate(cartons, {
-    individualHooks: true
-  });
 
   await Color.bulkCreate([
     { name: 'black', used: true },
@@ -86,17 +83,35 @@ const setup = async () => {
   skus = skus.map(e => e.id );
 
   await FactoryOrder.bulkCreate([
-    { },
-    { }
-  ]);
+    { alias: 'one' },
+    { alias: 'two' }
+  ], { individualHooks: true });
 
-  await CustomerOrders.bulkCreate([
-    { id: 'aee7514d-f202-4f9d-8212-97d9a459cbda', 
-      type: 'Wholesale',
-      label: 'Sample1' },
-    { id: '030837e2-b120-4359-8d16-e4adab83004a', 
-      type: 'Wholesale',
-      label: 'Sample2' }
+  await MasterCarton.bulkCreate([
+    { factoryOrderId: 1, sku: 'or-wood' },
+    { factoryOrderId: 1, sku: 'or-wood' },
+    { factoryOrderId: 1, sku: 'or-wood' },
+    { factoryOrderId: 1, sku: 'or-wood' },
+    { factoryOrderId: 1, sku: 'm-black' },
+    { factoryOrderId: 1, sku: 'm-black' },
+    { factoryOrderId: 1, sku: 'm-black' },
+    { factoryOrderId: 1, sku: 'jr-orange' },
+    { factoryOrderId: 1, sku: 'jr-orange' },
+    { factoryOrderId: 1, sku: 'jr-orange' }
+  ], { individualHooks: true });
+
+  const FactoryOrderRepo = require('../repos/factoryOrder');
+  let factory = new FactoryOrderRepo();
+  let list = await factory.list();
+  console.log(list);
+  console.log(list[0].lineItems);
+  console.log(list[1]);
+
+  await CustomerOrder.bulkCreate([
+    { type: 'wholesale',
+      alias: 'Sample1' },
+    { type: 'wholesale',
+      alias: 'Sample2' }
   ]);
 
   await Profile.bulkCreate([
@@ -128,20 +143,16 @@ const setup = async () => {
       }
     }
 
-    let id = uuidv4();
-
     items.push({
-      id: id,
-      status: 'Ordered',
-      innerbox: inner,
-      outerbox: master,
-      SkuId: sku,
+      status: 'ordered',
+      innerId: inner,
+      masterId: master,
+      sku: sku,
       FactoryOrderId: orderId,
-      qrcode: `http://www.smokebuddy.com/?id=${id}`
     });
   }
 
-  await Items.bulkCreate(items);
+  await Item.bulkCreate(items);
 
   await Label.bulkCreate([
     { prefix: 'http://www.smokebuddy.com/', style: 'querystring'},

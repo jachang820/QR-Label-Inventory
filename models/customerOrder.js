@@ -2,7 +2,7 @@
 const serial = require('../helpers/formatSerial');
 
 module.exports = (sequelize, DataTypes) => {
-  var FactoryOrder = sequelize.define('FactoryOrder', {
+  var CustomerOrder = sequelize.define('CustomerOrder', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -16,14 +16,24 @@ module.exports = (sequelize, DataTypes) => {
     alias: {
       type: DataTypes.STRING,
       unique: true,
-      allowNull: true,
+      allowNull: false,
       validate: {
         notSerialFormat: serial.notSerialFormat
       }
     },
-    arrival: {
-      type: DataTypes.DATEONLY,
-      allowNull: true
+    type: {
+      type: DataTypes.ENUM,
+      values: ['retail', 'wholesale'],
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: "Order type must exist."
+        },
+        isIn: {
+          args: [['retail', 'wholesale']],
+          msg: "Order type is invalid."
+        }
+      }
     },
     notes: {
       type: DataTypes.STRING,
@@ -31,21 +41,21 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     timestamps: true,
-    createdAt: 'ordered',
+    createdAt: 'shipped',
     updatedAt: false,
     paranoid: true,
     deletedAt: 'hidden',
     hooks: {
-      afterCreate: serial.toBase36('F')
+      afterCreate: serial.toBase36('C')
     }
   });
 
-  FactoryOrder.associate = models => {
-    FactoryOrder.hasMany(models.MasterCarton, {
-      foreignKey: 'factoryOrderId',
+  CustomerOrder.associate = models => {
+    CustomerOrder.hasMany(models.Item, {
+      foreignKey: 'customerOrderId',
       targetKey: 'serial'
     });
   }
 
-  return FactoryOrder;
+  return CustomerOrder;
 };
