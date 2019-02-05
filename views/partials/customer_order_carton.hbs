@@ -1,0 +1,147 @@
+<div id="co-item--table">
+    <style>
+    .collapsible {
+        border-top: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        border-left: 1px solid #ddd;
+        margin: 0.5rem 0 1rem 0;
+    }
+    .collapsible-header {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        line-height: 1.5;
+        padding: 1rem;
+        background-color: #fff;
+        border-bottom: 1px solid #ddd;
+    }
+    .collapsible-header:focus {
+        outline: 0;
+    }
+    .collapsible-header i {
+        width: 2rem;
+        font-size: 1.6rem;
+        display: inline-block;
+        text-align: center;
+        margin-right: 1rem;
+    }
+    .keyboard-focused .collapsible-header:focus {
+        background-color: #eee;
+    }
+    .collapsible-body {
+        display: none;
+        border-bottom: 1px solid #ddd;
+        -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+        padding: 2rem;
+    }
+    ul.collapsible{
+        padding: 0;
+    }
+    ul:not(.browser-default) > li {
+        list-style-type: none;
+    }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</div>
+
+<script>
+    window.onload = function(){
+        let testData = [
+            {
+                'id': 'inner1',
+                'items': [
+                    {
+                        'id': 'item1'
+                    },
+                    {
+                        'id': 'item2'
+                    },
+                    {
+                        'id': 'item3'
+                    }
+                ]
+            },
+            {
+                'id': 'inner2',
+                'items': [
+                    {
+                        'id': 'item1'
+                    },
+                    {
+                        'id': 'item2'
+                    },
+                    {
+                        'id': 'item3'
+                    }
+                ]
+            }
+        ];
+        document.getElementById('co-item--table').insertAdjacentHTML('beforeend', coMasterCarton(testData))
+        let elems = document.querySelectorAll('.collapsible');
+        let instances = M.Collapsible.init(elems);
+    }
+    
+    /**
+    @param:itemInfo - Item info in JSON format
+    */
+    function coItemOrders(itemInfo){
+        return `
+        <li>
+            <div class="collapsible-header">${itemInfo['id']}<button class="btn btn-danger" onclick="deleteItem("${itemInfo['id']}")">DELETE</button></div>
+            <div class="collapsible-body">
+                <span>${"Text1"}</span>
+                <br>
+                <span>${"Text2"}</span>
+                <br>
+                <span>${"Text3"}</span>
+                <br>
+                <span>${"Text4"}</span>
+            </div>
+        </li>`;
+    }
+    /**
+    @param:innerInfo = {
+        'innerID': id
+        'innerItems' : []
+    }
+    */
+    function deleteItem(itemNo){
+        // Deletes Item from order
+        console.log(itemNo);
+        return 
+    }
+    function coInnerCarton(innerInfo, template){
+        console.log(innerInfo)
+        template = `
+        <li>
+            <div class="collapsible-header">${innerInfo['id']}</div>
+            <div class="collapsible-body">
+                <ul class="collapsible">
+                `;
+        innerInfo['items'].forEach(itemInfo =>{
+                    console.log(itemInfo)
+            template += coItemOrders(itemInfo);
+        });
+        template += `
+                </ul>
+            </div>
+        </li>`;
+        return template;
+    }
+    /**
+    @param:masterInfo - []
+    */
+    function coMasterCarton(masterInfo){
+            console.log(masterInfo)
+        template = `<ul class="collapsible">`;
+        masterInfo.forEach(innerCarton =>{
+            template += coInnerCarton(innerCarton);
+        });
+        template += `</ul>`;
+        return template;
+    }
+</script>
