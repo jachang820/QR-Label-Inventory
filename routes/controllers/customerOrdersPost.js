@@ -32,8 +32,8 @@ module.exports = [
     .not().isEmpty().withMessage("Order must contain at least one item."),
 
   /* Validate label. */
-  body('label').trim()
-    .not().isEmpty().withMessage("Invoice number empty."),
+  body('serial').trim()
+    .not().isEmpty().withMessage("Serial number empty."),
 
   /* Validate type. */
   (req, res, next) => {
@@ -43,7 +43,7 @@ module.exports = [
     )(req, res, next);
   },
 
-  /* Get all labels. */
+  /* Get labels. */
   async (req, res, next) => {
     const labels = new Labels();
     req.body.labels = await labels.getListView();
@@ -127,7 +127,7 @@ module.exports = [
   sanitizeBody('items.*.sku').trim().escape().stripLow(),
   sanitizeBody('items.*.qrcode').trim().stripLow(),
   sanitizeBody('items.*.id').trim().escape().stripLow(),
-  sanitizeBody('label').trim().escape().stripLow(),
+  sanitizeBody('serial').trim().escape().stripLow(),
   sanitizeBody('notes').trim().escape().stripLow(),
   sanitizeBody('type').trim().escape().stripLow(),
 
@@ -175,7 +175,7 @@ module.exports = [
       order = await axios.post('/customer_orders', {
         itemsList: itemsList,
         type: req.body.type,
-        label: req.body.label,
+        serial: req.body.serial,
         notes: req.body.notes
       });
     } catch (err) {

@@ -1,5 +1,5 @@
 'use strict';
-const serial = require('../helpers/formatSerial');
+const formatSerial = require('../helpers/formatSerial');
 
 module.exports = (sequelize, DataTypes) => {
   var MasterCarton = sequelize.define('MasterCarton', {
@@ -10,17 +10,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     serial: {
       type: DataTypes.STRING,
-      unique: true,
+      unique: false,
       allowNull: true
     },
-    alias: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: true,
-      validate: {
-        notSerialFormat: serial.notSerialFormat
-      }
-    }
+    created: DataTypes.DATEONLY,
+    hidden: DataTypes.DATEONLY
   }, {
     timestamps: true,
     createdAt: 'created',
@@ -28,19 +22,16 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
     deletedAt: 'hidden',
     hooks: {
-      afterCreate: serial.toBase36('M')
-    },
-    tableName: 'MasterCarton'
+      afterCreate: formatSerial('M')
+    }
   });
 
   MasterCarton.associate = models => {
     MasterCarton.belongsTo(models.FactoryOrder, {
-      foreignKey: 'factoryOrderId',
-      targetKey: 'serial'
+      foreignKey: 'factoryOrderId'
     });
     MasterCarton.hasMany(models.InnerCarton, {
-      foreignKey: 'masterId',
-      targetKey: 'serial'
+      foreignKey: 'masterId'
     });
     MasterCarton.belongsTo(models.Sku, {
       foreignKey: 'sku'

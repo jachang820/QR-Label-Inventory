@@ -9,7 +9,7 @@
     <li><a href="/scan">Scan</a></li>
     {{#if-role @role "in" "A"}}
       <li><a href="/customer_orders">Customer Orders</a></li>
-      <li><a href="/orders">Factory Orders</a></li>
+      <li><div id="nav-factory">Factory Orders</div></li>
     {{/if-role}}
     <li><a href="/auth/logout">Logout</a></li>
     <li><img src="/images/thumbs/{{@picture}}" id="profile-photo" alt="User photo"></li>
@@ -23,6 +23,13 @@
     <li><a href="/sizes">Size</a></li>
     <li><a href="/skus">SKU</a></li>
     <li><a href="/labels">Label URL</a></li>
+  </ul>
+</div>
+
+<div id="nav-factory-menu">
+  <ul>
+    <li><a href="/factory_orders">Create</a></li>
+    <li><a href="/factory_orders/view">View</a></li>
   </ul>
 </div>
 

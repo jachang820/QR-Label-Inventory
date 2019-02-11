@@ -1,7 +1,8 @@
-const SettingsRepo = require('./settings');
+const BaseRepo = require('./base');
+const SkuRepo = require('./sku');
 const { Size } = require('../models');
 
-class SizeRepo extends SettingsRepo {
+class SizeRepo extends BaseRepo {
 
   constructor() {
     super(Size);

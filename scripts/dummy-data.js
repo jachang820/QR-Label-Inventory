@@ -13,32 +13,32 @@ const setup = async () => {
   }
 
   await Color.bulkCreate([
-    { name: 'black', used: true },
-    { name: 'blue', used: true },
-    { name: 'green', used: true },
-    { name: 'lime', used: true },
-    { name: 'red', used: true },
-    { name: 'yellow', used: true },
-    { name: 'pink', used: true },
-    { name: 'white', used: true },
-    { name: 'teal', used: true },
-    { name: 'purple', used: true },
-    { name: 'orange', used: true },
-    { name: 'wood', used: true },
-    { name: 'camo', used: true },
-    { name: 'tie dye-yellow', used: true },
-    { name: 'tie dye-orange', used: true },
-    { name: 'vegas-black', used: true },
-    { name: 'vegas-red', used: true },
-    { name: 'cares', used: true },
-    { name: 'glow in the dark-white', used: true },
-    { name: 'glow in the dark-blue', used: true }
+    { name: 'black', abbrev: 'black', used: true },
+    { name: 'blue', abbrev: 'blue', used: true },
+    { name: 'green', abbrev: 'green', used: true },
+    { name: 'lime', abbrev: 'lime', used: true },
+    { name: 'red', abbrev: 'red', used: true },
+    { name: 'yellow', abbrev: 'yellow', used: true },
+    { name: 'pink', abbrev: 'pink', used: true },
+    { name: 'white', abbrev: 'white', used: true },
+    { name: 'teal', abbrev: 'teal', used: true },
+    { name: 'purple', abbrev: 'purple', used: true },
+    { name: 'orange', abbrev: 'orange', used: true },
+    { name: 'wood', abbrev: 'wood', used: true },
+    { name: 'camo', abbrev: 'camo', used: true },
+    { name: 'tie dye-yellow', abbrev: 'tdyello', used: true },
+    { name: 'tie dye-orange', abbrev: 'tdorang', used: true },
+    { name: 'vegas-black', abbrev: 'vgblack', used: true },
+    { name: 'vegas-red', abbrev: 'vgred', used: true },
+    { name: 'cares', abbrev: 'cares', used: true },
+    { name: 'glow in the dark-white', abbrev: 'gdwhite', used: true },
+    { name: 'glow in the dark-blue', abbrev: 'gdblack', used: true }
   ]);
 
   await Size.bulkCreate([
-    { name: 'junior', innerSize: 12, masterSize: 4, used: true },
-    { name: 'original', innerSize: 12, masterSize: 4, used: true },
-    { name: 'mega', innerSize: 12, masterSize: 2, used: true }
+    { name: 'junior', abbrev: 'jr', innerSize: 12, masterSize: 4, used: true },
+    { name: 'original', abbrev: 'og', innerSize: 12, masterSize: 4, used: true },
+    { name: 'mega', abbrev: 'm', innerSize: 12, masterSize: 2, used: true }
   ]);
 
   const upc_pre = '651277420';
@@ -82,37 +82,76 @@ const setup = async () => {
   let skus = await Sku.findAll();
   skus = skus.map(e => e.id );
 
-  await FactoryOrder.bulkCreate([
+  let orders = await FactoryOrder.bulkCreate([
     { alias: 'one' },
     { alias: 'two' }
-  ], { individualHooks: true });
+  ], { 
+    individualHooks: true,
+    returning: true
+  });
 
-  await MasterCarton.bulkCreate([
-    { factoryOrderId: 1, sku: 'or-wood' },
-    { factoryOrderId: 1, sku: 'or-wood' },
-    { factoryOrderId: 1, sku: 'or-wood' },
-    { factoryOrderId: 1, sku: 'or-wood' },
-    { factoryOrderId: 1, sku: 'm-black' },
-    { factoryOrderId: 1, sku: 'm-black' },
-    { factoryOrderId: 1, sku: 'm-black' },
-    { factoryOrderId: 1, sku: 'jr-orange' },
-    { factoryOrderId: 1, sku: 'jr-orange' },
-    { factoryOrderId: 1, sku: 'jr-orange' }
-  ], { individualHooks: true });
+  orders = orders.map(e => e.get());
+  let foId1 = orders[0].id;
+  let foId2 = orders[1].id;
 
-  const FactoryOrderRepo = require('../repos/factoryOrder');
-  let factory = new FactoryOrderRepo();
-  let list = await factory.list();
-  console.log(list);
-  console.log(list[0].lineItems);
-  console.log(list[1]);
+  let masters = await MasterCarton.bulkCreate([
+    { factoryOrderId: foId1, sku: 'or-wood' },
+    { factoryOrderId: foId2, sku: 'm-black' },
+    { factoryOrderId: foId2, sku: 'jr-orange' }
+  ], {
+    individualHooks: true,
+    returning: true
+  });
 
-  await CustomerOrder.bulkCreate([
+  masters = masters.map(e => e.get());
+  let mcId1 = masters[0].id;
+  let mcId2 = masters[1].id;
+  let mcId3 = masters[2].id;
+
+  let inners = await InnerCarton.bulkCreate([
+    { factoryOrderId: foId1, masterId: mcId1, sku: 'or-wood' },
+    { factoryOrderId: foId1, masterId: mcId1, sku: 'or-wood' },
+    { factoryOrderId: foId1, masterId: mcId1, sku: 'or-wood' },
+    { factoryOrderId: foId1, masterId: mcId1, sku: 'or-wood' },
+    { factoryOrderId: foId2, masterId: mcId2, sku: 'm-black' },
+    { factoryOrderId: foId2, masterId: mcId2, sku: 'm-black' },
+    { factoryOrderId: foId2, masterId: mcId3, sku: 'jr-orange' },
+    { factoryOrderId: foId2, masterId: mcId3, sku: 'jr-orange' },
+    { factoryOrderId: foId2, masterId: mcId3, sku: 'jr-orange' },
+    { factoryOrderId: foId2, masterId: mcId3, sku: 'jr-orange' }
+  ], {
+    individualHooks: true,
+    returning: true
+  });
+
+  inner = inners.map(e => e.get());
+
+  let customers = await CustomerOrder.bulkCreate([
     { type: 'wholesale',
-      alias: 'Sample1' },
-    { type: 'wholesale',
-      alias: 'Sample2' }
+      alias: 'D34DB33F' }
   ]);
+
+  customers = customers.map(e => e.get());
+
+  let itemsList = [];
+  for (let i = 0; i < inners.length; i++) {
+    for (let j = 0; j < 12; j++) {
+      let item = {
+        factoryOrderId: inners[i].factoryOrderId,
+        masterId: inners[i].masterId,
+        innerId: inners[i].id,
+        sku: inners[i].sku,
+        status: i >= 4 ? 'shipped' : 'in stock'
+      };
+      if (i >= 4) {
+        item = Object.assign({
+          customerOrderId: customers[0].id
+        }, item);
+      }
+      itemsList.push(item);
+    }
+  }
+  await Item.bulkCreate(itemsList);
 
   await Profile.bulkCreate([
     { firstName: 'Jonathan',
@@ -122,42 +161,24 @@ const setup = async () => {
     { firstName: 'Alex',
       lastName: 'Chen',
       email: 'aqchen@g.ucla.edu',
+      role: 'administrator' },
+    { firstName: 'Ryan',
+      lastName: 'Yang',
+      email: 'ryanqyang@gmail.edu',
       role: 'administrator' }
   ]);
-
-  let items = []
-  for (let i = 0; i < 72; i++) {
-    let orderId;
-    let sku;
-    if (i < 48) {
-      orderId = 1;
-      sku = skus[10];
-    } else {
-      orderId = 2;
-      sku = skus[26];
-    }
-    if (i % 12 == 0) {
-      var inner = uuidv4();
-      if (i % 48 == 0) {
-        var master = uuidv4();
-      }
-    }
-
-    items.push({
-      status: 'ordered',
-      innerId: inner,
-      masterId: master,
-      sku: sku,
-      FactoryOrderId: orderId,
-    });
-  }
-
-  await Item.bulkCreate(items);
 
   await Label.bulkCreate([
     { prefix: 'http://www.smokebuddy.com/', style: 'querystring'},
     { prefix: 'http://holoshield.net/a/', style: 'path'}
   ]);
+
+  await Label.destroy({
+    where: {
+      prefix: 'http://www.smokebuddy.com/',
+      style: 'querystring'
+    }
+  });
 
 }
 

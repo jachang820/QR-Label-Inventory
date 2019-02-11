@@ -7,11 +7,8 @@ class Skus extends BaseService {
     super(SkuRepo);
   }
 
-  async getListView() {
-    let list = await this.repo.list();
-    list = Skus._addListStatus(list);
-    list = Skus._moveCreatedToEnd(list);
-    return list;
+  async getSize(sku) {
+    return this.repo.getSize(sku);
   }
 
   async getSchema() {
@@ -23,7 +20,6 @@ class Skus extends BaseService {
     schema.size.type = 'reference';
     schema.color.select = Skus.mapColumn(colors, 'name');
     schema.size.select = Skus.mapColumn(sizes, 'name');
-    schema = Skus._moveCreatedToEnd([schema])[0];
     return schema;
   }
 

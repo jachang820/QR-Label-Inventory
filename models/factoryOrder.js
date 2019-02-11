@@ -1,5 +1,5 @@
 'use strict';
-const serial = require('../helpers/formatSerial');
+const formatSerial = require('../helpers/formatSerial');
 
 module.exports = (sequelize, DataTypes) => {
   var FactoryOrder = sequelize.define('FactoryOrder', {
@@ -10,25 +10,20 @@ module.exports = (sequelize, DataTypes) => {
     },
     serial: {
       type: DataTypes.STRING,
-      unique: true,
+      unique: false,
       allowNull: true
     },
-    alias: {
+    notes: {
       type: DataTypes.STRING,
-      unique: true,
-      allowNull: true,
-      validate: {
-        notSerialFormat: serial.notSerialFormat
-      }
+      defaultValue: '',
+      allowNull: true
     },
     arrival: {
       type: DataTypes.DATEONLY,
       allowNull: true
     },
-    notes: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
+    ordered: DataTypes.DATEONLY,
+    hidden: DataTypes.DATEONLY
   }, {
     timestamps: true,
     createdAt: 'ordered',
@@ -36,14 +31,13 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
     deletedAt: 'hidden',
     hooks: {
-      afterCreate: serial.toBase36('F')
+      afterCreate: formatSerial('F')
     }
   });
 
   FactoryOrder.associate = models => {
     FactoryOrder.hasMany(models.MasterCarton, {
-      foreignKey: 'factoryOrderId',
-      targetKey: 'serial'
+      foreignKey: 'factoryOrderId'
     });
   }
 

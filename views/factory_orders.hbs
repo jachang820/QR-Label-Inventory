@@ -2,142 +2,76 @@
 
 <div class="container">
 
-  <h1>Orders</h1>
+  <h1>{{@title}}</h1>
+  <p class="description">{{@description}}</p>
 
-  {{> error_msg }}
-
-  <table>
-    <tr>
-      <th>ID</th>
-      <th>Invoice #</th>
-      <th>Size</th>
-      <th>Arrival Date</th>
-      <th>Notes</th>
-      <th>Action</th>
-    </tr>
-
-    {{#each orders}}
-      <tr>
-        <td>
-          <a href="/orders/{{this.id}}">{{this.id}}</a>
-          </td>
-        <td>{{this.label}}</td>
-        <td>{{this.size}}</td>
-        <td>{{this.arrivalDate}}</td>
-        <td>{{this.notes}}</td>
-        <td>
-          <button class="btn btn-danger" onclick="deleteOrder({{this.id}})">Delete</button>
-        </td>
-      </tr>
-    {{/each}}
-
-  </table>
-
-  <div id="new-order">
-    <h2>New Order</h2>
-
-    <form action="/orders" method="POST">
-      <label for="label">Invoice #: </label>
-      <input id="label" type="text" name="label">
-
+  <div class="list-all">
+    <div id="serial-box">
+      <label for="serial">Serial #: </label>
+      <input id="serial" type="text" name="serial">
+      <ul class="error"></ul>
+    </div>
+    
+    <div id="notes-box">
       <label for="notes">Notes: </label>
       <input id="notes" type="text" name="notes">
+      <ul class="error"></ul>
+    </div>
 
-      <table id="new-order-table">
-        <tbody>
-          <tr>
-            <th>SKU</th>
-            <th>Quantity (MC)</th>
-            <th>Action</th>
-          </tr>
+    <div id="items-box">
+      <ul class="error"></ul>
+    </div>
 
-          <tr class="new-order-row">
-            <td>
-              <select id="sku0" name="items[0][sku]">
-                <option>Select a SKU:</option>
-                {{#each skus}}
-                  <option>{{this.id}}</option>
-                {{/each}}
-              </select>
-            </td>
+    <table id="list-table">
+      <thead id="list-head">
+        <tr>
+          <th class="action-col">Action</th>
+          <th class="color-coded"></th>
+          <th>SKU</th>
+          <th>Master Ctn. Qty.</th>
+          <th>Inner Ctn. Qty.</th>
+          <th>Item Qty.</th>
+        </tr>
+      </thead>
+      <tbody id="list-body">
+        <tr>
+          <td class="action-col add">
+            <img class="action-icon" src="/images/new.png">
+          </td>
+          <td class="color-coded add"></td>
+          <td class="sku add">
+            <select name="sku">
+              <option disabled selected value="">Select a SKU:</option>
+              {{#each skus}}
+                <option value="{{this}}">{{this}}</option>
+              {{/each}}
+            </select>
+            <ul class="error"></ul>
+          </td>
+          <td class="master add">
+            <input type="number" name="master" min="1">
+            <ul class="error"></ul>
+          </td>
+          <td class="inner add"></td>
+          <td class="quantity add"></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>TOTAL:</td>
+          <td colspan="4"></td>
+          <td id="total"></td>
+        </tr>
+      </tfoot>
+    </table>
 
-            <td>
-              <input id="quantity0" type="number" name="items[0][quantity]" min="1">
-            </td>
+    <br>
+    <input id="submit-order-btn" class="btn btn-success" type="submit" value="Submit Order">
 
-            <td></td>
-          </tr>
-        </tbody>
-
-      </table>
-
-      <button class="btn btn-primary" onClick="addItem()" type="button">New Item</button>
-      <br>
-      <br>
-      <input class="btn btn-success" type="submit" value="Submit Order">
-    </form>
+    {{!-- Hidden element contains model name necessary for Javascript function. --}}
+    <div id="model-name" class="hidden-name">{{@modelName}}</div>
   </div>
 </div>
 
-<script>
-  let itemCount = 1;
-
-  function deleteOrder(id) {
-    let xhttp = new XMLHttpRequest();
-    xhttp.open("DELETE", "/api/factory_orders/" + id, true);
-    xhttp.onreadystatechange = function(event) {
-      if (xhttp.readyState === 4) {
-        if (xhttp.status === 200) {
-          location.reload();
-        } else {
-          error.innerHTML = "<ul><li>Error: " + xhttp.statusText + "</li></ul>";
-        }
-      }
-    };
-    xhttp.send();
-  }
-
-  function createDeleteButton() {
-    let deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.setAttribute("class", "btn btn-danger");
-    deleteButton.addEventListener("click", function() {
-      return deleteItem(this)
-    });
-    return deleteButton;
-  }
-
-  function addItem() {
-    let newRow = document.getElementsByClassName("new-order-row")[0].cloneNode(true);
-
-    let selectColor = newRow.querySelector("#sku0");
-    selectColor.name = "items[" + itemCount + "][sku]";
-    selectColor.id = "sku" + itemCount;
-
-    let inputQuantity = newRow.querySelector("#quantity0");
-    inputQuantity.name = "items[" + itemCount + "][quantity]";
-    inputQuantity.id = "quantity" + itemCount;
-    inputQuantity.value = "";
-
-    newRow.children[2].appendChild(createDeleteButton());
-
-    document.getElementById("new-order-table").children[0].appendChild(newRow);
-
-    itemCount++;
-  }
-
-  function deleteItem(deleteButton) {
-    let row = deleteButton.parentNode.parentNode;
-    let table = row.parentNode;
-
-    table.removeChild(row);
-    itemCount--;
-  }
-
-  document.addEventListener('keypress', function(event) {
-    if (event.keyCode == 13) {
-      event.preventDefault();
-      addItem();
-    }
-  });
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script src="/js/factoryOrder.js"></script>

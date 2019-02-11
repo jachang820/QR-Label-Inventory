@@ -9,7 +9,7 @@
   <table>
     <tr>
       <th>ID</th>
-      <th>Invoice #</th>
+      <th>Serial #</th>
       <th>Size</th>
       <th>Notes</th>
       <th>Action</th>
@@ -20,7 +20,7 @@
         <td>
           <a href="/customer_orders/{{this.id}}">{{this.id}}</a>
           </td>
-        <td>{{this.label}}</td>
+        <td>{{this.serial}}</td>
         <td>{{this.size}}</td>
         <td>{{this.notes}}</td>
         <td>
@@ -40,8 +40,8 @@
         <option value="Wholesale">Wholesale</option>
       </select>
 
-      <label for="label">Invoice #: </label>
-      <input id="label" type="text" name="label">
+      <label for="serial">Serial #: </label>
+      <input id="serial" type="text" name="serial">
 
       <label for="notes">Notes: </label>
       <input id="notes" type="text" name="notes">

@@ -21,7 +21,7 @@
           {{!-- The remaining rows are populated from data. --}}
           {{#each @types~}}
             <th>{{@key}}</th>
-          {{~/each~}}
+          {{/each}}
         </tr>
       </thead>
       
@@ -31,6 +31,7 @@
         {{!-- First row contains form elements to add new line.
               Form elements are generated based on @types derived
               from database. --}}
+        {{#unless @listOnly}}
         <tr>
           <td class="action-col add">
             <img class="action-icon" src="/images/new.png">
@@ -41,82 +42,104 @@
                   this.type: Database column type. --}}
             <td class="{{@key}} add {{this.type}}">
               {{!-- String fields are entered by inputs. --}}
-              {{#eq? this.type "string"~}}
+              {{#eq? this.type "string"}}
                 <input type="text" name="{{@key}}" value="">
-              {{~/eq?}}
+              {{/eq?}}
               {{!-- Integer fields are entered by numerical inputs.
                     Minimum allowed input is 1 (non-negative). --}}
-              {{#eq? this.type "integer"~}}
+              {{#eq? this.type "integer"}}
                 <input type="number" name="{{@key}}" value="" min="1">
-              {{~/eq?}}
+              {{/eq?}}
               {{!-- Date fields are a label, since they are usually
                     auto-generated based on current date. This may
                     need to change on future occasion. --}}
-              {{#eq? this.type "date"~}}
-                <div class="today"></div>
-              {{~/eq?}}
-              {{#eq? this.type "dateonly"~}}
-                <div class="today"></div>
-              {{~/eq?}}
+              {{#eq? this.type "date"}}
+                <div class="date"></div>
+              {{/eq?}}
+              {{#eq? this.type "dateonly"}}
+                <div class="date"></div>
+              {{/eq?}}
               {{!-- Enumerated fields are selected from a dropdown
                     based on database attributes. --}}
-              {{#eq? this.type "enum"~}}
+              {{#eq? this.type "enum"}}
                 <select name="{{@key}}">
-                  <option disabled selected value> Select a {{@key}}: </option>
+                  <option disabled selected value=""> Select a {{@key}}: </option>
                   {{#each this.select}}
                     <option value="{{this}}">{{this}}</option>
                   {{/each}}
                 </select>
-              {{~/eq?}}
+              {{/eq?}}
               {{!-- Referenced fields are selected from a dropdown
                     based on associated database GET calls. --}}
-              {{#eq? this.type "reference"~}}
+              {{#eq? this.type "reference"}}
                 <select name="{{@key}}">
-                  <option disabled selected value> Select a {{@key}}: </option>
+                  <option disabled selected value=""> Select a {{@key}}: </option>
                   {{#each this.select}}
                     <option value="{{this}}">{{this}}</option>
                   {{/each}}
                 </select>
-              {{~/eq?}}
+              {{/eq?}}
               {{!-- Each column contains an error field, where
                     corresponding errors will be propagated. --}}
               <ul class="error"></ul>
             </td>
-          {{/each~}}
+          {{/each}}
         </tr>
+        {{/unless}}
 
         {{!-- Remaining rows lists existing items, sorted by
               status: new, used, inactive. --}}
-        {{~#each @list~}}
+        {{#each @list}}
           <tr class="{{this.state}}">
             <td class="action-col {{this.state}}">
-              {{~#eq? this.state 'new'~}}
+              {{#if @expand}}
+                <img class="expand" src="/images/expand.png">
+              {{/if}}
+              {{#if @printQr}}
+                <a href="/{{@modelName}}/labels/{{this.clickId}}">
+                  <img class="print-qr" src="/images/print.png">
+                </a>
+              {{/if}}
+              {{#eq? this.state 'new'}}
                 <img class="action-icon" src="/images/remove.png">
-              {{~/eq?~}}
-              {{~#eq? this.state 'used'~}}
+              {{/eq?}}
+              {{#eq? this.state 'used'}}
                 <img class="action-icon" src="/images/hide.png">
-              {{~/eq?~}}
-              {{~#eq? this.state 'hidden'~}}
+              {{/eq?}}
+              {{#eq? this.state 'hidden'}}
                 <img class="action-icon" src="/images/restore.png">
-              {{~/eq?~}}
+              {{/eq?}}
             </td>
             <td class="color-coded {{this.state}}"></td>
-            {{~#each this~}}
-              {{~#neq? @key 'state'~}}
+            {{#each this}}
+              {{#neq? @key 'state'}}{{#neq? @key 'clickId'}}
                 <td class="{{@key}}">
                   {{this}}
                   <ul class="error"></ul>
                 </td>
-              {{~/neq?~}}
-            {{~/each}}
+              {{/neq?}}{{/neq?}}
+            {{/each}}
           </tr>
         {{~/each}}
       </tbody>
+      <tfoot>
+        <tr>
+          <td></td>
+          <td></td>
+          {{#each @types}}<td></td>{{/each}}
+        </tr>
+      </tfoot>
     </table>
 
     {{!-- Hidden element contains model name necessary for Javascript function. --}}
     <div id="model-name" class="hidden-name">{{@modelName}}</div>
   </div>
+
+  <div id="message-bar">
+    {{#eq? @modelName 'factory_orders'}}Please be patient, this might take a minute...{{/eq?}}
+  </div>
+
+  <div id="details-modal"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>

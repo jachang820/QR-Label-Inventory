@@ -7,9 +7,10 @@ class Sizes extends BaseService {
     super(SizeRepo);
   }
 
-  async add(name, innerSize, masterSize) {
+  async add(name, abbrev, innerSize, masterSize) {
     let size = await this.repo.create(
       name, 
+      abbrev,
       innerSize, 
       masterSize
     );

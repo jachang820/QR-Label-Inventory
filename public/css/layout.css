@@ -1,10 +1,10 @@
-html {
+body {
   margin: 0;
   padding: 0;
   background: -webkit-radial-gradient(white, rgba(128,110,32,0.34));
   background: radial-gradient(white, rgba(128,110,32,0.34));
   background-attachment: fixed;
-  background-size: 100% 80%;
+  background-size: 100% 100%;
 }
 
 body {
@@ -75,30 +75,7 @@ input[type=text], input[type=number], select {
 }
 
 
-table {
-  border-collapse: collapse;
-}
 
-table td, table th {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-table tr:nth-child(odd) {
-  background-color: #fff;
-}
-
-table th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: #555;
-  color: white;
-}
 
 #errors-list {
   list-style-type: none;

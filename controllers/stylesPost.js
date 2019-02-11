@@ -17,8 +17,26 @@ module.exports = (type) => {
     /* Validate new style name, ensure that they are not already
        in use. */
     body('name').trim()
+      .isLowercase().withMessage(`${cap_type} must be in lower case.`)
       .isLength({ min: 1 }).withMessage(`${cap_type} empty.`)
       .isLength({ max: 32 }).withMessage(`${cap_type} too long.`),
+
+    /* Validate abbreviation. */
+    (req, res, next) => {
+      if (type === 'color' &&
+          req.body.name.length <= 7 &&
+          !req.body.abbrev) {
+
+        req.body.abbrev = req.body.name;
+      }
+      const max = (type === 'size') ? 2 : 7;
+      return express.Router().use(body('abbrev').trim()
+        .isAlpha().withMessage('Abbreviation must be alphabetical.')
+        .isLowercase().withMessage('Abbreviation must be in lower case.')
+        .isLength({ min: 1 }).withMessage('Abbreviation too short.')
+        .isLength({ max: max }).withMessage('Abbreviation too long.')
+      )(req, res, next);
+    },
 
     /* Validate inner carton if size. */
     (req, res, next) => {
@@ -45,6 +63,7 @@ module.exports = (type) => {
     /* Trim trailing spaces and remove escape characters to prevent
        SQL injections. */
     sanitizeBody('name').trim().escape().stripLow(),
+    sanitizeBody('abbrev').trim().escape().stripLow(),
 
     (req, res, next) => {
       if (type === 'size') {
@@ -78,10 +97,14 @@ module.exports = (type) => {
       let style;
       try {
         if (type === 'color') {
-          style = await styles.add(req.body.name);
+          style = await styles.add(
+            req.body.name,
+            req.body.abbrev
+          );
         } else {
           style = await styles.add(
             req.body.name,
+            req.body.abbrev,
             req.body.innerSize,
             req.body.masterSize
           );

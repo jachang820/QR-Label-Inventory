@@ -1,17 +1,16 @@
-const SettingsRepo = require('./settings');
+const BaseRepo = require('./base');
 const ItemRepo = require('./masterCarton');
 const { CustomerOrder } = require('../models');
 
-class CustomerOrderRepo extends SettingsRepo {
+class CustomerOrderRepo extends BaseRepo {
 
-  constructor(associate) {
+  constructor(exclude = []) {
     super(CustomerOrder);
 
-    if (!associate) {
-      this.assoc = {
-        item: new ItemRepo(true)
-      };
-    }
+    exclude.push('customerOrder');
+    this.assoc = {};
+    if (!exclude.includes('item'))
+      this.assoc.item = new ItemRepo(exclude);
   }
 
   async list(by, page = 0, limit = 20) {
@@ -29,7 +28,7 @@ class CustomerOrderRepo extends SettingsRepo {
 
   async get(serial) {
     return this._get({
-      where: { id: serial },
+      where: { serial },
       attributes: { exclude: ['id', 'hidden'] },
       include: [{ 
         model: Item,
@@ -40,27 +39,23 @@ class CustomerOrderRepo extends SettingsRepo {
     });
   }
 
-  async create(alias, type, notes, items, transaction) {
+  async create(serial, type, notes, items, transaction) {
     return this.transaction(async (t) => {
-      const customerOrder = await this._create({
-        alias: alias,
-        type: type,
-        notes: notes
-      });
+      const customerOrder = await this._create({ serial, type, notes });
 
       for (let i = 0; i < items.length; i++) {
         await this.assoc.item.ship({
           customerOrderId: items[i]
-        }, customerOrder.serial, t);
+        }, customerOrder.id, t);
       }
       
       return customerOrder;
     }, transaction);
   }
 
-  async update(serial, label, notes) {
+  async update(serial, notes) {
     return this._update({ notes: notes }, {
-      where: { serial: serial }
+      where: { serial }
     });
   }
 
@@ -68,8 +63,8 @@ class CustomerOrderRepo extends SettingsRepo {
     return this.transaction(async (t) => {
       const order = await this._use({ where: by }, true);
       const item = await this.assoc.item.ship({
-        customerOrderId: order.serial
-      }, order.serial, transaction);
+        customerOrderId: order.id
+      }, order.id, transaction);
       return order;
     }, transaction);
   }
@@ -78,7 +73,7 @@ class CustomerOrderRepo extends SettingsRepo {
     return this.transaction(async (t) => {
       const order = await this._delete({ where: by }, false);
       const item = await this.assoc.item.stock({
-        customerOrderId: order.serial
+        customerOrderId: order.id
       }, transaction);
       return order;
     }, transaction);

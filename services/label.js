@@ -11,6 +11,7 @@ class Labels extends BaseService {
     for (let i = 0; i < list.length; i++) {
       list[i].state = list[i].hidden ? 'hidden' : 'used';
       delete list[i].hidden;
+      delete list[i].updated;
     }
     return list;
   }
@@ -26,6 +27,7 @@ class Labels extends BaseService {
     let label = await this.repo.create(prefix, style);
     label.state = 'used';
     delete label.hidden;
+    delete label.updated;
     return label;
   }
 

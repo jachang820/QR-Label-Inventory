@@ -1,7 +1,7 @@
-const SettingsRepo = require('./settings');
+const BaseRepo = require('./base');
 const { Label } = require('../models');
 
-class LabelRepo extends SettingsRepo {
+class LabelRepo extends BaseRepo {
 
   constructor() {
     super(Label, 'prefix');
@@ -10,13 +10,15 @@ class LabelRepo extends SettingsRepo {
   async list() {
     return this._list({
       attributes: { exclude: ['id'] },
+      order: [['updated', 'DESC']],
       paranoid: false
     });
   }
 
-  async liveActive() {
+  async listActive() {
     return this._list({
-      attributes: { exclude: ['id'] }
+      attributes: { exclude: ['id'] },
+      order: [['updated', 'DESC']]
     });
   }
 
@@ -29,6 +31,11 @@ class LabelRepo extends SettingsRepo {
       attributes: { exclude: ['id'] },
       paranoid: false
     });
+  }
+
+  async getActive() {
+    const labels = await this.listActive();
+    return labels[0];
   }
 
   async create(prefix, style) {

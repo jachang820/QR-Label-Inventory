@@ -1,5 +1,5 @@
 'use strict';
-const serial = require('../helpers/formatSerial');
+const formatSerial = require('../helpers/formatSerial');
 
 module.exports = (sequelize, DataTypes) => {
   var CustomerOrder = sequelize.define('CustomerOrder', {
@@ -10,16 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     serial: {
       type: DataTypes.STRING,
-      unique: true,
+      unique: false,
       allowNull: true
-    },
-    alias: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: false,
-      validate: {
-        notSerialFormat: serial.notSerialFormat
-      }
     },
     type: {
       type: DataTypes.ENUM,
@@ -38,7 +30,9 @@ module.exports = (sequelize, DataTypes) => {
     notes: {
       type: DataTypes.STRING,
       allowNull: true
-    }
+    },
+    shipped: DataTypes.DATEONLY,
+    hidden: DataTypes.DATEONLY
   }, {
     timestamps: true,
     createdAt: 'shipped',
@@ -46,14 +40,13 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
     deletedAt: 'hidden',
     hooks: {
-      afterCreate: serial.toBase36('C')
+      afterCreate: formatSerial('C')
     }
   });
 
   CustomerOrder.associate = models => {
     CustomerOrder.hasMany(models.Item, {
-      foreignKey: 'customerOrderId',
-      targetKey: 'serial'
+      foreignKey: 'customerOrderId'
     });
   }
 

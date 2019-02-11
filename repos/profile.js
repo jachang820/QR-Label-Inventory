@@ -1,7 +1,7 @@
-const SettingsRepo = require('./settings');
+const BaseRepo = require('./base');
 const { Profile } = require('../models');
 
-class ProfileRepo extends SettingsRepo {
+class ProfileRepo extends BaseRepo {
 
   constructor() {
     super(Profile, 'email');

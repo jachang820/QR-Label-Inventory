@@ -2,6 +2,8 @@
 window.addEventListener('load', function() {
 
   let actions = document.getElementsByClassName('action-icon');
+  let printQr = document.getElementsByClassName('print-qr');
+  let details = document.getElementsByClassName('expand');
   let tbody = document.getElementById('list-body');
   const model = document.getElementById('model-name').textContent;
 
@@ -187,21 +189,41 @@ window.addEventListener('load', function() {
   actions[0].addEventListener('click', createEvent);
 
   /* Register event to each row representing existing line items. */
-  for (let i = 1; i < actions.length; i++) {
+  const td = tbody.firstElementChild.firstElementChild;
+  let startVal = 0;
+  if (td.className[1] === 'add') {
+    startVal = 1;
+  }
+  for (let i = startVal; i < actions.length; i++) {
     actions[i].addEventListener('click', editEvent);
   }
 
-  /* Populate date columns. */
-  const date = new Date();
-  const year = (date.getYear() + 1900).toString();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = (date.getDate()).toString().padStart(2, '0');
-  const today = year + '-' + month + '-' + day;
+  for (let i = 0; i < printQr.length; i++) {
+    printQr[i].addEventListener('click', function(event) {
+      let bar = document.getElementById('message-bar');
+      bar.style.visibility = 'visible';
+      setTimeout(function() {
+        bar.style.visibility = 'hidden';
+      }, 6000);
+    });
+  }
 
-  const todayNode = document.createTextNode(today);
-  let todayClass = document.getElementsByClassName('today');
-  for (let i = 0; i < todayClass.length; i++) {
-    todayClass[i].appendChild(todayNode);
+  for (let i = 0; i < details.length; i++) {
+    details[i].addEventListener('click', function(event) {
+      let modal = document.getElementById('details-modal');
+      if (modal.style.visibility === 'hidden') {
+        event.currentTarget.src = '/images/minimize.png';
+        modal.style.visibility = 'visible';
+        let table = document.createElement('table');
+
+      } else {
+        event.currentTarget.src = '/images/expand.png';
+        while (modal.firstChild) {
+          modal.removeChild(modal.firstChild);
+        }
+        modal.style.visibility = 'hidden';
+      }
+    })
   }
 
 });

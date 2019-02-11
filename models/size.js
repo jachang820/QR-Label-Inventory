@@ -8,6 +8,23 @@ module.exports = (sequelize, DataTypes) => {
         msg: "Size name must be in lower case."
       }}
     },
+    abbrev: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isAlpha: {
+          msg: "Abbreviation must be alphabetical."
+        },
+        isLowercase: {
+          msg: "Abbreviation must be in lower case."
+        },
+        len: {
+          args: [1, 2],
+          msg: "Abbreviation must be between 1-2 characters."
+        }
+      }
+    },
     innerSize: {
       type: DataTypes.INTEGER,
       allowNull: false,

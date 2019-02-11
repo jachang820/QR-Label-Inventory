@@ -7,8 +7,8 @@ class Colors extends BaseService {
     super(ColorRepo);
   }
 
-  async add(name) {
-    let color = await this.repo.create(name);
+  async add(name, abbrev) {
+    let color = await this.repo.create(name, abbrev);
     color = Colors._addListStatus(color);
     return color[0];
   }

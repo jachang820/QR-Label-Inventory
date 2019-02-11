@@ -1,19 +1,19 @@
-const SettingsRepo = require('./settings');
+const BaseRepo = require('./base');
 const InnerCartonRepo = require('./innerCarton');
 const SkuRepo = require('./sku');
 const { Item } = require('../models');
 
-class ItemRepo extends SettingsRepo {
+class ItemRepo extends BaseRepo {
 
-  constructor(associate) {
+  constructor(exclude = []) {
     super(Item);
 
-    if (!associate) {
-      this.assoc = {
-        sku: new SkuRepo(true),
-        inner: new InnerCartonRepo(true)
-      };
-    }
+    exclude.push('item');
+    this.assoc = {};
+    if (!exclude.includes('sku'))
+      this.assoc.sku = new SkuRepo(exclude);
+    if (!exclude.includes('innerCarton'))
+      this.assoc.innerCarton = new InnerCartonRepo(exclude);
   }
 
   async list() {
@@ -29,8 +29,10 @@ class ItemRepo extends SettingsRepo {
   async create(cartons, transaction) {
     return this.transaction(async (t) => {
       let itemList = [];
+
       for (let i = 0; i < cartons.length; i++) {
-        const item = await this._create(cartons[i].carton);
+        const cartonList = Array(cartons[i].quantity).fill(cartons[i].carton);
+        const item = await this._create(cartonList);
         itemList.push(item); 
       }
       return itemList;

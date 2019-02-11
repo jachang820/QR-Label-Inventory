@@ -1,5 +1,5 @@
 'use strict';
-const serial = require('../helpers/formatSerial');
+const formatSerial = require('../helpers/formatSerial');
 
 module.exports = (sequelize, DataTypes) => {
   var Item = sequelize.define('Item', {
@@ -10,16 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     serial: {
       type: DataTypes.STRING,
-      unique: true,
+      unique: false,
       allowNull: true
-    },
-    alias: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: true,
-      validate: {
-        notSerialFormat: serial.notSerialFormat
-      }
     },
     status: {
       type: DataTypes.ENUM,
@@ -35,13 +27,15 @@ module.exports = (sequelize, DataTypes) => {
           msg: "Status is invalid."
         }
       }
-    }
+    },
+    created: DataTypes.DATEONLY,
+    hidden: DataTypes.DATEONLY
   }, {
     timestamps: true,
     createdAt: 'created',
     updatedAt: false,
     hooks: {
-      afterCreate: serial.toBase36('U')
+      afterCreate: formatSerial('U')
     }
   });
 
@@ -50,20 +44,16 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'sku'
     });
     Item.belongsTo(models.InnerCarton, {
-      foreignKey: 'innerId',
-      targetKey: 'serial'
+      foreignKey: 'innerId'
     });
     Item.belongsTo(models.MasterCarton, {
-      foreignKey: 'masterId',
-      targetKey: 'serial'
+      foreignKey: 'masterId'
     });
     Item.belongsTo(models.FactoryOrder, {
-      foreignKey: 'factoryOrderId',
-      targetKey: 'serial'
+      foreignKey: 'factoryOrderId'
     });
     Item.belongsTo(models.CustomerOrder, {
-      foreignKey: 'customerOrderId',
-      targetKey: 'serial'
+      foreignKey: 'customerOrderId'
     });
   };
 

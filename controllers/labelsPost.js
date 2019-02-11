@@ -9,7 +9,8 @@ module.exports = [
   /* Validate prefix. */
   body('prefix').trim()
     .isLength({ min: 1 }).withMessage("Prefix empty.")
-    .isLength({ max: 128 }).withMessage("Prefix too long.")
+    .isLength({ min: 12 }).withMessage("Prefix too short.")
+    .isLength({ max: 42 }).withMessage("Prefix too long.")
     .custom((prefix, { req }) => {
       /* Regex for a url path. */
       const regex = new RegExp([

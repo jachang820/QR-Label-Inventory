@@ -10,6 +10,23 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    abbrev: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isAlpha: {
+          msg: "Abbreviation must be alphabetical."
+        },
+        isLowercase: {
+          msg: "Abbreviation must be in lower case."
+        },
+        len: {
+          args: [1, 7],
+          msg: "Abbreviation must be between 1-7 characters."
+        }
+      }
+    },
     used: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

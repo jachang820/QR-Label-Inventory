@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
         is: {
           args: regex,
           msg: "Label URL is invalid."
+        },
+        len: {
+          args: [12,42],
+          msg: "Label URL must be between 12-42 characters."
         }
       }
     },
@@ -47,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     timestamps: true,
     createdAt: 'created',
-    updatedAt: false,
+    updatedAt: 'updated',
     paranoid: true,
     deletedAt: 'hidden'
   });

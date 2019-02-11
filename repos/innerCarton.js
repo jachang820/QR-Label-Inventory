@@ -1,21 +1,22 @@
-const SettingsRepo = require('./settings');
+const BaseRepo = require('./base');
 const MasterCartonRepo = require('./innerCarton');
 const ItemRepo = require('./item');
 const SkuRepo = require('./sku');
 const { InnerCarton } = require('../models');
 
-class InnerCartonRepo extends SettingsRepo {
+class InnerCartonRepo extends BaseRepo {
 
-  constructor(assocaite) {
+  constructor(exclude = []) {
     super(InnerCarton);
 
-    if (!associate) {
-      this.assoc = {
-        sku: new SkuRepo(true),
-        master: new MasterCartonRepo(true),
-        item: new ItemRepo(true)
-      };
-    }
+    exclude.push('innerCarton');
+    this.assoc = {};
+    if (!exclude.includes('sku'))
+      this.assoc.sku = new SkuRepo(exclude);
+    if (!exclude.includes('masterCarton'))
+      this.assoc.masterCarton = new MasterCartonRepo(exclude);
+    if (!exclude.includes('item'))
+      this.assoc.item = new ItemRepo(exclude);
   }
 
   async list() {
@@ -32,23 +33,28 @@ class InnerCartonRepo extends SettingsRepo {
     return this.transaction(async (t) => {
       let innerList = [];
       let itemList = [];
+
       for (let i = 0; i < cartons.length; i++) {
-        const inner = await this._create(cartons[i].carton);
+        const cartonList = Array(cartons[i].quantity).fill(cartons[i].carton);
+        const inner = await this._create(cartonList);
         innerList.push(inner);
 
-        const carton = {
-          sku: inner.sku,
-          innerId: inner.serial,
-          masterId: inner.masterId,
-          factoryOrderId: inner.factoryOrderId
-        };
-        itemList.push({
-          carton: carton,
-          quantity: cartons[i].innerSize * cartons[i].quantity
-        });
-        
+        for (let j = 0; j < inner.length; j++) {
+          const carton = {
+            sku: inner[j].sku,
+            innerId: inner[j].id,
+            masterId: inner[j].masterId,
+            factoryOrderId: cartons[i].carton.factoryOrderId
+          };
+
+          itemList.push({
+            carton: carton,
+            quantity: cartons[i].innerSize
+          });
+        }
       }
-      await this.assoc.item.create(itemList);
+
+      await this.assoc.item.create(itemList, t);
       return innerList;
     }, transaction);
   }
@@ -57,7 +63,7 @@ class InnerCartonRepo extends SettingsRepo {
     return this.transaction(async (t) => {
       let inner = await this._use({ where: by }, true);
       let items = await this.assoc.items.use({
-        innerId: inner.serial
+        innerId: inner.id
       }, t);
     }, transaction);
   }
@@ -66,7 +72,7 @@ class InnerCartonRepo extends SettingsRepo {
     return this.transaction(async (t) => {
       let inner = await this._delete({ where: by }, false);
       let items = await this.assoc.item.hide({
-        innerId: inner.serial
+        innerId: inner.id
       }, t);
       return inner;
     }, transaction);

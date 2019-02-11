@@ -32,6 +32,7 @@
     "mute": "2.0.6",
     "passport": "0.4.0",
     "passport-auth0": "1.1.0",
+    "pdfmake": "0.1.50",
     "pg": "7.7.1",
     "qr-image": "3.2.0",
     "sequelize": "4.42.0",

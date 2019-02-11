@@ -16,8 +16,18 @@
   display: none;
 }
 
+#nav-factory-menu {
+  position: fixed;
+  top: 40px;
+  left: 615px;
+  width: 100px;
+  height: 60px;
+  display: none;
+}
+
 #navbar ul,
-#nav-settings-menu ul {
+#nav-settings-menu ul,
+#nav-factory-menu ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -26,7 +36,8 @@
 }
 
 #navbar li, 
-#nav-settings-menu li {
+#nav-settings-menu li,
+#nav-factory-menu li {
   display: table;
   float: left;
 }
@@ -35,30 +46,32 @@
   height: 40px;
 }
 
-#nav-settings-menu li {
+#nav-settings-menu li,
+#nav-factory-menu li {
   height: 30px;
   width: 150px;
 }
 
-#navbar li a, 
+#navbar li a,
 #navbar li div,
 #nav-settings-menu li a,
-#nav-settings-menu li div {
+#nav-factory-menu li a {
   display: table-cell;
+  text-decoration: none;
+  vertical-align: middle;
   color: white;
   text-align: left;
   font-weight: bold;
   font-stretch: condensed;
   font-size: 1.25em;
   padding: 0px 15px;
-  text-decoration: none;
-  vertical-align: middle;
   cursor: pointer;
 }
 
-#navbar li a:hover,
 #navbar li div:hover,
-#nav-settings-menu li a:hover {
+#navbar li a:hover,
+#nav-settings-menu li a:hover,
+#nav-factory-menu li a:hover {
   background-color: #0C4426;
 }
 
