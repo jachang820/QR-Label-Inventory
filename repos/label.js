@@ -52,8 +52,7 @@ class LabelRepo extends BaseRepo {
       where: {
         prefix: prefix,
         style: style
-      },
-      paranoid: false
+      }
     }, true);
   }
 

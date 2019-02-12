@@ -2,15 +2,13 @@
   <ul>
     <li><a href="http://www.smokebuddy.com">
       <img id="nav-logo" src="/images/smokebuddy-logo-nav.png"></a></li>
-    {{#if-role @role "in" "A"}}
+    {{#if-role @role "in" "a"}}
       <li><div id="nav-settings">Settings</div></li>
     {{/if-role}}
     <li><a href="/inventory">Inventory</a></li>
     <li><a href="/scan">Scan</a></li>
-    {{#if-role @role "in" "A"}}
-      <li><a href="/customer_orders">Customer Orders</a></li>
-      <li><div id="nav-factory">Factory Orders</div></li>
-    {{/if-role}}
+    <li><a href="/customer_orders">Customer Orders</a></li>
+    <li><div id="nav-factory">Factory Orders</div></li>
     <li><a href="/auth/logout">Logout</a></li>
     <li><img src="/images/thumbs/{{@picture}}" id="profile-photo" alt="User photo"></li>
   </ul>
@@ -28,7 +26,9 @@
 
 <div id="nav-factory-menu">
   <ul>
-    <li><a href="/factory_orders">Create</a></li>
+    {{#if-role @role "in" "as"}}
+      <li><a href="/factory_orders">Create</a></li>
+    {{/if-role}}
     <li><a href="/factory_orders/view">View</a></li>
   </ul>
 </div>

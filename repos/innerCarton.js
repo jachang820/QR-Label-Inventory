@@ -62,8 +62,8 @@ class InnerCartonRepo extends BaseRepo {
   async use(by, transaction) {
     return this.transaction(async (t) => {
       let inner = await this._use({ where: by }, true);
-      let items = await this.assoc.items.use({
-        innerId: inner.id
+      let items = await this.assoc.item.order({
+        innerId: inner[0].id
       }, t);
     }, transaction);
   }
@@ -71,7 +71,7 @@ class InnerCartonRepo extends BaseRepo {
   async hide(by, transaction) {
     return this.transaction(async (t) => {
       let inner = await this._delete({ where: by }, false);
-      let items = await this.assoc.item.hide({
+      let items = await this.assoc.item.cancel({
         innerId: inner.id
       }, t);
       return inner;

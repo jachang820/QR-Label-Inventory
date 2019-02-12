@@ -5,7 +5,7 @@ module.exports = (hbs) => {
     function(role, operator, accept, options) {
     
     /* Convert string literal into list. */
-    const lst = accept.split(',');
+    const lst = accept.split('');
 
     /* Check if role is valid. */
     const includesStartOf = function(lst, role) {

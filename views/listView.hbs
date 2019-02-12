@@ -19,7 +19,7 @@
           {{!-- Color-coded line represents status of each row. --}}
           <th class="color-coded"></th>
           {{!-- The remaining rows are populated from data. --}}
-          {{#each @types~}}
+          {{#each @types}}
             <th>{{@key}}</th>
           {{/each}}
         </tr>
@@ -90,25 +90,32 @@
         {{!-- Remaining rows lists existing items, sorted by
               status: new, used, inactive. --}}
         {{#each @list}}
-          <tr class="{{this.state}}">
+          <tr class="{{this.state}}{{#if this.clickId}} id-{{this.clickId}}{{/if}}">
             <td class="action-col {{this.state}}">
               {{#if @expand}}
                 <img class="expand" src="/images/expand.png">
+              {{/if}}
+              {{#if @stock}}
+                {{#neq? this.state 'eternal'}}
+                <img class="stock" src="/images/stock.png">
+                {{/neq?}}
               {{/if}}
               {{#if @printQr}}
                 <a href="/{{@modelName}}/labels/{{this.clickId}}">
                   <img class="print-qr" src="/images/print.png">
                 </a>
               {{/if}}
-              {{#eq? this.state 'new'}}
-                <img class="action-icon" src="/images/remove.png">
-              {{/eq?}}
-              {{#eq? this.state 'used'}}
-                <img class="action-icon" src="/images/hide.png">
-              {{/eq?}}
-              {{#eq? this.state 'hidden'}}
-                <img class="action-icon" src="/images/restore.png">
-              {{/eq?}}
+              {{#if-role @role "in" 'a'}}
+                {{#eq? this.state 'new'}}
+                  <img class="action-icon" src="/images/remove.png">
+                {{/eq?}}
+                {{#eq? this.state 'used'}}
+                  <img class="action-icon" src="/images/hide.png">
+                {{/eq?}}
+                {{#eq? this.state 'hidden'}}
+                  <img class="action-icon" src="/images/restore.png">
+                {{/eq?}}
+              {{/if-role}}
             </td>
             <td class="color-coded {{this.state}}"></td>
             {{#each this}}
@@ -120,13 +127,18 @@
               {{/neq?}}{{/neq?}}
             {{/each}}
           </tr>
-        {{~/each}}
+          <tr class="details-row{{#if this.clickId}} id-{{this.clickId}}{{/if}}">
+            <td colspan="{{@columns}}"></td>
+          </tr>
+        {{/each}}
       </tbody>
       <tfoot>
         <tr>
-          <td></td>
-          <td></td>
-          {{#each @types}}<td></td>{{/each}}
+          <td colspan="{{@columns}}">
+            <div id="pages">
+              &#12296; <input type="text" name="page" size="2" value="">  <button type="button">Go</button>  &#12297;
+            </div>
+          </td>
         </tr>
       </tfoot>
     </table>
@@ -136,10 +148,8 @@
   </div>
 
   <div id="message-bar">
-    {{#eq? @modelName 'factory_orders'}}Please be patient, this might take a minute...{{/eq?}}
+    {{#eq? @modelName 'factory_orders/view'}}Please be patient, this might take a minute...{{/eq?}}
   </div>
-
-  <div id="details-modal"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>

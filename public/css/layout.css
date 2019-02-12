@@ -23,15 +23,6 @@ label {
   display: block;
 }
 
-input[type=text], input[type=number], select {
-  font-size: 18px;
-  padding: 5px;
-  display: block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin: 5px 0;
-}
-
 #notes {
   width: 30vw;
 }

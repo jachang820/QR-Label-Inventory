@@ -65,11 +65,11 @@ class SkuRepo extends BaseRepo {
   }
 
   async renew(id) {
-    return this._use(this._listOptions({ id }, false), false);
+    return this._use(this._listOptions({ id }), false);
   }
 
   async use(id) {
-    return this._use(this._listOptions({ id }, false), true);
+    return this._use(this._listOptions({ id }), true);
   }
 
   async hide(id) {

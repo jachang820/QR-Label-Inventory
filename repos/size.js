@@ -19,9 +19,10 @@ class SizeRepo extends BaseRepo {
     });
   }
 
-  async create(name, inner, master) {
+  async create(name, abbrev, inner, master) {
     return this._create({
       name: name,
+      abbrev: abbrev,
       innerSize: inner,
       masterSize: master
     });
@@ -29,15 +30,13 @@ class SizeRepo extends BaseRepo {
 
   async renew(name) {
     return this._use({
-      where: { name: name },
-      paranoid: false
+      where: { name: name }
     }, false);
   }
 
   async use(name) {
     return this._use({
-      where: { name: name },
-      paranoid: false
+      where: { name: name }
     }, true);
   }
 

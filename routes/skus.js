@@ -10,6 +10,7 @@ router.all('*', (req, res, next) => {
   res.locals.css = ['listView.css'];
   res.locals.modelName = 'skus';
   res.locals.title = 'SKUs';
+  res.locals.columns = 7;
   return next();
 });
 

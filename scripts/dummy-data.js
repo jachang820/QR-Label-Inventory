@@ -151,7 +151,9 @@ const setup = async () => {
       itemsList.push(item);
     }
   }
-  await Item.bulkCreate(itemsList);
+  await Item.bulkCreate(itemsList, {
+    individualHooks: true
+  });
 
   await Profile.bulkCreate([
     { firstName: 'Jonathan',

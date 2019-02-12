@@ -19,19 +19,22 @@ class ColorRepo extends BaseRepo {
     });
   }
 
-  async create(name) { return this._create({ name: name }); }
+  async create(name, abbrev) { 
+    return this._create({
+      name: name, 
+      abbrev: abbrev 
+    }); 
+  }
 
   async renew(name) {
     return this._use({
-      where: { name: name },
-      paranoid: false
+      where: { name: name }
     }, false);
   }
 
   async use(name) {
     return this._use({
-      where: { name: name },
-      paranoid: false
+      where: { name: name }
     }, true);
   }
 

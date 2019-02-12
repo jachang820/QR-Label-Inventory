@@ -27,11 +27,13 @@ table tr {
   height: 1.6rem;
 }
 
-table tr:nth-child(even) {
+table tr:nth-child(4n-1),
+table tr:nth-child(4n) {
   background-color: #e8e8e8;
 }
 
-table tr:nth-child(odd) {
+table tr:nth-child(4n-3),
+table tr:nth-child(4n-2) {
   background-color: #fff;
 }
 
@@ -39,27 +41,44 @@ tfoot tr td {
   background-color: #40404b;
   color: #fff;
   font-weight: bold;
-  padding-bottom: 3px;
+  height: 30px;
+}
+
+table td:nth-child(n + 3) {
+  border-left: 1px solid #ddd;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 table td:last-child {
   border-right: 1px solid #ccc;
 }
 
-tfoot tr:last-child td {
-  box-shadow: 0px 5px 0px 0px #40404b;
-}
-
+table,
 tfoot tr:last-child td:first-child {
   border-width: 0px;
   border-bottom-left-radius: 10px;
-  background-clip: padding-box;
+  overflow: hidden;
 }
 
+table,
 tfoot tr:last-child td:last-child {
   border-width: 0px;
   border-bottom-right-radius: 10px;
-  background-clip: border-box;
+  overflow: hidden;
+}
+
+input[type=text], input[type=number], select {
+  font-size: 14px;
+  padding: 4px;
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 5px 2px;
+}
+
+input[type=number] {
+  width: 8em;
 }
 
 .list-all {
@@ -69,6 +88,7 @@ tfoot tr:last-child td:last-child {
 .add {
   border-width: 0px;
   vertical-align: top;
+  border-bottom: 1px dashed black;
 }
 
 .action-col {
@@ -91,7 +111,7 @@ th.action-col, th.color-coded {
 }
 
 .action-icon, .print-qr, 
-.expand {
+.expand, .stock {
   width: 1.2rem;
   height: 1.2rem;
   opacity: 0.6;
@@ -100,12 +120,12 @@ th.action-col, th.color-coded {
 }
 
 .action-icon:hover, .print-qr:hover,
-.expand:hover {
+.expand:hover, .stock:hover {
   opacity: 1.0;
 }
 
 .action-icon:active, .print-qr:active,
-.expand:active {
+.expand:active, .stock:active {
   transform: translate(2px, 2px);
 }
 
@@ -151,6 +171,86 @@ th.action-col, th.color-coded {
   visibility: hidden;
 }
 
+.details-row {
+  visibility: visible;
+  display: none;
+}
+
+.details-row.show {
+  display: table-row;
+  background-color: #40404b;
+  margin: 2vh;
+}
+
+.details-row:hover,
+.details-row td:hover,
+.details-row td table:hover {
+  background-image: none;
+}
+
+.details-row td {
+  border: 1px solid black;
+}
+
+.details-row table {
+  width: 95%;
+  margin: 2vh auto;
+}
+
+.details-row table th {
+  background-color: #ffdc18;
+  color: black;
+  font-size: 1em;
+  font-weight: bold;
+  text-transform: capitalize;
+  text-shadow: none;
+  border-width: 0px;
+  border-bottom: 2px solid black;
+}
+
+.details-row table td {
+  border-width: 0;
+}
+
+.details-row table tr:nth-child(even) {
+  background-color: #e8e8e8;
+}
+
+.details-row table tr:nth-child(odd) {
+  background-color: #fff;
+}
+
+.details-row table th,
+.details-row table td {
+  height: 1em;
+  width: auto;
+  text-align: center;
+}
+
+.details-row table,
+.details-row th:first-child {
+  border-top-left-radius: 10px;
+  overflow: hidden;
+}
+
+.details-row table,
+.details-row th:last-child {
+  border-top-right-radius: 10px;
+  overflow: hidden;
+}
+
+.details-row table,
+.details-row tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+  overflow: hidden;
+}
+
+.details-row table,
+.details-row tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+  overflow: hidden;
+}
+
 #message-bar {
   visibility: hidden;
   border: 1px solid black;
@@ -167,4 +267,31 @@ th.action-col, th.color-coded {
   padding-bottom: 4vh;
   font-weight: bold;
   color: #d55;
+}
+
+#pages {
+  float: right;
+  width: 150px;
+  height: 28px;
+  background-color: #eee;
+  margin: 0px;
+  margin-right: 1vw;
+  padding: 0px;
+  color: #40404b;
+  text-align: center;
+  font-size: 25px;
+}
+
+#pages input {
+  display: inline;
+  padding: 0px;
+  font-size: 14px;
+  vertical-align: middle;
+  margin-bottom: 8px;
+}
+
+#pages button {
+  display: inline;
+  vertical-align: middle;
+  margin-bottom: 8px;
 }

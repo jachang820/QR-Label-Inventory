@@ -27,8 +27,8 @@ class MasterCartonRepo extends BaseRepo {
       SELECT 
         serial, 
         sku,
-        "Size"."innerSize",
         "Size"."masterSize",
+        "Size"."innerSize",
         SUM("Size"."innerSize" * "Size"."masterSize") AS count
       FROM "MasterCarton"
         LEFT JOIN "Sku" ON "MasterCarton".sku = "Sku".id
@@ -84,7 +84,7 @@ class MasterCartonRepo extends BaseRepo {
     return this.transaction(async (t) => {
       const master = await this._use({ where: by }, true);
       const inner = await this.assoc.innerCarton.use({
-        masterId: master.id
+        masterId: master[0].id
       }, t);
       return master;
     }, transaction);

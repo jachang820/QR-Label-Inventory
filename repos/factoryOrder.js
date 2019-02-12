@@ -92,6 +92,8 @@ class FactoryOrderRepo extends BaseRepo {
       SELECT
         "FactoryOrder".serial,
         "FactoryOrder".ordered,
+        "FactoryOrder".arrival,
+        "FactoryOrder".hidden,
         (
           SELECT JSON_AGG(master) FROM master
         ) AS "masterCartons"
@@ -103,7 +105,7 @@ class FactoryOrderRepo extends BaseRepo {
     const order = await db.sequelize.query(query);
     this.cache.get = order;
     if (!order) return null;
-    return order[0];
+    return order[0][0];
   }
 
   async expand(id) {
@@ -155,30 +157,36 @@ class FactoryOrderRepo extends BaseRepo {
     }, transaction);
   }
 
-  async update(serial, label, notes) {
-    return this._update({ notes }, {
-      where: { serial },
+  async stock(id) {
+    const arrival = new Date();
+    return this._update({ arrival }, {
+      where: { id },
       attributes: { exclude: ['id'] }
     });
   }
 
-  async use(by, transaction) {
+  async use(id, transaction) {
     return this.transaction(async (t) => {
-      const order = await this._use({ where: by }, true);
+      const order = await this._use({ where: {id} }, true);
       const master = await this.assoc.masterCarton.use({
-        factoryOrderId: order.id
-      }, transaction);
+        factoryOrderId: order[0].id
+      }, t);
       delete order.id;
       return order;
     }, transaction);
   }
 
-  async hide(by, transaction) {
+  async hide(id, transaction) {
     return this.transaction(async (t) => {
-      const order = await this._delete({ where: by }, false);
+      const order = await this._delete({ where: {id} }, false);
+      if (order.arrival) {
+        FactoryOrderRepo._handleErrors(
+          new Error("Received orders cannot be deleted.")
+        );
+      }
       const master = await this.assoc.masterCarton.hide({
         factoryOrderId: order.id
-      }, transaction);
+      }, t);
       delete order.id;
       return order;
     }, transaction);

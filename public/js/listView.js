@@ -3,7 +3,8 @@ window.addEventListener('load', function() {
 
   let actions = document.getElementsByClassName('action-icon');
   let printQr = document.getElementsByClassName('print-qr');
-  let details = document.getElementsByClassName('expand');
+  let expand = document.getElementsByClassName('expand');
+  let stock = document.getElementsByClassName('stock');
   let tbody = document.getElementById('list-body');
   const model = document.getElementById('model-name').textContent;
 
@@ -14,6 +15,7 @@ window.addEventListener('load', function() {
       const field = row.children[j].className.split(' ')[0];
       line[field] = row.children[j].textContent.trim();
     }
+    
     return line;
   };
 
@@ -40,49 +42,20 @@ window.addEventListener('load', function() {
     return line;
   };
 
+  const getId = function(row) {
+    let classes = row.className.split(' ');
+    if (classes.length === 2 && classes[1].startsWith('id')) {
+      return classes[1].substring(3);
+    } else {
+      return window.location.replace('/error/500');
+    }
+  };
+
   /* Remove all children nodes. */
   const empty = function(root) {
     while (root.firstChild) {
       root.removeChild(root.firstChild);
     }
-  };
-
-  /* Give row a different status. */
-  const reclassifyRow = function(row, status) {
-    /* Make copy of row, change class name and action. */
-    let newRow = row.cloneNode(true);
-    newRow.className = status;
-    let img = newRow.firstElementChild.firstElementChild;
-    if (status === 'new') {
-      img.src = '/images/remove.png';
-    } else if (status === 'used') {
-      img.src = 'images/hide.png';
-    } else if (status === 'hidden') {
-      img.src = 'images/restore.png';
-    } else {
-      img.remove();
-    }
-
-    /* Change class name for each column. */
-    for (let j = 0; j < newRow.children.length; j++) {
-      const field = newRow.children[j].className.split(' ')[0];
-      newRow.children[j].className = [field, status].join(' ');
-    }
-
-    /* Insert before first of the category. */
-    if (status === 'new') {
-      tbody.insertBefore(newRow, tbody.firstElementChild.nextSibling);
-    } else {
-      const ref = document.getElementsByClassName(status)[0];
-      tbody.insertBefore(newRow, ref);
-    }
-
-    /* Register event on new row. */
-    if (img != undefined && img != null) {
-      img.addEventListener('click', editEvent);
-    }
-
-    return newRow;
   };
 
   /* Propagate errors to a cell. */
@@ -120,110 +93,142 @@ window.addEventListener('load', function() {
           let td = row.children[j];
           appendErrors(td, errors);
         }
-
-      /* No errors. Add line. */
+      
       } else {
-        let newState = response.data.added.state;
-        let newRow = reclassifyRow(row, newState);
-        for (let j = 2; j < newRow.children.length; j++) {
-          let col = newRow.children[j];
-          let field = col.className.split(' ')[0];
-
-          /* Erase any errors. */
-          appendErrors(row.children[j], []);
-
-          /* Write new line item to each column. */
-          col.textContent = response.data.added[field];
-
-          /* Erase input data. */
-          let inData = row.children[j].firstElementChild;
-          let inTag = inData.tagName.toLowerCase();
-          if (inTag === 'input') {
-            inData.value = "";
-          } else if (inTag === 'select') {
-            inData.selectedIndex = -1;
-          }
-        }
+        /* No errors. Add line. */  
+        window.location.replace('/' + model);
       }
-      actions = document.getElementsByClassName('action-icon');
+
     }).catch(function(err) {
       console.log(err);
     });
   };
 
   /* Function attached to existing line action event listener. */
-  const editEvent = function(event) {
+  const statusEvent = function(event) {
     const row = event.currentTarget.parentNode.parentNode;
-    const line = getItem(row);
+    const id = getId(row);
 
     /* Update line status, move to appropriate place in table. */
-    axios.put('/' + model, line).then(function(response) {
+    const path = '/' + model + '/' + id;
+    axios.put(path).then(function(response) {
 
-      if (response.data.errors === 'unknown') {
+      if (response.data.errors) {
         window.location.replace('/error/500');
       }
 
-      switch(row.className) {
-        case 'used':
-          reclassifyRow(row, 'hidden');
-          break;
+      window.location.replace('/' + model);
 
-        case 'hidden':
-          reclassifyRow(row, 'used');
-          break;
-      }
-
-      /* Remove original row. */
-      if (row.className !== 'eternal') {
-        row.remove();
-      }
-
-      /* Rebuild rows with new index. */
-      actions = document.getElementsByClassName('action-icon');
     }).catch(function(err) {
       console.log(err);
     });
   };
 
-  /* POST to create new. */
-  actions[0].addEventListener('click', createEvent);
+  const arrivalEvent = function(event) {
+    const row = event.currentTarget.parentNode.parentNode;
+    const id = getId(row);
+
+    /* Update line status, move to appropriate place in table. */
+    const path = '/' + model + '/stock/' + id;
+    axios.put(path).then(function(response) {
+
+      if (response.data.errors) {
+        window.location.replace('/error/500');
+      }
+
+      window.location.replace('/' + model);
+
+    }).catch(function(err) {
+      console.log(err);
+    });
+  };
+
+  const expandEvent = function(event) {
+    let button = event.currentTarget;
+    let tr = button.parentNode.parentNode;
+    let detailsRow = tr.nextElementSibling;
+    let classes = detailsRow.className.split(' ');
+
+    if (classes.length === 3) { // visible
+      button.src = '/images/expand.png';
+      classes.pop();
+      detailsRow.className = classes.join(' ');
+      return;
+    }
+
+    const id = getId(tr);
+    const path = '/' + model + '/details/' + id;
+    axios.get(path).then(function(response) {
+
+      if (response.data.errors) {
+        window.location.replace = '/error/500';
+        return;
+      }
+
+      button.src = '/images/minimize.png';
+      classes.push('show');
+      detailsRow.className = classes.join(' ');
+      let div = detailsRow.firstElementChild;
+      let data = response.data.details;
+      
+      let table = document.createElement('table');
+      let thead = document.createElement('thead');
+      let tr = document.createElement('tr');
+      let titles = Object.keys(data[0])
+
+      for (let j = 0; j < titles.length; j++) {
+        let th = document.createElement('th');
+        let title = document.createTextNode(titles[j]);
+        th.appendChild(title);
+        tr.appendChild(th);
+      }
+      thead.appendChild(tr);
+      table.appendChild(thead);
+
+      let tbody = document.createElement('tbody');
+      for (let i = 0; i < data.length; i++) {
+        tr = document.createElement('tr');
+        console.log(data[i]);
+        for (let j = 0; j < titles.length; j++) {
+          let td = document.createElement('td');
+          console.log(titles[j]);
+          console.log(data[i][titles[j]]);
+          let text = document.createTextNode(data[i][titles[j]]);
+          td.appendChild(text);
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+      table.appendChild(tbody);
+      
+      div.appendChild(table);
+
+    }).catch(function(err) {
+      console.log(err);
+    });
+  };
+
+  const showWaitMessage = function(event) {
+    let bar = document.getElementById('message-bar');
+    bar.style.visibility = 'visible';
+    setTimeout(function() {
+      bar.style.visibility = 'hidden';
+    }, 6000);
+  };
 
   /* Register event to each row representing existing line items. */
   const td = tbody.firstElementChild.firstElementChild;
   let startVal = 0;
-  if (td.className[1] === 'add') {
+  if (td.className.split(' ')[1] === 'add') {
+    /* POST to create new. */
+    actions[0].addEventListener('click', createEvent);
     startVal = 1;
   }
   for (let i = startVal; i < actions.length; i++) {
-    actions[i].addEventListener('click', editEvent);
-  }
-
-  for (let i = 0; i < printQr.length; i++) {
-    printQr[i].addEventListener('click', function(event) {
-      let bar = document.getElementById('message-bar');
-      bar.style.visibility = 'visible';
-      setTimeout(function() {
-        bar.style.visibility = 'hidden';
-      }, 6000);
-    });
-  }
-
-  for (let i = 0; i < details.length; i++) {
-    details[i].addEventListener('click', function(event) {
-      let modal = document.getElementById('details-modal');
-      if (modal.style.visibility === 'hidden') {
-        event.currentTarget.src = '/images/minimize.png';
-        modal.style.visibility = 'visible';
-        let table = document.createElement('table');
-
-      } else {
-        event.currentTarget.src = '/images/expand.png';
-        while (modal.firstChild) {
-          modal.removeChild(modal.firstChild);
-        }
-        modal.style.visibility = 'hidden';
-      }
-    })
+    actions[i].addEventListener('click', statusEvent);
+    expand[i].addEventListener('click', expandEvent);
+    printQr[i].addEventListener('click', showWaitMessage);
+    stock[i].addEventListener('click', arrivalEvent);
   }
 
 });

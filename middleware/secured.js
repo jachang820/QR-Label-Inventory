@@ -47,9 +47,8 @@ module.exports = (req, res, next) => {
 
   } else {
 
-    res.locals.role = 'Administrator';
+    res.locals.role = 'administrator';
 
   }
-
   return next();
 }

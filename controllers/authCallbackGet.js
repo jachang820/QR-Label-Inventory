@@ -41,7 +41,7 @@ module.exports = [
       res.locals.firstname = profile.firstName;
       res.locals.lastname = profile.lastName;
       res.locals.email = profile.email;
-      res.locals.role = profile.role.toUpperCase();
+      res.locals.role = profile.role;
       return next();
       
     } catch (err) {
