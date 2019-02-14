@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     serial: {
       type: DataTypes.STRING,
-      unique: false,
+      unique: true,
       allowNull: true
     },
     notes: {

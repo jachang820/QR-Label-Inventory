@@ -1,41 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const querystring = require('querystring');
-const setupAxios = require('../helpers/setupAxios');
-const inventoryGet = require('./controllers/inventoryGet');
-const inventoryViewPost = require('./controllers/inventoryViewPost');
+
+const inventoryGet = require('../controllers/inventoryGet');
+//const inventoryViewPost = require('../controllers/inventoryViewPost');
+
+router.all('*', (req, res, next) => {
+  res.locals.css = ['listView.css'];
+  res.locals.modelName = 'inventory';
+  res.locals.title = 'Inventory';
+  return next();
+});
 
 router.get('/', inventoryGet);
 
-router.post('/view', inventoryViewPost);
+//router.post('/manual', inventoryViewPost);
 
-router.get('/filter', (req, res, next) => {
-  const axios = setupAxios();
-  let apiQuery = {
-    id: req.query.id,
-    status: req.query.status,
-    innerbox: req.query.innerbox,
-    outerbox: req.query.outerbox,
-    CustomerOrderId: req.query.CustomerOrderId,
-    FactoryOrderId: req.query.FactoryOrderId,
-    SkuId: req.query.SkuId
-  };
-
-  for (prop in apiQuery) {
-    if (apiQuery[prop] === undefined || apiQuery[prop] === null) {
-      delete apiQuery[prop];
-    }
-  }
-
-  console.log(`apiQuery ${apiQuery}`)
-
-  const query = querystring.stringify(apiQuery);
-
-  axios.get(`items/filter?${query}`).then((response) => {
-    const items = response.data;
-
-    res.render('inventory', { items });
-  }).catch(next);
-});
 
 module.exports = router;

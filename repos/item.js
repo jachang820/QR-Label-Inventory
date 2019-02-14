@@ -1,23 +1,71 @@
 const BaseRepo = require('./base');
-const InnerCartonRepo = require('./innerCarton');
-const SkuRepo = require('./sku');
-const { Item } = require('../models');
+const db = require('../models');
 
 class ItemRepo extends BaseRepo {
 
   constructor(exclude = []) {
-    super(Item);
+    super(db.Item);
 
     exclude.push('item');
+    console.log('ITEM: ' + exclude);
     this.assoc = {};
-    if (!exclude.includes('sku'))
+    if (!exclude.includes('sku')) {
+      const SkuRepo = require('./sku');
       this.assoc.sku = new SkuRepo(exclude);
-    if (!exclude.includes('innerCarton'))
+    }
+    if (!exclude.includes('innerCarton')) {
+      const InnerCartonRepo = require('./innerCarton');
       this.assoc.innerCarton = new InnerCartonRepo(exclude);
+    }
+
+    this.defaultOrder = [
+      ['hidden', 'DESC NULLS FIRST'],
+      ['status', 'ASC'],
+      ['customerOrderId', 'DESC']
+    ];
   }
 
-  async list() {
-    // Implement this later.
+  async list(by, page = 1, order, desc) {
+    const offset = (page - 1) * 50;
+    const query = `
+      SELECT
+        serial, status, created, 
+        "CustomerOrder".serial AS "CustomerSerial"
+      FROM "Item"
+        LEFT JOIN "CustomerOrder" ON "customerOrderId" = "CustomerOrder".id
+      LIMIT 50 OFFSET ${offset}
+    `
+    const direction = desc ? 'DESC' : 'ASC';
+
+    if (!by) by = {};
+    order = order ? [[order, direction]] : this.defaultOrder;
+    return this._list({
+      where: by,
+      order,
+      attributes: { exclude: ['id'] },
+      limit: 50,
+      offset: (page - 1) * 50 
+    }); 
+  }
+
+  async expandData(customerOrderId) {
+    return this._list({
+      where: { customerOrderId: customerOrderId },
+      order: [['serial', 'ASC']],
+      attributes: [
+        'serial', 
+        'status', 
+        [db.sequelize.literal(`UPPER(sku)`), 'sku'], 
+        'created', 
+        [db.sequelize.literal(`COALESCE("FactoryOrder".serial, '')`), 
+          'factoryOrderId']
+      ],
+      include: [{
+        model: db.FactoryOrder,
+        attributes: []
+      }],
+      offset: -1
+    }); 
   }
 
   async get(serial) {
@@ -78,7 +126,7 @@ class ItemRepo extends BaseRepo {
     }, transaction);
   }
 
-  describe() { return this._describe(); }
+  describe() { return this._describe(['id']); }
 
 };
 

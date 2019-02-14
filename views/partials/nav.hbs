@@ -7,7 +7,7 @@
     {{/if-role}}
     <li><a href="/inventory">Inventory</a></li>
     <li><a href="/scan">Scan</a></li>
-    <li><a href="/customer_orders">Customer Orders</a></li>
+    <li><div id="nav-customer">Customer Orders</div></li>
     <li><div id="nav-factory">Factory Orders</div></li>
     <li><a href="/auth/logout">Logout</a></li>
     <li><img src="/images/thumbs/{{@picture}}" id="profile-photo" alt="User photo"></li>
@@ -21,6 +21,15 @@
     <li><a href="/sizes">Size</a></li>
     <li><a href="/skus">SKU</a></li>
     <li><a href="/labels">Label URL</a></li>
+  </ul>
+</div>
+
+<div id="nav-customer-menu">
+  <ul>
+    {{#if-role @role "in" "as"}}
+      <li><a href="/customer_orders">Create</a></li>
+    {{/if-role}}
+    <li><a href="/customer_orders/view">View</a></li>
   </ul>
 </div>
 

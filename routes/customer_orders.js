@@ -1,17 +1,27 @@
 const express = require('express');
 const router = express.Router();
 
-//const ordersGet = require('./controllers/ordersGet');
-const customerOrdersPost = require('./controllers/customerOrdersPost');
-const ordersIdGet = require('./controllers/ordersIdGet');
+//const ordersGet = require('../controllers/customerOrdersGet');
+const ordersViewGet = require('../controllers/customerOrdersViewGet');
+const ordersViewPut = require('../controllers/customerOrdersViewPut');
+const ordersDetailsGet = require('../controllers/customerOrdersViewDetailsGet');
+//const ordersPost = require('../controllers/customerOrdersPost');
 
-/* Show customer orders page. */
-//router.get('/', ordersGet('customer'));
+router.all('*', (req, res, next) => {
+  res.locals.css = ['listView.css'];
+  res.locals.modelName = 'customer_orders';
+  res.locals.title = 'Customer Orders';
+  return next();
+});
 
-/* Get order and items for details page. */
-router.get('/:id', ordersIdGet('customer'));
+//router.get('/', ordersGet);
 
-/* Add an order. */
-router.post('/', customerOrdersPost);
+router.get('/view', ordersViewGet);
+
+router.put('/view/:id', ordersViewPut);
+
+//router.post('/', ordersPost);
+
+router.get('/view/details/:id', ordersDetailsGet);
 
 module.exports = router;

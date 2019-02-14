@@ -1,12 +1,10 @@
 /* List all elements of a model. */
 window.addEventListener('load', function() {
 
-  let actions = document.getElementsByClassName('action-icon');
-  let printQr = document.getElementsByClassName('print-qr');
-  let expand = document.getElementsByClassName('expand');
-  let stock = document.getElementsByClassName('stock');
   let tbody = document.getElementById('list-body');
   const model = document.getElementById('model-name').textContent;
+  let page = parseInt(
+      document.getElementById('page-input').value);
 
   /* Create object representing one existing line. */
   const getItem = function(row) {
@@ -75,9 +73,58 @@ window.addEventListener('load', function() {
     }
   };
 
+  /* Add errors to each column. */
+  const appendErrorsForEach = function(errors, row) {
+    for (let j = 2; j < row.children.length; j++) {
+      let td = row.children[j];
+      appendErrors(td, errors);
+    }
+  };
+
+  const buildQueryString = function(instructions) {
+    let query = [];
+    let dirIcon = document.getElementsByClassName('asc')[0] ||
+                  document.getElementsByClassName('desc')[0];
+
+    if (instructions.desc !== 'default') {
+      if ('sort' in instructions) {
+        query.push('sort=' + instructions.sort);
+      
+      } else if (dirIcon) {
+        let th = dirIcon.parentNode.parentNode;
+        query.push('sort=' + th.className);
+      }
+
+      if ('desc' in instructions) {
+        query.push('desc=' + instructions.desc);  
+        
+      } else if (dirIcon) {
+        if (dirIcon.className === 'desc') {
+          query.push('desc=true');
+        } else {
+          query.push('desc=false');
+        }
+      }
+    }
+
+    if ('page' in instructions) {
+      if (instructions.page === "+") {
+        query.push('page=' + (page + 1));
+      } else if (instructions.page === "-") {
+        query.push('page=' + (page - 1));
+      } else {
+        query.push('page=' + instructions.page);
+      }
+    } else {
+      query.push('page=' + page);
+    }
+
+    return '?' + query.join('&');
+  };
+
   /* Function attached to new line item event listener. */
   const createEvent = function(event) {
-    let row = actions[0].parentNode.parentNode;
+    let row = event.currentTarget.parentNode.parentNode;
     let line = getNewItem(row);
 
     axios.post('/' + model, line).then(function(response) {
@@ -89,10 +136,7 @@ window.addEventListener('load', function() {
         }
 
         const errors = response.data.errors;
-        for (let j = 2; j < row.children.length; j++) {
-          let td = row.children[j];
-          appendErrors(td, errors);
-        }
+        appendErrorsForEach(errors, row);
       
       } else {
         /* No errors. Add line. */  
@@ -114,10 +158,18 @@ window.addEventListener('load', function() {
     axios.put(path).then(function(response) {
 
       if (response.data.errors) {
-        window.location.replace('/error/500');
-      }
 
-      window.location.replace('/' + model);
+        if (response.data.errors === 'unknown') {
+          window.location.replace('/error/500');
+        }
+
+        const errors = response.data.errors;
+        appendErrorsForEach(errors, row);
+      
+      } else {
+        /* No errors. Add line. */  
+        window.location.replace('/' + model);
+      }
 
     }).catch(function(err) {
       console.log(err);
@@ -133,10 +185,18 @@ window.addEventListener('load', function() {
     axios.put(path).then(function(response) {
 
       if (response.data.errors) {
-        window.location.replace('/error/500');
-      }
 
-      window.location.replace('/' + model);
+        if (response.data.errors === 'unknown') {
+          window.location.replace('/error/500');
+        }
+
+        const errors = response.data.errors;
+        appendErrorsForEach(errors, row);
+      
+      } else {
+        /* No errors. Add line. */  
+        window.location.replace('/' + model);
+      }
 
     }).catch(function(err) {
       console.log(err);
@@ -161,51 +221,72 @@ window.addEventListener('load', function() {
     axios.get(path).then(function(response) {
 
       if (response.data.errors) {
-        window.location.replace = '/error/500';
-        return;
-      }
 
-      button.src = '/images/minimize.png';
-      classes.push('show');
-      detailsRow.className = classes.join(' ');
-      let div = detailsRow.firstElementChild;
-      let data = response.data.details;
-      
-      let table = document.createElement('table');
-      let thead = document.createElement('thead');
-      let tr = document.createElement('tr');
-      let titles = Object.keys(data[0])
-
-      for (let j = 0; j < titles.length; j++) {
-        let th = document.createElement('th');
-        let title = document.createTextNode(titles[j]);
-        th.appendChild(title);
-        tr.appendChild(th);
-      }
-      thead.appendChild(tr);
-      table.appendChild(thead);
-
-      let tbody = document.createElement('tbody');
-      for (let i = 0; i < data.length; i++) {
-        tr = document.createElement('tr');
-        console.log(data[i]);
-        for (let j = 0; j < titles.length; j++) {
-          let td = document.createElement('td');
-          console.log(titles[j]);
-          console.log(data[i][titles[j]]);
-          let text = document.createTextNode(data[i][titles[j]]);
-          td.appendChild(text);
-          tr.appendChild(td);
+        if (response.data.errors === 'unknown') {
+          window.location.replace('/error/500');
         }
-        tbody.appendChild(tr);
-      }
-      table.appendChild(tbody);
+
+        const errors = response.data.errors;
+        appendErrorsForEach(errors, row);
       
-      div.appendChild(table);
+      } else {
+        /* No errors. Show details. */  
+        button.src = '/images/minimize.png';
+        classes.push('show');
+        detailsRow.className = classes.join(' ');
+        let div = detailsRow.firstElementChild;
+        let data = response.data.details;
+        
+        let table = document.createElement('table');
+        let thead = document.createElement('thead');
+        let tr = document.createElement('tr');
+        let titles = Object.keys(data[0])
+
+        for (let j = 0; j < titles.length; j++) {
+          let th = document.createElement('th');
+          let title = document.createTextNode(titles[j]);
+          th.appendChild(title);
+          tr.appendChild(th);
+        }
+        thead.appendChild(tr);
+        table.appendChild(thead);
+
+        let tbody = document.createElement('tbody');
+        for (let i = 0; i < data.length; i++) {
+          tr = document.createElement('tr');
+          console.log(data[i]);
+          for (let j = 0; j < titles.length; j++) {
+            let td = document.createElement('td');
+            let text = document.createTextNode(data[i][titles[j]]);
+            td.appendChild(text);
+            tr.appendChild(td);
+          }
+          tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+        
+        div.appendChild(table);
+      }
 
     }).catch(function(err) {
       console.log(err);
     });
+  };
+
+  const sortEvent = function(event) {
+    const link = event.currentTarget;
+    let sort = link.parentNode.className;
+    const dir = link.firstElementChild.className;
+    let desc;
+    if (dir === 'none') desc = "false";
+    else if (dir === 'asc') desc = "true";
+    else if (dir === 'desc') desc = "default";
+
+    let instructions = {};
+    if (sort) instructions.sort = sort;
+    if (desc) instructions.desc = desc;
+    const path = '/' + model + buildQueryString(instructions);
+    return window.location.replace(path);
   };
 
   const showWaitMessage = function(event) {
@@ -216,19 +297,45 @@ window.addEventListener('load', function() {
     }, 6000);
   };
 
+  const addActions = function(actionClass, eventFun, startVal = 0) {
+    let actions = document.getElementsByClassName(actionClass);
+    for (let i = startVal; i < actions.length; i++) {
+      actions[i].addEventListener('click', eventFun);
+    }
+  };
+
   /* Register event to each row representing existing line items. */
-  const td = tbody.firstElementChild.firstElementChild;
-  let startVal = 0;
-  if (td.className.split(' ')[1] === 'add') {
-    /* POST to create new. */
-    actions[0].addEventListener('click', createEvent);
-    startVal = 1;
+  const tr = tbody.firstElementChild;
+  if (tr) {
+    const td = tr.firstElementChild;
+    let startVal = 0;
+    if (td.className.split(' ')[1] === 'add') {
+      /* POST to create new. */
+      let newAction = document.getElementsByClassName('action-icon')[0];
+      newAction.addEventListener('click', createEvent);
+      startVal = 1;
+    }
+    addActions('action-icon', statusEvent, startVal);
+    addActions('print-qr', showWaitMessage);
+    addActions('expand', expandEvent);
+    addActions('stock', arrivalEvent);
+    addActions('sort-link', sortEvent);
   }
-  for (let i = startVal; i < actions.length; i++) {
-    actions[i].addEventListener('click', statusEvent);
-    expand[i].addEventListener('click', expandEvent);
-    printQr[i].addEventListener('click', showWaitMessage);
-    stock[i].addEventListener('click', arrivalEvent);
-  }
+
+  const priorUrl = '/' + model + buildQueryString({ page: "-" });
+  const afterUrl = '/' + model + buildQueryString({ page: "+" });
+
+  let priorPage = document.getElementById('prior-page');
+  if (priorPage) priorPage.href = priorUrl;
+  let afterPage = document.getElementById('after-page');
+  if (afterPage) afterPage.href = afterUrl;
+
+  let pageButton = document.getElementById('page-button');
+  pageButton.addEventListener('click', function(event) {
+    let page = document.getElementById('page-input').value;
+    return window.location.replace(
+      '/' + model + buildQueryString({ page: parseInt(page) })
+    );
+  });
 
 });

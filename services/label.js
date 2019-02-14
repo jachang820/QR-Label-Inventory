@@ -6,8 +6,8 @@ class Labels extends BaseService {
     super(LabelRepo);
   }
 
-  async getListView() {
-    let list = await this.repo.list();
+  async getListView(page = 1, order, desc) {
+    let list = await this.repo.list(page, order, desc);
     for (let i = 0; i < list.length; i++) {
       list[i].state = list[i].hidden ? 'hidden' : 'used';
       delete list[i].hidden;

@@ -1,42 +1,107 @@
 const BaseRepo = require('./base');
-const ItemRepo = require('./masterCarton');
-const { CustomerOrder } = require('../models');
+const db = require('../models');
 
 class CustomerOrderRepo extends BaseRepo {
 
   constructor(exclude = []) {
-    super(CustomerOrder);
+    super(db.CustomerOrder);
 
     exclude.push('customerOrder');
     this.assoc = {};
-    if (!exclude.includes('item'))
+    if (!exclude.includes('item')) {
+      const ItemRepo = require('./item');
       this.assoc.item = new ItemRepo(exclude);
+    }
+
+    this.defaultOrder = [
+      ['hidden', 'DESC NULLS FIRST'],
+      ['shipped', 'DESC NULLS FIRST'],
+      ['serial', 'DESC']
+    ];
   }
 
-  async list(by, page = 0, limit = 20) {
-    let opts = { where: by, page: page, limit: limit, 
-                 order: [['shipped', 'DESC']], 
-                 paranoid : false };
+  async list(page = 1, order, desc) {
+    /* Page is not an integer. */
+    if (isNaN(parseInt(page))) {
+      FactoryOrderRepo._handleErrors(new Error("Invalid page."));
+    }
+
+    const columns = Object.keys(this._describe(['id']));
+
+    let sort;
+    if (!order || !columns.includes(order)) {
+      sort = this.defaultOrder;
+
+    /* Sort order is not an array. */
+    } else if (!order.match(/^[a-zA-Z]+$/)) {
+      FactoryOrderRepo._handleErrors(new Error("Invalid sort."));
+    
+    } else {
+      const direction = desc ? 'DESC' : 'ASC';
+      sort = [[order, direction]];
+    }
+
+    const offset = (page - 1) * 20;
+    const aggregate = (column) => {
+      return `(
+        SELECT COALESCE(SUM(line_item."${column}"), 0)
+        FROM line_item
+        WHERE "CustomerOrder".id = line_item."customerOrderId"
+      ) AS "${column}"`;
+    };
+    const buildOrder = (order) => {
+      order = order.map(e => `"CustomerOrder"."${e[0]}" ${e[1]}`);
+      return order.join(', ');
+    };
+
+    let query = `
+      WITH line_item AS (
+        SELECT "customerOrderId",
+               COUNT("Item".id) AS count
+        FROM "Item"
+        GROUP BY "Item"."customerOrderId"
+      ) 
+      SELECT 
+        "CustomerOrder".id AS "clickId",
+        "CustomerOrder".serial,
+        "CustomerOrder".type,
+        "CustomerOrder".notes,
+        "CustomerOrder".shipped,
+        "CustomerOrder".hidden,
+        ${aggregate('count')}
+      FROM "CustomerOrder"
+      GROUP BY "CustomerOrder".id
+      ORDER BY ${buildOrder(sort)}
+      LIMIT 20 OFFSET ${offset}
+      `.replace(/\s+/g, ' ').trim();
+
+    const orders = await db.sequelize.query(query);
+    this.cache.list = orders;
+
+    if (!orders[0]) return [];
+    return orders[0]; 
+  }
+
+  async listActive(page = 1, order, desc) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
+    let opts = {
+      order,
+      offset: (page - 1) * 20
+    };
     return this._list(opts);
   }
 
-  async listActive(by, page = 0, limit = 20) {
-    let opts = { where: by, page: page, limit: limit, 
-                 order: [['shipped', 'DESC']]};
-    return this._list(opts);
-  }
-
-  async get(serial) {
+  async get(id) {
     return this._get({
-      where: { serial },
-      attributes: { exclude: ['id', 'hidden'] },
-      include: [{ 
-        model: Item,
-        attributes: { exclude: ['id'] },
-        order: [['serial', 'ASC']]
-      }],
+      where: { id },
+      attributes: { exclude: ['id'] },
       paranoid: false
     });
+  }
+
+  async expand(id) {
+    return this.assoc.item.expandData(id);
   }
 
   async create(serial, type, notes, items, transaction) {
@@ -59,9 +124,10 @@ class CustomerOrderRepo extends BaseRepo {
     });
   }
 
-  async use(by, transaction) {
+  async use(id, transaction) {
     return this.transaction(async (t) => {
-      const order = await this._use({ where: by }, true);
+      const order = await this._use({ where: {id} }, true);
+      console.log(this.assoc.item);
       const item = await this.assoc.item.ship({
         customerOrderId: order.id
       }, order.id, transaction);
@@ -69,9 +135,9 @@ class CustomerOrderRepo extends BaseRepo {
     }, transaction);
   }
 
-  async hide(by, transaction) {
+  async hide(id, transaction) {
     return this.transaction(async (t) => {
-      const order = await this._delete({ where: by }, false);
+      const order = await this._delete({ where: {id} }, false);
       const item = await this.assoc.item.stock({
         customerOrderId: order.id
       }, transaction);
@@ -79,8 +145,15 @@ class CustomerOrderRepo extends BaseRepo {
     }, transaction);
   }
 
-  describe() { return this._describe(); }
-
+  describe() {
+    let columns = this._describe(['id']); 
+    columns['count'] = {
+      type: 'integer', 
+      unsortable: true,
+      optional: false 
+    };
+    return columns;
+  }
 };
 
-module.exports = FactoryOrderRepo;
+module.exports = CustomerOrderRepo;

@@ -1,7 +1,4 @@
 const BaseRepo = require('./base');
-const MasterCartonRepo = require('./innerCarton');
-const ItemRepo = require('./item');
-const SkuRepo = require('./sku');
 const { InnerCarton } = require('../models');
 
 class InnerCartonRepo extends BaseRepo {
@@ -10,16 +7,23 @@ class InnerCartonRepo extends BaseRepo {
     super(InnerCarton);
 
     exclude.push('innerCarton');
+    console.log('INNER: ' + exclude);
     this.assoc = {};
-    if (!exclude.includes('sku'))
+    if (!exclude.includes('sku')) {
+      const SkuRepo = require('./sku');
       this.assoc.sku = new SkuRepo(exclude);
-    if (!exclude.includes('masterCarton'))
+    }
+    if (!exclude.includes('masterCarton')) {
+      const MasterCartonRepo = require('./masterCarton');
       this.assoc.masterCarton = new MasterCartonRepo(exclude);
-    if (!exclude.includes('item'))
+    }
+    if (!exclude.includes('item')) {
+      const ItemRepo = require('./item');
       this.assoc.item = new ItemRepo(exclude);
+    }
   }
 
-  async list() {
+  async list(by) {
     // Implement this later.
   }
 

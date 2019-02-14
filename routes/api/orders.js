@@ -2,7 +2,6 @@ const express = require('express');
 const { FactoryOrder, CustomerOrders, MasterCarton, Sku, Items,
         sequelize } = require('../../models')
 const Sequelize = require('sequelize');
-const expandLineItems = require('../../helpers/expandLineItems');
 
 module.exports = (orderType) => {
   const router = express.Router();
@@ -52,20 +51,13 @@ module.exports = (orderType) => {
       let order = await Orders.create(newOrder);
 
       let itemsList;
-      /* Factory orders. */
-      if (req.body.itemsList === undefined) {
-        itemsList = expandLineItems(
-          req.body.items, 
-          order.dataValues.id
-        );
-
       /* Customer orders. */
-      } else {
-        itemsList = req.body.itemsList;
-        for (let i = 0; i < itemsList.length; i++) {
-          itemsList[i].CustomerOrderId = order.dataValues.id;
-        }
+      
+      itemsList = req.body.itemsList;
+      for (let i = 0; i < itemsList.length; i++) {
+        itemsList[i].CustomerOrderId = order.dataValues.id;
       }
+
 
       await Items.bulkCreate(itemsList);
 

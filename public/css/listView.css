@@ -111,7 +111,8 @@ th.action-col, th.color-coded {
 }
 
 .action-icon, .print-qr, 
-.expand, .stock {
+.expand, .stock, .none,
+.asc, .desc {
   width: 1.2rem;
   height: 1.2rem;
   opacity: 0.6;
@@ -119,13 +120,19 @@ th.action-col, th.color-coded {
   margin: 3px 2px 0px 2px;
 }
 
+.none {
+  cursor: default;
+}
+
 .action-icon:hover, .print-qr:hover,
-.expand:hover, .stock:hover {
+.expand:hover, .stock:hover,
+.asc:hover, .desc:hover {
   opacity: 1.0;
 }
 
 .action-icon:active, .print-qr:active,
-.expand:active, .stock:active {
+.expand:active, .stock:active,
+.asc:active, .desc:active {
   transform: translate(2px, 2px);
 }
 
@@ -251,6 +258,12 @@ th.action-col, th.color-coded {
   overflow: hidden;
 }
 
+.sort-link {
+  text-decoration: underline dotted;
+  color: white;
+  cursor: pointer;
+}
+
 #message-bar {
   visibility: hidden;
   border: 1px solid black;
@@ -288,10 +301,15 @@ th.action-col, th.color-coded {
   font-size: 14px;
   vertical-align: middle;
   margin-bottom: 8px;
+  width: 3.5em;
 }
 
 #pages button {
   display: inline;
   vertical-align: middle;
   margin-bottom: 8px;
+}
+
+#prior-page, #after-page {
+  text-decoration: none;
 }

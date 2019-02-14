@@ -83,8 +83,8 @@ const setup = async () => {
   skus = skus.map(e => e.id );
 
   let orders = await FactoryOrder.bulkCreate([
-    { alias: 'one' },
-    { alias: 'two' }
+    {},
+    {}
   ], { 
     individualHooks: true,
     returning: true
@@ -109,16 +109,16 @@ const setup = async () => {
   let mcId3 = masters[2].id;
 
   let inners = await InnerCarton.bulkCreate([
-    { factoryOrderId: foId1, masterId: mcId1, sku: 'or-wood' },
-    { factoryOrderId: foId1, masterId: mcId1, sku: 'or-wood' },
-    { factoryOrderId: foId1, masterId: mcId1, sku: 'or-wood' },
-    { factoryOrderId: foId1, masterId: mcId1, sku: 'or-wood' },
-    { factoryOrderId: foId2, masterId: mcId2, sku: 'm-black' },
-    { factoryOrderId: foId2, masterId: mcId2, sku: 'm-black' },
-    { factoryOrderId: foId2, masterId: mcId3, sku: 'jr-orange' },
-    { factoryOrderId: foId2, masterId: mcId3, sku: 'jr-orange' },
-    { factoryOrderId: foId2, masterId: mcId3, sku: 'jr-orange' },
-    { factoryOrderId: foId2, masterId: mcId3, sku: 'jr-orange' }
+    { masterId: mcId1, sku: 'or-wood' },
+    { masterId: mcId1, sku: 'or-wood' },
+    { masterId: mcId1, sku: 'or-wood' },
+    { masterId: mcId1, sku: 'or-wood' },
+    { masterId: mcId2, sku: 'm-black' },
+    { masterId: mcId2, sku: 'm-black' },
+    { masterId: mcId3, sku: 'jr-orange' },
+    { masterId: mcId3, sku: 'jr-orange' },
+    { masterId: mcId3, sku: 'jr-orange' },
+    { masterId: mcId3, sku: 'jr-orange' }
   ], {
     individualHooks: true,
     returning: true
@@ -127,9 +127,11 @@ const setup = async () => {
   inner = inners.map(e => e.get());
 
   let customers = await CustomerOrder.bulkCreate([
-    { type: 'wholesale',
-      alias: 'D34DB33F' }
-  ]);
+    { type: 'wholesale' }
+  ], {
+    individualHooks: true,
+    returning: true
+  });
 
   customers = customers.map(e => e.get());
 
@@ -137,20 +139,19 @@ const setup = async () => {
   for (let i = 0; i < inners.length; i++) {
     for (let j = 0; j < 12; j++) {
       let item = {
-        factoryOrderId: inners[i].factoryOrderId,
+        factoryOrderId: i >= 4 ? foId2 : foId1,
         masterId: inners[i].masterId,
         innerId: inners[i].id,
         sku: inners[i].sku,
         status: i >= 4 ? 'shipped' : 'in stock'
       };
       if (i >= 4) {
-        item = Object.assign({
-          customerOrderId: customers[0].id
-        }, item);
+        item.customerOrderId = customers[0].id;
       }
       itemsList.push(item);
     }
   }
+
   await Item.bulkCreate(itemsList, {
     individualHooks: true
   });

@@ -1,18 +1,20 @@
 module.exports = (req, res, next) => {
-  res.locals.css = ['error.css'];
+  let err = new Error();
   
   /* Set the status code. */
   let status = parseInt(req.params.status);
   if (isNaN(status) || (status < 400 && status > 520)) {
-    res.locals.status = 404;
+    err.status = 404;
   } else {
-    res.locals.status = status;
+    err.status = status;
   }
 
+  /* Set the message. */
+  err.message = req.body.message || "Oops! Something went wrong...";
   if (res.locals.status === 500) {
-    res.locals.message = "It's not you, it's me...";
+    err.message = "It's not you, it's me...";
   }
 
-  res.status(res.locals.status);
-  res.render('error');
+  res.status(err.status);
+  return next(err);
 };

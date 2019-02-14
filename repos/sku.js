@@ -1,6 +1,4 @@
 const BaseRepo = require('./base');
-const ColorRepo = require('./color');
-const SizeRepo = require('./size');
 const { Sku, Size, Sequelize } = require('../models');
 
 class SkuRepo extends BaseRepo {
@@ -10,22 +8,45 @@ class SkuRepo extends BaseRepo {
 
     exclude.push('sku');
     this.assoc = {};
-    if (!exclude.includes('color'))
+    if (!exclude.includes('color')) {
+      const ColorRepo = require('./color');
       this.assoc.color = new ColorRepo(exclude);
-    if (!exclude.includes('size'))
+    }
+    if (!exclude.includes('size')) {
+      const SizeRepo = require('./size');
       this.assoc.size = new SizeRepo(exclude);
+    }
+
+    this.defaultOrder = [
+      ['hidden', 'DESC NULLS FIRST'],
+      ['used', 'ASC'],
+      ['size', 'ASC'],
+      ['color', 'ASC']
+    ];
   }
 
-  async list(by) {
-    return this._list(this._listOptions(by, false)); 
+  async list(page = 1, order, desc) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
+    return this._list(
+      this._listOptions(null, false, page, order)
+    ); 
   }
 
-  async listSize(by) {
-    return this._list(this._listSizeOptions(by));    
+  async listSize(by, page = 1, order, desc) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
+    return this._list(
+      this._listSizeOptions(by, page, order)
+    );    
   }
 
-  async listActive(by) { 
-    return this._list(this._listOptions(by, true));
+  async listActive(page = 1, order, desc) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
+    return this._list(
+      this._listOptions(null, true, page, order)
+    );
   }
 
   async get(id) {
@@ -106,16 +127,19 @@ class SkuRepo extends BaseRepo {
     };
   }
 
-  _listOptions(by, paranoid) {
-    return { 
-      where: by,
+  _listOptions(by, paranoid, page = 1, order) {
+    let opts = { 
       attributes: ['id', 'upc', 'color', 'size', 'created',
                    'used', 'hidden'],
+      order: order || this.defaultOrder,
+      offset: (page - 1) * 20,
       paranoid: paranoid
     };
+    if (by) opts.where = by;
+    return opts;
   }
 
-  _listSizeOptions(by) {
+  _listSizeOptions(by, page = 1, order) {
     return { 
       where: by,
       attributes: ['id', 
@@ -123,6 +147,8 @@ class SkuRepo extends BaseRepo {
         [Sequelize.col('Size.masterSize'), 'masterSize']
       ],
       include: [{ model: Size, attributes: [] }],
+      order: order || this.defaultOrder,
+      offset: (page - 1) * 20,
       paranoid : false
     };
   }

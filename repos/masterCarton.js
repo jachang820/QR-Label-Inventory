@@ -1,7 +1,4 @@
 const BaseRepo = require('./base');
-const FactoryOrderRepo = require('./factoryOrder');
-const InnerCartonRepo = require('./innerCarton');
-const SkuRepo = require('./sku');
 const { MasterCarton, Sku, Size, sequelize } = require('../models');
 
 class MasterCartonRepo extends BaseRepo {
@@ -10,19 +7,23 @@ class MasterCartonRepo extends BaseRepo {
     super(MasterCarton);
 
     exclude.push('masterCarton');
+    console.log('MASTER: ' + exclude);
     this.assoc = {};
-    if (!exclude.includes('sku')) 
+    if (!exclude.includes('sku')) {
+      const SkuRepo = require('./sku');
       this.assoc.sku = new SkuRepo(exclude);
-    if (!exclude.includes('factoryOrder'))
+    }
+    if (!exclude.includes('factoryOrder')) {
+      const FactoryOrderRepo = require('./factoryOrder');
       this.assoc.factoryOrder = new FactoryOrderRepo(exclude);
-    if (!exclude.includes('innerCarton'))
+    }
+    if (!exclude.includes('innerCarton')) {
+      const InnerCartonRepo = require('./innerCarton');
       this.assoc.innerCarton = new InnerCartonRepo(exclude);
+    }
   }
 
-  async list(by) {
-    by = Object.entries(by).map(
-      e => `"${e[0]}" = '${e[1]}'`
-    ).join(' AND ');
+  async expandData(factoryOrderId) {
     let query = `
       SELECT 
         serial, 
@@ -33,7 +34,7 @@ class MasterCartonRepo extends BaseRepo {
       FROM "MasterCarton"
         LEFT JOIN "Sku" ON "MasterCarton".sku = "Sku".id
         LEFT JOIN "Size" ON "Sku".size = "Size".name
-      WHERE ${by}
+      WHERE "factoryOrderId" = '${factoryOrderId}' 
       GROUP BY "MasterCarton".serial, "MasterCarton".sku, "Size"."innerSize", "Size"."masterSize"
       ORDER BY "MasterCarton".serial ASC
     `.replace(/\s+/g, ' ').trim();

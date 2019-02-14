@@ -10,12 +10,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     serial: {
       type: DataTypes.STRING,
-      unique: false,
+      unique: true,
       allowNull: true
     },
     type: {
       type: DataTypes.ENUM,
       values: ['retail', 'wholesale'],
+      defaultValue: 'retail',
       allowNull: false,
       validate: {
         notEmpty: {
@@ -29,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     notes: {
       type: DataTypes.STRING,
+      defaultValue: '',
       allowNull: true
     },
     shipped: DataTypes.DATEONLY,

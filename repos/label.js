@@ -5,20 +5,33 @@ class LabelRepo extends BaseRepo {
 
   constructor() {
     super(Label, 'prefix');
+
+    this.defaultOrder = [
+      ['hidden', 'DESC NULLS FIRST'],
+      ['updated', 'DESC'],
+      ['prefix', 'ASC'],
+      ['style', 'ASC']
+    ];
   }
 
-  async list() {
+  async list(page = 1, order, desc) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
     return this._list({
       attributes: { exclude: ['id'] },
-      order: [['updated', 'DESC']],
+      order,
+      offset: (page - 1) * 20,
       paranoid: false
     });
   }
 
-  async listActive() {
+  async listActive(page = 1, order, desc) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
     return this._list({
       attributes: { exclude: ['id'] },
-      order: [['updated', 'DESC']]
+      order,
+      offset: (page - 1) * 20
     });
   }
 

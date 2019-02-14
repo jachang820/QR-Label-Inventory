@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const setupAxios = require('../helpers/setupAxios');
 const Skus = require('../services/sku');
 
 router.get('/', (req, res, next) => {
@@ -14,10 +13,10 @@ router.get('/edit/:id', [
     const skus = new Skus();
     res.locals.skus = await skus.getListView();
     return next();
-  },
-
+  }
+]);
   /* Render edit items page. */
-  async (req, res, next) => {
+  /*async (req, res, next) => {
     const axios = setupAxios();
     let item;
     try {
@@ -31,10 +30,10 @@ router.get('/edit/:id', [
       item: item.data 
     });
   }
-]);
+]);*/
 
 /* Edit item. */
-router.post('/update/:id', async (req, res, next) => {
+/*router.post('/update/:id', async (req, res, next) => {
   const axios = setupAxios();
   let response;
   try {
@@ -51,6 +50,6 @@ router.post('/update/:id', async (req, res, next) => {
   }
 
   return res.redirect('/inventory');
-});
+});*/
 
 module.exports = router;

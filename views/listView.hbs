@@ -20,7 +20,20 @@
           <th class="color-coded"></th>
           {{!-- The remaining rows are populated from data. --}}
           {{#each @types}}
-            <th>{{@key}}</th>
+            <th class="{{@key}}">
+              {{#unless this.unsortable}}<a class="sort-link">
+              {{~/unless}}
+              
+              {{@key}}
+              {{#eq? @key @sort}}
+                <img src="/images/
+                {{~#if @desc}}desc{{else}}asc{{/if}}.png" 
+                class="{{#if @desc}}desc{{else}}asc{{/if}}">
+              {{else}}
+                <img src="/images/none.png" class="none">
+              {{/eq?}}
+              {{#unless this.unsortable}}</a>{{/unless}}
+            </th>
           {{/each}}
         </tr>
       </thead>
@@ -98,6 +111,8 @@
               {{#if @stock}}
                 {{#neq? this.state 'eternal'}}
                 <img class="stock" src="/images/stock.png">
+                {{else}}
+                <img class="none" src="/images/none.png">
                 {{/neq?}}
               {{/if}}
               {{#if @printQr}}
@@ -115,6 +130,11 @@
                 {{#eq? this.state 'hidden'}}
                   <img class="action-icon" src="/images/restore.png">
                 {{/eq?}}
+                {{#eq? this.state 'eternal'}}
+                  <img class="none" src="/images/none.png">
+                {{/eq?}}
+              {{else}}
+                <img class="none" src="/images/none.png">
               {{/if-role}}
             </td>
             <td class="color-coded {{this.state}}"></td>
@@ -135,9 +155,12 @@
       <tfoot>
         <tr>
           <td colspan="{{@columns}}">
-            <div id="pages">
-              &#12296; <input type="text" name="page" size="2" value="">  <button type="button">Go</button>  &#12297;
-            </div>
+            <nav id="pages">
+              {{#neq? @page 1}}<a id="prior-page">&#12296;</a>{{/neq?}} 
+              <input type="number" name="page" id="page-input" size="2" min="1" value="{{@page}}">  
+              <button type="button" id="page-button">Go</button>  
+              {{#unless @last}}<a id="after-page">&#12297;</a>{{/unless}}
+            </nav>
           </td>
         </tr>
       </tfoot>

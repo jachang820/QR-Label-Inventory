@@ -1,6 +1,4 @@
 const BaseRepo = require('./base');
-const MasterCartonRepo = require('./masterCarton');
-const SkuRepo = require('./sku');
 const db = require('../models');
 const Op = db.Sequelize.Op;
 
@@ -10,20 +8,57 @@ class FactoryOrderRepo extends BaseRepo {
     super(db.FactoryOrder);
 
     exclude.push('factoryOrder');
+    console.log('FACTORY: ' + exclude);
     this.assoc = {};
-    if (!exclude.includes('sku'))
+    if (!exclude.includes('sku')) {
+      const SkuRepo = require('./sku');
       this.assoc.sku = new SkuRepo(exclude);
-    if (!exclude.includes('masterCarton'))
+    }
+    if (!exclude.includes('masterCarton')) {
+      const MasterCartonRepo = require('./masterCarton');
       this.assoc.masterCarton = new MasterCartonRepo(exclude);
+    }
+
+    this.defaultOrder = [
+      ['hidden', 'DESC NULLS FIRST'],
+      ['arrival', 'DESC NULLS FIRST'],
+      ['id', 'DESC']
+    ];
+
   }
 
-  async list() {
+  async list(page = 1, order, desc) {
+    /* Page is not an integer. */
+    if (isNaN(parseInt(page))) {
+      FactoryOrderRepo._handleErrors(new Error("Invalid page."));
+    }
+
+    const columns = Object.keys(this._describe(['id']));
+
+    let sort;
+    if (!order || !columns.includes(order)) {
+      sort = this.defaultOrder;
+
+    /* Sort order is not an array. */
+    } else if (!order.match(/^[a-zA-Z]+$/)) {
+      FactoryOrderRepo._handleErrors(new Error("Invalid sort."));
+    
+    } else {
+      const direction = desc ? 'DESC' : 'ASC';
+      sort = [[order, direction]];
+    }
+
+    const offset = (page - 1) * 20;
     const aggregate = (column) => {
       return `(
         SELECT COALESCE(SUM(line_item."${column}"), 0)
         FROM line_item
         WHERE "FactoryOrder".id = line_item."factoryOrderId"
       ) AS "${column}"`;
+    };
+    const buildOrder = (order) => {
+      order = order.map(e => `"FactoryOrder"."${e[0]}" ${e[1]}`);
+      return order.join(', ');
     };
 
     let query = `
@@ -49,7 +84,8 @@ class FactoryOrderRepo extends BaseRepo {
         ${aggregate('count')}
       FROM "FactoryOrder"
       GROUP BY "FactoryOrder".id
-      ORDER BY ordered DESC, "FactoryOrder".serial ASC
+      ORDER BY ${buildOrder(sort)}
+      LIMIT 20 OFFSET ${offset}
       `.replace(/\s+/g, ' ').trim();
 
     const orders = await db.sequelize.query(query);
@@ -60,6 +96,10 @@ class FactoryOrderRepo extends BaseRepo {
   }
 
   async get(id) {
+    if (isNaN(parseInt(id))) {
+      FactoryOrderRepo._handleErrors(new Error("Invalid id."));
+    }
+
     let query = `
       WITH unit AS (
         SELECT "innerId", serial
@@ -109,7 +149,7 @@ class FactoryOrderRepo extends BaseRepo {
   }
 
   async expand(id) {
-    return this.assoc.masterCarton.list({ factoryOrderId: id });
+    return this.assoc.masterCarton.expandData(id);
   }
 
   /* 'order' consists of a list of objects with 
@@ -194,9 +234,21 @@ class FactoryOrderRepo extends BaseRepo {
 
   describe() {
     let columns = this._describe(['id']); 
-    columns['masterCartons'] = { type: 'integer', optional: true };
-    columns['innerCartons'] = { type: 'integer', optional: true };
-    columns['unitCount'] = { type: 'integer', optional: true };
+    columns['masterCartons'] = {
+      type: 'integer', 
+      unsortable: true,
+      optional: true 
+    };
+    columns['innerCartons'] = { 
+      type: 'integer', 
+      unsortable: true,
+      optional: true 
+    };
+    columns['unitCount'] = { 
+      type: 'integer', 
+      unsortable: true, 
+      optional: false 
+    };
     return columns;
   }
 

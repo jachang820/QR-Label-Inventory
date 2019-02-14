@@ -6,11 +6,32 @@ class ColorRepo extends BaseRepo {
 
   constructor() {
     super(Color);
+
+    this.defaultOrder = [
+      ['hidden', 'DESC NULLS FIRST'],
+      ['used', 'ASC'],
+      ['name', 'ASC']
+    ];
   }
 
-  async list() { return this._list({ paranoid: false }); }
+  async list(page = 1, order, desc) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
+    return this._list({
+      order,
+      offset: (page - 1) * 20,
+      paranoid: false 
+    }); 
+  }
 
-  async listActive() { return this._list(); }
+  async listActive(page = 1, order, desc) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
+    return this._list({
+      order,
+      offset: (page - 1) * 20
+    }); 
+  }
 
   async get(name) {
     return this._get({

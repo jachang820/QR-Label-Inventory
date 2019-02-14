@@ -5,10 +5,21 @@ class ProfileRepo extends BaseRepo {
 
   constructor() {
     super(Profile, 'email');
+
+    this.defaultOrder = [
+      ['role', 'ASC'],
+      ['email', 'ASC']
+    ];
   }
 
-  async list() {
-    return this._list({ attributes: { exclude: ['id'] } });
+  async list(page = 1, order, desc) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
+    return this._list({ 
+      order,
+      attributes: { exclude: ['id'] },
+      offset: (page - 1) * 20 
+    });
   }
 
   async get(email) {

@@ -11,7 +11,6 @@ const hbs = require('hbs');
 
 const hbsRoles = require('./helpers/hbsRoles');
 const hbsEquals = require('./helpers/hbsEquals');
-const userInViews = require('./middleware/userInViews');
 const indexRouter = require('./routes/index');
 
 dotenv.load();
@@ -80,10 +79,8 @@ app.use(session(sess));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(userInViews());
 app.use('/', indexRouter);
 app.use((req, res, next) => {
-  res.locals.css = ['error.css'];
   next(createError(404));
 })
 
@@ -92,8 +89,9 @@ app.use((req, res, next) => {
    generate the same fields. In particular, express rarely
    generates its own status codes and messages. */
 app.use('/', (err, req, res, next) => {
-  res.locals.message = "Oops! Something went wrong...";
-  res.locals.status = 404;
+  res.locals.css = ['error.css'];
+  res.locals.message = err.message || "Oops! Something went wrong...";
+  res.locals.status = err.status || 404;
   res.render('error');
 });
 

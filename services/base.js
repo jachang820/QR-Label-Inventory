@@ -4,8 +4,8 @@ class BaseService {
     this.repo = new repo();
   }
 
-  async getListView() {
-    let list = await this.repo.list();
+  async getListView(page = 1, order, desc) {
+    let list = await this.repo.list(page, order, desc);
     if (list.length === 0) return [];
     list = BaseService._addListStatus(list);
     list = BaseService._convertDate(list);

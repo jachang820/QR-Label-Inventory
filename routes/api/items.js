@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
 const { Items, Sku } = require('../../models');
-const expandLineItems = require('../../helpers/expandLineItems');
 
 router.route('/')
 // Retrieve all items
@@ -46,17 +45,6 @@ router.route('/')
   });
 });
 
-router.route('/bulk')
-.post((req, res, next) => {
-  const itemsList = expandLineItems(
-    req.body.items, 
-    req.body.orderId
-  );
-  
-  Items.bulkCreate(itemsList).then(() => {
-    return res.json({});
-  }).catch(err => { console.log(err); next(err) });
-});
 
 router.route('/bulk')
 .post((req, res, next) => {

@@ -48,6 +48,7 @@ module.exports = [
   async (req, res, next) => {
     const labels = new Labels();
     let label;
+    
     try {
       label = await labels.add(
         req.body.prefix,
