@@ -8,7 +8,7 @@ class FactoryOrderRepo extends BaseRepo {
     super(db.FactoryOrder);
 
     exclude.push('factoryOrder');
-    console.log('FACTORY: ' + exclude);
+
     this.assoc = {};
     if (!exclude.includes('sku')) {
       const SkuRepo = require('./sku');
@@ -30,7 +30,8 @@ class FactoryOrderRepo extends BaseRepo {
   async list(page = 1, order, desc) {
     /* Page is not an integer. */
     if (isNaN(parseInt(page))) {
-      FactoryOrderRepo._handleErrors(new Error("Invalid page."));
+      FactoryOrderRepo._handleErrors(new Error("Invalid page."),
+        null, true);
     }
 
     const columns = Object.keys(this._describe(['id']));
@@ -41,7 +42,8 @@ class FactoryOrderRepo extends BaseRepo {
 
     /* Sort order is not an array. */
     } else if (!order.match(/^[a-zA-Z]+$/)) {
-      FactoryOrderRepo._handleErrors(new Error("Invalid sort."));
+      FactoryOrderRepo._handleErrors(new Error("Invalid sort."),
+        null, true);
     
     } else {
       const direction = desc ? 'DESC' : 'ASC';
@@ -69,7 +71,7 @@ class FactoryOrderRepo extends BaseRepo {
                SUM("Size"."innerSize" * "Size"."masterSize") AS count
         FROM "MasterCarton"
           INNER JOIN "Sku" ON "MasterCarton".sku = "Sku".id 
-          INNER JOIN "Size" ON "Sku".size = "Size".name
+          INNER JOIN "Size" ON "Sku"."sizeId" = "Size".id
         GROUP BY "MasterCarton"."factoryOrderId", "MasterCarton".serial
       ) 
       SELECT 
@@ -85,7 +87,7 @@ class FactoryOrderRepo extends BaseRepo {
       FROM "FactoryOrder"
       GROUP BY "FactoryOrder".id
       ORDER BY ${buildOrder(sort)}
-      LIMIT 20 OFFSET ${offset}
+      LIMIT 21 OFFSET ${offset}
       `.replace(/\s+/g, ' ').trim();
 
     const orders = await db.sequelize.query(query);
@@ -97,7 +99,8 @@ class FactoryOrderRepo extends BaseRepo {
 
   async get(id) {
     if (isNaN(parseInt(id))) {
-      FactoryOrderRepo._handleErrors(new Error("Invalid id."));
+      FactoryOrderRepo._handleErrors(new Error("Invalid id."),
+        null, true);
     }
 
     let query = `
@@ -114,8 +117,8 @@ class FactoryOrderRepo extends BaseRepo {
         FROM "InnerCarton"
       ), "master" AS (
         SELECT "factoryOrderId", serial, 
-          "Sku".size, 
-          "Sku".color,
+          "Size".name AS size, 
+          "Color".name AS color,
           "Size".abbrev AS "sizeShort",
           "Color".abbrev AS "colorShort",
           (
@@ -125,8 +128,8 @@ class FactoryOrderRepo extends BaseRepo {
           ) AS "innerCartons"
         FROM "MasterCarton"
           LEFT JOIN "Sku" ON "MasterCarton".sku = "Sku".id
-          LEFT JOIN "Color" ON "Sku".color = "Color".name
-          LEFT JOIN "Size" ON "Sku".size = "Size".name
+          LEFT JOIN "Color" ON "Sku"."colorId" = "Color".id
+          LEFT JOIN "Size" ON "Sku"."sizeId" = "Size".id
         WHERE "factoryOrderId" = '${id}'
       )
       SELECT
@@ -156,6 +159,12 @@ class FactoryOrderRepo extends BaseRepo {
      sku and quantity (in number of master cartons).
      [...{sku, quantity}] */
   async create(serial, notes, order, transaction) {
+    if (typeof serial === 'string' && serial.startsWith('F')) {
+      FactoryOrderRepo._handleErrors(
+        new Error("Order ID cannot start with 'F'.")
+      );
+    }
+
     let skusList = order.map(e => e.sku);
     skusList = [...new Set(skusList)];
 
@@ -197,36 +206,41 @@ class FactoryOrderRepo extends BaseRepo {
     }, transaction);
   }
 
-  async stock(id) {
-    const arrival = new Date();
-    return this._update({ arrival }, {
-      where: { id },
-      attributes: { exclude: ['id'] }
-    });
+  async stock(id, transaction) {
+    return this.transaction(async (t) => {
+      const arrival = new Date();
+      let order = await this._update({ arrival }, {
+        where: { id }
+      });
+      const items = await this.assoc.masterCarton.stock(id, t);
+      delete order[0].id
+      return order[0];
+    }, transaction);
   }
 
   async use(id, transaction) {
     return this.transaction(async (t) => {
-      const order = await this._use({ where: {id} }, true);
-      const master = await this.assoc.masterCarton.use({
-        factoryOrderId: order[0].id
-      }, t);
-      delete order.id;
-      return order;
+      let order = await this._use({
+        where: { id }
+      }, true);
+      const master = await this.assoc.masterCarton.use(id, t);
+      delete order[0].id;
+      return order[0];
     }, transaction);
   }
 
   async hide(id, transaction) {
     return this.transaction(async (t) => {
-      const order = await this._delete({ where: {id} }, false);
+      let order = await this._delete({ 
+        where: { id }
+      }, false);
       if (order.arrival) {
         FactoryOrderRepo._handleErrors(
-          new Error("Received orders cannot be deleted.")
+          new Error("Received orders cannot be deleted."),
+          null, true
         );
       }
-      const master = await this.assoc.masterCarton.hide({
-        factoryOrderId: order.id
-      }, t);
+      const master = await this.assoc.masterCarton.hide(id, t);
       delete order.id;
       return order;
     }, transaction);
@@ -244,7 +258,7 @@ class FactoryOrderRepo extends BaseRepo {
       unsortable: true,
       optional: true 
     };
-    columns['unitCount'] = { 
+    columns['count'] = { 
       type: 'integer', 
       unsortable: true, 
       optional: false 

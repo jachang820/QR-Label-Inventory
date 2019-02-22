@@ -23,7 +23,8 @@ class CustomerOrderRepo extends BaseRepo {
   async list(page = 1, order, desc) {
     /* Page is not an integer. */
     if (isNaN(parseInt(page))) {
-      FactoryOrderRepo._handleErrors(new Error("Invalid page."));
+      FactoryOrderRepo._handleErrors(new Error("Invalid page."), 
+        null, true);
     }
 
     const columns = Object.keys(this._describe(['id']));
@@ -34,7 +35,8 @@ class CustomerOrderRepo extends BaseRepo {
 
     /* Sort order is not an array. */
     } else if (!order.match(/^[a-zA-Z]+$/)) {
-      FactoryOrderRepo._handleErrors(new Error("Invalid sort."));
+      FactoryOrderRepo._handleErrors(new Error("Invalid sort."), 
+        null, true);
     
     } else {
       const direction = desc ? 'DESC' : 'ASC';
@@ -42,25 +44,12 @@ class CustomerOrderRepo extends BaseRepo {
     }
 
     const offset = (page - 1) * 20;
-    const aggregate = (column) => {
-      return `(
-        SELECT COALESCE(SUM(line_item."${column}"), 0)
-        FROM line_item
-        WHERE "CustomerOrder".id = line_item."customerOrderId"
-      ) AS "${column}"`;
-    };
     const buildOrder = (order) => {
       order = order.map(e => `"CustomerOrder"."${e[0]}" ${e[1]}`);
       return order.join(', ');
     };
 
     let query = `
-      WITH line_item AS (
-        SELECT "customerOrderId",
-               COUNT("Item".id) AS count
-        FROM "Item"
-        GROUP BY "Item"."customerOrderId"
-      ) 
       SELECT 
         "CustomerOrder".id AS "clickId",
         "CustomerOrder".serial,
@@ -68,11 +57,12 @@ class CustomerOrderRepo extends BaseRepo {
         "CustomerOrder".notes,
         "CustomerOrder".shipped,
         "CustomerOrder".hidden,
-        ${aggregate('count')}
+        COUNT("Item".id) AS count
       FROM "CustomerOrder"
+        LEFT JOIN "Item" ON "CustomerOrder".id = "Item"."customerOrderId"
       GROUP BY "CustomerOrder".id
       ORDER BY ${buildOrder(sort)}
-      LIMIT 20 OFFSET ${offset}
+      LIMIT 21 OFFSET ${offset}
       `.replace(/\s+/g, ' ').trim();
 
     const orders = await db.sequelize.query(query);
@@ -104,15 +94,24 @@ class CustomerOrderRepo extends BaseRepo {
     return this.assoc.item.expandData(id);
   }
 
+  /* 'items' is a list of item ids. */
   async create(serial, type, notes, items, transaction) {
+    if (typeof serial === 'string' && serial.startsWith('C')) {
+      FactoryOrderRepo._handleErrors(
+        new Error("Order ID cannot start with 'C'.")
+      );
+    }
+
     return this.transaction(async (t) => {
-      const customerOrder = await this._create({ serial, type, notes });
+      let customerOrder = await this._create({ serial, type, notes });
+      let itemList = [];
 
       for (let i = 0; i < items.length; i++) {
-        await this.assoc.item.ship({
-          customerOrderId: items[i]
-        }, customerOrder.id, t);
+        const item = await this.assoc.item.ship(
+          customerOrder.id, items[i], t);
+        itemList.push(item);
       }
+      customerOrder.items = itemList;
       
       return customerOrder;
     }, transaction);
@@ -127,10 +126,7 @@ class CustomerOrderRepo extends BaseRepo {
   async use(id, transaction) {
     return this.transaction(async (t) => {
       const order = await this._use({ where: {id} }, true);
-      console.log(this.assoc.item);
-      const item = await this.assoc.item.ship({
-        customerOrderId: order.id
-      }, order.id, transaction);
+      const item = await this.assoc.item.reship(order.id, transaction);
       return order;
     }, transaction);
   }
@@ -138,9 +134,7 @@ class CustomerOrderRepo extends BaseRepo {
   async hide(id, transaction) {
     return this.transaction(async (t) => {
       const order = await this._delete({ where: {id} }, false);
-      const item = await this.assoc.item.stock({
-        customerOrderId: order.id
-      }, transaction);
+      const item = await this.assoc.item.stock(order.id, transaction);
       return order;
     }, transaction);
   }

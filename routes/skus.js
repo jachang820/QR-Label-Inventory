@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 
 const skusGet = require('../controllers/skusGet');
-const skusSizeGet = require('../controllers/skusSizeGet');
 const skusPost = require('../controllers/skusPost');
 const skusPut = require('../controllers/skusPut');
 
@@ -17,14 +16,11 @@ router.all('*', (req, res, next) => {
 /* Show form for managing SKUs. */
 router.get('/', skusGet);
 
-/* Send SKU size information through JSON. */
-router.get('/size/:sku', skusSizeGet);
-
 /* Add a new SKU. */
 router.post('/', skusPost);
 
 /* Change active status of SKU. If SKU has no items,
    then delete SKU. */
-router.put('/', skusPut);
+router.put('/:id', skusPut);
 
 module.exports = router;

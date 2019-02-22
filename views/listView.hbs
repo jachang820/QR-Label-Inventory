@@ -22,17 +22,22 @@
           {{#each @types}}
             <th class="{{@key}}">
               {{#unless this.unsortable}}<a class="sort-link">
-              {{~/unless}}
-              
-              {{@key}}
-              {{#eq? @key @sort}}
-                <img src="/images/
+              {{~/unless~}}
+                {{~#if this.alias~}}
+                  {{this.alias}}
+                {{~else~}}
+                  {{~@key~}}
+                {{~/if~}}
+              {{~#unless this.unsortable}}</a>{{/unless}}
+              {{~#if this.explanation~}}
+              <div class="explain">{{this.explanation}}</div>
+              {{/if~}}          
+              {{#eq? @key @sort}}<img src="/images/
                 {{~#if @desc}}desc{{else}}asc{{/if}}.png" 
                 class="{{#if @desc}}desc{{else}}asc{{/if}}">
-              {{else}}
-                <img src="/images/none.png" class="none">
-              {{/eq?}}
-              {{#unless this.unsortable}}</a>{{/unless}}
+              {{~else~}}
+              <img src="/images/none.png" class="none">
+              {{~/eq?~}}
             </th>
           {{/each}}
         </tr>
@@ -44,112 +49,125 @@
         {{!-- First row contains form elements to add new line.
               Form elements are generated based on @types derived
               from database. --}}
-        {{#unless @listOnly}}
+        {{~#unless @listOnly~}}
         <tr>
           <td class="action-col add">
             <img class="action-icon" src="/images/new.png">
+            <div class="explain">Submit new record.</div>
           </td>
           <td class="color-coded add"></td>
-          {{#each @types}}
+          {{~#each @types~}}
             {{!-- @key: Database column names,
                   this.type: Database column type. --}}
             <td class="{{@key}} add {{this.type}}">
               {{!-- String fields are entered by inputs. --}}
-              {{#eq? this.type "string"}}
+              {{~#eq? this.type "string"~}}
                 <input type="text" name="{{@key}}" value="">
-              {{/eq?}}
+              {{~/eq?~}}
               {{!-- Integer fields are entered by numerical inputs.
                     Minimum allowed input is 1 (non-negative). --}}
-              {{#eq? this.type "integer"}}
+              {{~#eq? this.type "integer"~}}
                 <input type="number" name="{{@key}}" value="" min="1">
-              {{/eq?}}
+              {{~/eq?~}}
               {{!-- Date fields are a label, since they are usually
                     auto-generated based on current date. This may
                     need to change on future occasion. --}}
-              {{#eq? this.type "date"}}
+              {{~#eq? this.type "date"~}}
                 <div class="date"></div>
-              {{/eq?}}
-              {{#eq? this.type "dateonly"}}
+              {{~/eq?~}}
+              {{~#eq? this.type "dateonly"~}}
                 <div class="date"></div>
-              {{/eq?}}
+              {{~/eq?~}}
               {{!-- Enumerated fields are selected from a dropdown
                     based on database attributes. --}}
-              {{#eq? this.type "enum"}}
+              {{~#eq? this.type "enum"~}}
                 <select name="{{@key}}">
                   <option disabled selected value=""> Select a {{@key}}: </option>
                   {{#each this.select}}
                     <option value="{{this}}">{{this}}</option>
                   {{/each}}
                 </select>
-              {{/eq?}}
+              {{~/eq?~}}
               {{!-- Referenced fields are selected from a dropdown
                     based on associated database GET calls. --}}
-              {{#eq? this.type "reference"}}
+              {{~#eq? this.type "reference"~}}
                 <select name="{{@key}}">
                   <option disabled selected value=""> Select a {{@key}}: </option>
                   {{#each this.select}}
-                    <option value="{{this}}">{{this}}</option>
+                    <option value="{{this.value}}">{{this.text}}</option>
                   {{/each}}
                 </select>
-              {{/eq?}}
+              {{~/eq?~}}
               {{!-- Each column contains an error field, where
                     corresponding errors will be propagated. --}}
               <ul class="error"></ul>
             </td>
-          {{/each}}
+          {{~/each~}}
         </tr>
-        {{/unless}}
+        {{~/unless~}}
 
         {{!-- Remaining rows lists existing items, sorted by
               status: new, used, inactive. --}}
-        {{#each @list}}
-          <tr class="{{this.state}}{{#if this.clickId}} id-{{this.clickId}}{{/if}}">
-            <td class="action-col {{this.state}}">
-              {{#if @expand}}
-                <img class="expand" src="/images/expand.png">
-              {{/if}}
-              {{#if @stock}}
-                {{#neq? this.state 'eternal'}}
-                <img class="stock" src="/images/stock.png">
-                {{else}}
-                <img class="none" src="/images/none.png">
-                {{/neq?}}
-              {{/if}}
-              {{#if @printQr}}
-                <a href="/{{@modelName}}/labels/{{this.clickId}}">
-                  <img class="print-qr" src="/images/print.png">
-                </a>
-              {{/if}}
-              {{#if-role @role "in" 'a'}}
-                {{#eq? this.state 'new'}}
-                  <img class="action-icon" src="/images/remove.png">
-                {{/eq?}}
-                {{#eq? this.state 'used'}}
-                  <img class="action-icon" src="/images/hide.png">
-                {{/eq?}}
-                {{#eq? this.state 'hidden'}}
-                  <img class="action-icon" src="/images/restore.png">
-                {{/eq?}}
-                {{#eq? this.state 'eternal'}}
-                  <img class="none" src="/images/none.png">
-                {{/eq?}}
+        {{~#each @list}}
+        <tr class="{{this.state}}{{#if this.clickId}} id-{{this.clickId}}{{/if}}">
+          <td class="action-col {{this.state}}">
+            {{~#if @expand}}
+            <img class="expand" src="/images/expand.png">
+            <div class="explain">Show details.</div>
+            {{/if}}
+            {{~#if @stock}}
+              {{#neq? this.state 'eternal'}}
+              <img class="stock" src="/images/stock.png">
+              <div class="explain">Mark order as received.</div>
               {{else}}
+              <img class="none" src="/images/none.png">
+              {{/neq?}}
+            {{/if}}
+            {{#if @printQr}}
+              <a href="/{{@modelName}}/labels/{{this.clickId}}">
+                <img class="print-qr" src="/images/print.png">
+                <div class="explain">Download QR template.</div>
+              </a>
+            {{/if}}
+            {{~#if-role @role "in" 'A'}}
+              {{~#eq? this.state 'new'~}}
+                <img class="action-icon" src="/images/remove.png">
+                <div class="explain">Permanently delete record.</div>
+              {{~/eq?~}}
+              {{~#eq? this.state 'used'~}}
+                <img class="action-icon" src="/images/hide.png">
+                <div class="explain">Deactivate record.</div>
+              {{~/eq?~}}
+              {{~#eq? this.state 'hidden'~}}
+                <img class="action-icon" src="/images/restore.png">
+                <div class="explain">Restore deactivated record.</div>
+              {{~/eq?~}}
+              {{~#eq? this.state 'eternal'~}}
                 <img class="none" src="/images/none.png">
-              {{/if-role}}
-            </td>
-            <td class="color-coded {{this.state}}"></td>
-            {{#each this}}
-              {{#neq? @key 'state'}}{{#neq? @key 'clickId'}}
-                <td class="{{@key}}">
-                  {{this}}
-                  <ul class="error"></ul>
-                </td>
-              {{/neq?}}{{/neq?}}
-            {{/each}}
-          </tr>
-          <tr class="details-row{{#if this.clickId}} id-{{this.clickId}}{{/if}}">
-            <td colspan="{{@columns}}"></td>
-          </tr>
+              {{~/eq?~}}
+            {{~else~}}
+              <img class="none" src="/images/none.png">
+            {{/if-role~}}
+          </td>
+          <td class="color-coded {{this.state}}"></td>
+          {{~#each this}}{{#neq? @key 'state'}}{{#neq? @key 'clickId'}}
+          <td class="{{@key}}">
+            {{~#eq? @key 'notes'~}}
+              {{#neq? this ''}}
+              <img class="notes-icon" src="/images/notes.png">
+              <div class="show-notes">{{this}}
+                <button type="button" class="notes-close-btn">Close</button>
+              </div>
+              {{/neq?}}
+            {{~else~}}
+              {{this}}
+            {{~/eq?~}}
+          </td>
+          {{~/neq?}}{{/neq?}}{{/each}}
+        </tr>
+        <tr class="details-row{{#if this.clickId}} id-{{this.clickId}}{{/if}}">
+          <td colspan="{{@columns}}"></td>
+        </tr>
         {{/each}}
       </tbody>
       <tfoot>

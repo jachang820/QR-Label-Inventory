@@ -1,15 +1,18 @@
-const { body, validationResult } = require('express-validator/check');
-const { sanitizeBody } = require('express-validator/filter');
+const { param, validationResult } = require('express-validator/check');
+const { sanitizeParam } = require('express-validator/filter');
 const express = require('express');
 const Labels = require('../services/label');
 
 /* Updates account status. */
 module.exports = [
 
+  /* Validate Id. */
+  param("id").trim()
+    .isInt({ min: 1 }).withMessage("Invalid id."),
+
   /* Trim trailing spaces and remove escape characters to prevent
      SQL injections. */
-  sanitizeBody("prefix").trim().stripLow(),
-  sanitizeBody("style").trim().escape().stripLow(),
+  sanitizeParam("id").trim().stripLow(),
 
   /* Handle errors. */
   (req, res, next) => {
@@ -25,18 +28,11 @@ module.exports = [
   async (req, res, next) => {
     const labels = new Labels();
     try {
-      await labels.changeState(
-        req.body.prefix,
-        req.body.style
-      );
+      await labels.changeState(req.params.id);
       return res.json();
 
     } catch (err) {
-      if (err.name === 'ValidationError') {
-        return res.json({ errors: err.errors });
-      } else {
-        return res.json({ errors: 'unknown'});
-      }
+      return res.json({ errors: err.errors || 'unknown' });
     }
   }
 

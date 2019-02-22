@@ -21,6 +21,6 @@ router.post('/', stylesPost('size'));
 
 /* Change active status of size. If size has no items,
    then delete size. */
-router.put('/', stylesPut('size'));
+router.put('/:id', stylesPut('size'));
 
 module.exports = router;

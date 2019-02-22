@@ -25,12 +25,7 @@ module.exports = [
       return res.json();
 
     } catch (err) {
-      console.log(err);
-      if (err.name === 'ValidationError') {
-        return res.json({ errors: err.errors });
-      } else {
-        return res.json({ errors: 'unknown'});
-      }
+      return res.json({ errors: err.errors || 'unknown' });
     }
   }
 ];

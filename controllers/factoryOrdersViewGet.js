@@ -39,7 +39,7 @@ module.exports = [
     res.locals.expand = true;
     res.locals.stock = true;
     res.locals.columns = 9;
-  	
+    
     res.locals.list = await orders.getListView(
       res.locals.page,
       res.locals.sort,
@@ -47,7 +47,9 @@ module.exports = [
     );
     if (res.locals.list.length < 21) res.locals.last = true;
     else res.locals.list.pop();
+
     res.locals.types = await orders.getSchema();
+
     return res.render('listView');
   }
 ];

@@ -37,16 +37,18 @@ module.exports = [
     res.locals.modelName = 'customer_orders/view';
     res.locals.expand = true;
     res.locals.columns = 7;
-  	
+    
     res.locals.list = await orders.getListView(
       res.locals.page,
       res.locals.sort,
       res.locals.desc
     );
-    console.log(res.locals);
+    
     if (res.locals.list.length < 21) res.locals.last = true;
     else res.locals.list.pop();
+
     res.locals.types = await orders.getSchema();
+
     return res.render('listView');
   }
 ];

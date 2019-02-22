@@ -7,7 +7,7 @@ class InnerCartonRepo extends BaseRepo {
     super(InnerCarton);
 
     exclude.push('innerCarton');
-    console.log('INNER: ' + exclude);
+    
     this.assoc = {};
     if (!exclude.includes('sku')) {
       const SkuRepo = require('./sku');
@@ -63,21 +63,36 @@ class InnerCartonRepo extends BaseRepo {
     }, transaction);
   }
 
-  async use(by, transaction) {
+  async stock(id, transaction) {
     return this.transaction(async (t) => {
-      let inner = await this._use({ where: by }, true);
-      let items = await this.assoc.item.order({
-        innerId: inner[0].id
-      }, t);
+      return this.assoc.item.stock(id, t);
+    });
+  }
+
+  async use(id, transaction) {
+    return this.transaction(async (t) => {
+      let inner = await this._use({ 
+        where: { masterId: id }
+      }, true);
+      for (let i = 0; i < inner.length; i++) {
+        const items = await this.assoc.item.order(
+          inner[i].id, t);
+        inner[i].push(items);
+      }
+      return inner;
     }, transaction);
   }
 
-  async hide(by, transaction) {
+  async hide(id, transaction) {
     return this.transaction(async (t) => {
-      let inner = await this._delete({ where: by }, false);
-      let items = await this.assoc.item.cancel({
-        innerId: inner.id
-      }, t);
+      let inner = await this._delete({ 
+        where: { masterId: id } 
+      }, false);
+      for (let i = 0; i < inner.length; i++) {
+        const items = await this.assoc.item.cancel(
+          inner[i].id, t);
+        inner[i].push(items);
+      }
       return inner;
     }, transaction);
   }

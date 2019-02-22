@@ -57,11 +57,7 @@ module.exports = [
       return res.json({ added: label });
 
     } catch (err) {
-      if (err.name === 'ValidationError') {
-        return res.json({ errors: err.errors });
-      } else {
-        return res.json({ errors: 'unknown'});
-      }
+      return res.json({ errors: err.errors || 'unknown' });
     }
   }
 ];

@@ -11,19 +11,25 @@ module.exports = (sequelize, DataTypes) => {
     serial: {
       type: DataTypes.STRING,
       unique: false,
-      allowNull: true
+      allowNull: true,
+      validate: {
+        len: {
+          args: [1, 7],
+          msg: "SKU ID must be between 1-7 characters."
+        }
+      }
     },
     status: {
       type: DataTypes.ENUM,
-      values: ['ordered', 'in stock', 'shipped', 'cancelled'],
-      defaultValue: 'ordered',
+      values: ['Ordered', 'In Stock', 'Shipped', 'Cancelled'],
+      defaultValue: 'Ordered',
       allowNull: false,
       validate: {
         notEmpty: {
           msg: "Status must exist."
         },
         isIn: {
-          args: [['ordered', 'in stock', 'shipped', 'cancelled']],
+          args: [['Ordered', 'In Stock', 'Shipped', 'Cancelled']],
           msg: "Status is invalid."
         }
       }

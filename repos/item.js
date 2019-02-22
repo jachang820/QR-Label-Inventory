@@ -7,7 +7,7 @@ class ItemRepo extends BaseRepo {
     super(db.Item);
 
     exclude.push('item');
-    console.log('ITEM: ' + exclude);
+
     this.assoc = {};
     if (!exclude.includes('sku')) {
       const SkuRepo = require('./sku');
@@ -17,35 +17,67 @@ class ItemRepo extends BaseRepo {
       const InnerCartonRepo = require('./innerCarton');
       this.assoc.innerCarton = new InnerCartonRepo(exclude);
     }
+    if (!exclude.includes('label')) {
+      const LabelRepo = require('./label');
+      this.assoc.label = new LabelRepo(exclude);
+    }
 
     this.defaultOrder = [
       ['hidden', 'DESC NULLS FIRST'],
       ['status', 'ASC'],
-      ['customerOrderId', 'DESC']
+      ['customerOrderId', 'DESC'],
+      ['id', 'DESC']
     ];
   }
 
   async list(by, page = 1, order, desc) {
-    const offset = (page - 1) * 50;
+    let where = '';
+    if (typeof by === 'object' && by !== null) {
+      where = 'WHERE ' + Object.entries(by)
+      .map(e => `"Item"."${e[0]}" = '${e[1]}'`)
+      .join(' AND ');
+    } else if (typeof by === 'string') {
+      where = 'WHERE ' + by;
+    }
+
+    let offset = '';
+    if (page > 0) {
+      offset = `LIMIT 51 OFFSET ${(page - 1) * 50}`;
+    }
+
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
+    order = order.map(e => `"Item"."${e[0]}" ${e[1]}`);
+    order = order.join(', ');
+
     const query = `
       SELECT
-        serial, status, created, 
-        "CustomerOrder".serial AS "CustomerSerial"
+        "Item".id AS "clickId", 
+        "Item".serial, 
+        "Item".status, 
+        UPPER("Item".sku) AS sku, 
+        COALESCE("InnerCarton".serial, '') AS "innerId", 
+        COALESCE("MasterCarton".serial, '') AS "masterId",
+        COALESCE("FactoryOrder".serial, '') AS "factoryId",
+        "Item".created,
+        "FactoryOrder".arrival,
+        COALESCE("CustomerOrder".serial, '') AS "customerId",
+        "CustomerOrder".shipped
       FROM "Item"
-        LEFT JOIN "CustomerOrder" ON "customerOrderId" = "CustomerOrder".id
-      LIMIT 50 OFFSET ${offset}
-    `
-    const direction = desc ? 'DESC' : 'ASC';
+        LEFT JOIN "CustomerOrder" ON "Item"."customerOrderId" = "CustomerOrder".id
+        LEFT JOIN "InnerCarton" ON "Item"."innerId" = "InnerCarton".id
+        LEFT JOIN "MasterCarton" ON "Item"."masterId" = "MasterCarton".id
+        LEFT JOIN "FactoryOrder" ON "Item"."factoryOrderId" = "FactoryOrder".id
+      ${where}
+      ORDER BY ${order}
+      ${offset}
+    `.replace(/\s+/g, ' ').trim();
 
-    if (!by) by = {};
-    order = order ? [[order, direction]] : this.defaultOrder;
-    return this._list({
-      where: by,
-      order,
-      attributes: { exclude: ['id'] },
-      limit: 50,
-      offset: (page - 1) * 50 
-    }); 
+    const items = await db.sequelize.query(query);
+    this.cache.list = items;
+
+    if (!items[0]) return [];
+    return items[0]; 
   }
 
   async expandData(customerOrderId) {
@@ -53,12 +85,12 @@ class ItemRepo extends BaseRepo {
       where: { customerOrderId: customerOrderId },
       order: [['serial', 'ASC']],
       attributes: [
-        'serial', 
+        ['serial', 'unit'], 
         'status', 
-        [db.sequelize.literal(`UPPER(sku)`), 'sku'], 
+        [db.sequelize.literal(`UPPER(sku)`), 'SKU'], 
         'created', 
         [db.sequelize.literal(`COALESCE("FactoryOrder".serial, '')`), 
-          'factoryOrderId']
+          'Factory Order']
       ],
       include: [{
         model: db.FactoryOrder,
@@ -68,12 +100,30 @@ class ItemRepo extends BaseRepo {
     }); 
   }
 
-  async get(serial) {
-    // Not sure how to implement this yet.
+  async getStock(id) {
+    const Op = db.Sequelize.Op;
+    const tables = ['Item', 'InnerCarton', 'MasterCarton'];
+    const by = tables.map(e => `"${e}".serial = '${id}'`).join(` OR `);
+    
+    let items = await this.list(by, 0, 'id', 'true');
+
+    if (items.length === 0) {
+      ItemRepo._handleErrors(new Error("Item not found."), 'serial');
+
+    } else if (items.filter(e => e.status !== 'in stock').length > 0) {
+      ItemRepo._handleErrors(new Error("Item is not in stock."), 'serial');
+    }
+
+    for (let i = 0; i < items.length; i++) {
+      delete items[i].status;
+      delete items[i].factorySerial;
+      delete items[i].customerSerial;
+    }
+    return items;
   }
 
   /* Cartons is a list in the format
-     [...{carton: {sku, innerId, masterId, factoryOrderId}, quantity}] */
+     [...{carton: {serial, sku, innerId, masterId, factoryOrderId}, quantity}] */
   async create(cartons, transaction) {
     return this.transaction(async (t) => {
       let itemList = [];
@@ -87,46 +137,87 @@ class ItemRepo extends BaseRepo {
     }, transaction);
   }
 
-  async order(by, transaction) {
+  async order(innerId, transaction) {
     return this.transaction(async (t) => {
-      return this._update({ status: 'ordered' },
-                          { paranoid: false, 
-                            where: by }
+      return this._update(
+        { status: 'ordered' },
+        { paranoid: false, 
+          where: { innerId } 
+        }
       );
     }, transaction);
   }
 
-  async stock(by, transaction) {
+  /* 'id' can be factoryOrderId or customerOrderId. */
+  async stock(id, transaction) {
+    const Op = db.Sequelize.Op;
     return this.transaction(async (t) => {
-      return this._update({ status: 'in stock' },
-                          { paranoid: false, 
-                            where: by }
+      return this._update(
+        { status: 'in stock' },
+        { paranoid: false, 
+          where: {
+            [Op.or]: [
+              { factoryOrderId: id },
+              { customerOrderId: id }
+            ] 
+          } 
+        }
       );
     }, transaction);
   }
 
-  async ship(by, orderId, transaction) {
+  async ship(customerOrderId, itemId, transaction) {
     return this.transaction(async (t) => {
-      return this._update({
+      let item = await this._update({
         status: 'shipped',
-        customerOrderId: orderId
-      }, { 
-        paranoid: false, 
-        where: by
+        customerOrderId
+      }, {  
+        where: { id: itemId },
+        paranoid: false
       });
+      return item[0].get({ plain: true });
     }, transaction);
   }
 
-  async cancel(by, transaction) {
+  async reship(customerOrderId, transaction) {
     return this.transaction(async (t) => {
-      return this._update({ status: 'cancelled' },
-                          { paranoid: false, 
-                            where: by }
-      );
+      let items = await this._update({
+        status: 'shipped'
+      }, {
+        where: { customerOrderId },
+        paranoid: false
+      });
+      return items.map(e => e.get({ plain: true }));
     }, transaction);
   }
 
-  describe() { return this._describe(['id']); }
+  async cancel(innerId, transaction) {
+    return this.transaction(async (t) => {
+      let items = this._update(
+        { status: 'cancelled' },
+        { paranoid: false, 
+          where: { innerId } 
+        }
+      );
+      return items.map(e => e.get({ plain: true }));
+    }, transaction);
+  }
+
+  describe() { 
+    let columns = this._describe(['id']);
+    return {
+      serial: columns.serial,
+      status: columns.status,
+      sku: columns.sku,
+      innerId: columns.innerId,
+      masterId: columns.masterId,
+      factoryOrderId: columns.factoryOrderId,
+      created: columns.created,
+      arrival: { type: 'dateonly', optional: true },
+      customerOrderId: columns.customerOrderId,
+      shipped: { type: 'dateonly', optional: true }
+    };
+  }
 
 };
 

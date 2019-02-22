@@ -12,10 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         len: {
           args: [4, 32],
-          msg: "SKU ID is either too short or too long."
-        },
-        isLowercase: {
-          msg: "SKU ID must be in lower case."
+          msg: "SKU ID must be between 4-32 characters."
         }
       }
     },
@@ -53,8 +50,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Sku.associate = models => {
-    Sku.belongsTo(models.Size, { foreignKey: 'size' });
-    Sku.belongsTo(models.Color, { foreignKey: 'color' });
+    Sku.belongsTo(models.Size, { foreignKey: 'sizeId' });
+    Sku.belongsTo(models.Color, { foreignKey: 'colorId' });
   };
 
   return Sku;

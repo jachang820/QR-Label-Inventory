@@ -11,19 +11,25 @@ module.exports = (sequelize, DataTypes) => {
     serial: {
       type: DataTypes.STRING,
       unique: true,
-      allowNull: true
+      allowNull: true,
+      validate: {
+        notContains: {
+          args: ' ',
+          msg: "Serial cannot contain whitespace."
+        }
+      }
     },
     type: {
       type: DataTypes.ENUM,
-      values: ['retail', 'wholesale'],
-      defaultValue: 'retail',
+      values: ['Retail', 'Wholesale'],
+      defaultValue: 'Retail',
       allowNull: false,
       validate: {
         notEmpty: {
           msg: "Order type must exist."
         },
         isIn: {
-          args: [['retail', 'wholesale']],
+          args: [['Retail', 'Wholesale']],
           msg: "Order type is invalid."
         }
       }

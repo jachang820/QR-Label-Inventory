@@ -1,14 +1,15 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   var Color = sequelize.define('Color', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     name: {
       type: DataTypes.STRING,
-      primaryKey: true,
-      validate: { 
-        isLowercase: {
-          msg: "Color name must be in lower case."
-        }
-      }
+      allowNull: false,
+      unique: true
     },
     abbrev: {
       type: DataTypes.STRING,
@@ -17,9 +18,6 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isAlpha: {
           msg: "Abbreviation must be alphabetical."
-        },
-        isLowercase: {
-          msg: "Abbreviation must be in lower case."
         },
         len: {
           args: [1, 7],
@@ -48,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Color.associate = models => {
-    Color.hasMany(models.Sku, { foreignKey: 'color' });
+    Color.hasMany(models.Sku, { foreignKey: 'colorId' });
   };
 
   return Color;

@@ -21,6 +21,6 @@ router.post('/', stylesPost('color'));
 
 /* Change active status of color. If color has no items,
    then delete color. */
-router.put('/', stylesPut('color'));
+router.put('/:id', stylesPut('color'));
 
 module.exports = router;

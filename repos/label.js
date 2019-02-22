@@ -8,9 +8,7 @@ class LabelRepo extends BaseRepo {
 
     this.defaultOrder = [
       ['hidden', 'DESC NULLS FIRST'],
-      ['updated', 'DESC'],
-      ['prefix', 'ASC'],
-      ['style', 'ASC']
+      ['updated', 'DESC']
     ];
   }
 
@@ -18,7 +16,7 @@ class LabelRepo extends BaseRepo {
     const direction = desc ? 'DESC' : 'ASC';
     order = order ? [[order, direction]] : this.defaultOrder;
     return this._list({
-      attributes: { exclude: ['id'] },
+      attributes: [['id', 'clickId'], 'prefix', 'style', 'created', 'hidden'],
       order,
       offset: (page - 1) * 20,
       paranoid: false
@@ -29,18 +27,15 @@ class LabelRepo extends BaseRepo {
     const direction = desc ? 'DESC' : 'ASC';
     order = order ? [[order, direction]] : this.defaultOrder;
     return this._list({
-      attributes: { exclude: ['id'] },
+      attributes: [['id', 'clickId'], 'prefix', 'style', 'created', 'hidden'],
       order,
       offset: (page - 1) * 20
     });
   }
 
-  async get(prefix, style) {
+  async get(id) {
     return this._get({
-      where: { 
-        prefix: prefix,
-        style: style
-      },
+      where: { id },
       attributes: { exclude: ['id'] },
       paranoid: false
     });
@@ -60,22 +55,12 @@ class LabelRepo extends BaseRepo {
     return label;
   }
 
-  async use(prefix, style) {
-    return this._use({
-      where: {
-        prefix: prefix,
-        style: style
-      }
-    }, true);
+  async use(id) {
+    return this._use({ where: { id } }, true);
   }
 
-  async hide(prefix, style) {
-    return this._delete({
-      where: {
-        prefix: prefix,
-        style: style
-      }
-    }, false);
+  async hide(id) {
+    return this._delete({ where: { id } }, false);
   }
 
   describe() { return this._describe(['id']); }

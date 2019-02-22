@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-//const ordersGet = require('../controllers/customerOrdersGet');
+const ordersGet = require('../controllers/customerOrdersGet');
+const ordersIdGet = require('../controllers/customerOrdersIdGet');
 const ordersViewGet = require('../controllers/customerOrdersViewGet');
 const ordersViewPut = require('../controllers/customerOrdersViewPut');
 const ordersDetailsGet = require('../controllers/customerOrdersViewDetailsGet');
-//const ordersPost = require('../controllers/customerOrdersPost');
+const ordersPost = require('../controllers/customerOrdersPost');
 
 router.all('*', (req, res, next) => {
   res.locals.css = ['listView.css'];
@@ -14,13 +15,15 @@ router.all('*', (req, res, next) => {
   return next();
 });
 
-//router.get('/', ordersGet);
+router.get('/', ordersGet);
 
 router.get('/view', ordersViewGet);
 
+router.get('/:id', ordersIdGet);
+
 router.put('/view/:id', ordersViewPut);
 
-//router.post('/', ordersPost);
+router.post('/', ordersPost);
 
 router.get('/view/details/:id', ordersDetailsGet);
 

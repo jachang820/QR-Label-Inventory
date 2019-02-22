@@ -14,20 +14,6 @@ describe('Color Model', () => {
 
   describe('#create()', () => {
 
-    it('should not allow capital letters in name', async () => {
-      mute();
-      let message;
-      try {
-        await db.Color.create({
-          name: "Platinum"
-        });
-      } catch (err) {
-        message = err.errors[0].message;
-      }
-      unmute();
-      expect(message).to.equal("Color name must be in lower case.");
-    });
-
     it('should return created in date only format', async () => {
       mute();
       let color = await db.Color.create({

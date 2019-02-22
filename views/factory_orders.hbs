@@ -14,11 +14,7 @@
     
     <div id="notes-box">
       <label for="notes">Notes: </label>
-      <input id="notes" type="text" name="notes">
-      <ul class="error"></ul>
-    </div>
-
-    <div id="items-box">
+      <textarea id="notes" name="notes" rows="3" cols="50" maxlength="128"></textarea>
       <ul class="error"></ul>
     </div>
 
@@ -31,13 +27,13 @@
             SKU 
             <img src="/images/none.png" class="none"></th>
           <th>
-            Master Ctn. Qty. 
+            Master Ctns. 
             <img src="/images/none.png" class="none"></th>
           <th>
-            Inner Ctn. Qty. 
+            Inner Ctns. 
             <img src="/images/none.png" class="none"></th>
           <th>
-            Item Qty. 
+            Count 
             <img src="/images/none.png" class="none"></th>
         </tr>
       </thead>
@@ -72,6 +68,10 @@
         </tr>
       </tfoot>
     </table>
+
+    <div id="items-box">
+      <ul class="error"></ul>
+    </div>
 
     <br>
     <input id="submit-order-btn" class="btn btn-success" type="submit" value="Submit Order">

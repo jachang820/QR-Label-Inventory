@@ -12,16 +12,16 @@ describe('Size Repo', () => {
     try {
       await db.Size.destroy({ where: {}, force: true });
       await db.Size.create({ 
-        name: 'junior',
+        name: 'Junior',
         innerSize: 12,
         masterSize: 4 
       });
       await db.Size.create({ 
-        name: 'original',
+        name: 'Original',
         innerSize: 12,
         masterSize: 4 
       });
-      await db.Size.destroy({ where: { name: 'junior' } });
+      await db.Size.destroy({ where: { name: 'Junior' } });
     } catch (err) {
       unmute();
       console.log(err);
@@ -30,19 +30,6 @@ describe('Size Repo', () => {
   });
 
   const sizes = new Size(db.Size);
-
-  describe('#create()', () => {
-    it('should not allow capital letters in name', async () => {
-      mute();
-      let message;
-      try {
-        await sizes.create('MEGA', 12, 2);
-      } catch (err) {
-        message = err.errors[0].msg;
-      }
-      unmute();
-      expect(message).to.equal("Size name must be in lower case.");
-    });
 
     it('should not have non-positive size', async () => {
       mute();
@@ -83,17 +70,17 @@ describe('Size Repo', () => {
     it('should add a new size', async () => {
       mute();
       let message;
-      await sizes.create('mega', 12, 2);
+      await sizes.create('Mega', 12, 2);
       let list = await sizes.list();
       list = list.map(e => e.name);
       unmute();
       expect(list).to.be.lengthOf(3);
-      expect(list).to.contain('mega');
+      expect(list).to.contain('Mega');
     });
 
     after(async () => {
       mute();
-      await sizes.delete('mega');
+      await sizes.delete('Mega');
       unmute();
     });
   });
@@ -101,10 +88,10 @@ describe('Size Repo', () => {
   describe('#renew()', () => {
     it('should make a hidden size active again', async () => {
       mute();
-      await sizes.renew('junior');
+      await sizes.renew('Junior');
       const list = await sizes.list();
       const listActive = await sizes.listActive();
-      const active = await sizes.active('junior');
+      const active = await sizes.active('Junior');
       unmute();
       expect(active).to.be.true;
       expect(list).to.be.lengthOf(2);

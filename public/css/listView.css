@@ -15,12 +15,13 @@ table th {
               -1px -1px 0px black,
               1px -1px 0px black,
               -1px 1px 0px black;
-  vertical-align: bottom;
+  vertical-align: top;
   padding: 5px;
-  padding-bottom: 1px;
+  padding-bottom: 3px;
   font-weight: lighter;
-  font-size: 1.5em;
+  font-size: 1.25em;
   color: white;
+  word-break: break-word;
 }
 
 table tr {
@@ -42,6 +43,7 @@ tfoot tr td {
   color: #fff;
   font-weight: bold;
   height: 30px;
+  word-break: break-all;
 }
 
 table td:nth-child(n + 3) {
@@ -56,16 +58,18 @@ table td:last-child {
 
 table,
 tfoot tr:last-child td:first-child {
-  border-width: 0px;
   border-bottom-left-radius: 10px;
   overflow: hidden;
 }
 
 table,
 tfoot tr:last-child td:last-child {
-  border-width: 0px;
   border-bottom-right-radius: 10px;
   overflow: hidden;
+}
+
+tfoot tr td:last-child {
+  border-width: 0px;
 }
 
 input[type=text], input[type=number], select {
@@ -88,7 +92,7 @@ input[type=number] {
 .add {
   border-width: 0px;
   vertical-align: top;
-  border-bottom: 1px dashed black;
+  border-bottom: 1px solid #999;
 }
 
 .action-col {
@@ -112,27 +116,37 @@ th.action-col, th.color-coded {
 
 .action-icon, .print-qr, 
 .expand, .stock, .none,
-.asc, .desc {
+.notes-icon {
   width: 1.2rem;
   height: 1.2rem;
   opacity: 0.6;
   cursor: pointer;
   margin: 3px 2px 0px 2px;
+  display: inline-block;
 }
 
 .none {
   cursor: default;
 }
 
+.asc, .desc, th .none {
+  width: 0.8rem;
+  height: 0.8rem;
+  opacity: 0.6;
+  cursor: pointer;
+  display: inline-block;
+}
+
 .action-icon:hover, .print-qr:hover,
 .expand:hover, .stock:hover,
-.asc:hover, .desc:hover {
+.asc:hover, .desc:hover, .notes-icon:hover {
   opacity: 1.0;
 }
 
 .action-icon:active, .print-qr:active,
 .expand:active, .stock:active,
-.asc:active, .desc:active {
+.asc:active, .desc:active, 
+.notes-icon:active, .notes-close-btn:active {
   transform: translate(2px, 2px);
 }
 
@@ -172,6 +186,35 @@ th.action-col, th.color-coded {
   padding: 0px;
   list-style-type: none;
   color: red;
+}
+
+.show-notes {
+  display: none;
+  position: fixed;
+  z-index: 200;
+  width: 20vw;
+  height: 25vh;
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: #e5e4da;
+  padding: 5vh;
+}
+
+.explain {
+  display: none;
+  position: absolute;
+  z-index: 200;
+  width: 15vw;
+  height: auto;
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: #e5e4da;
+  padding: 1vh;
+  color: black;
+  text-shadow: none;
+  font-size: 0.8rem;
+  font-weight: normal;
+  text-transform: none;
 }
 
 .hidden-name {
@@ -262,6 +305,23 @@ th.action-col, th.color-coded {
   text-decoration: underline dotted;
   color: white;
   cursor: pointer;
+  display: inline-block;
+}
+
+.notes-close-btn {
+  position: absolute;
+  right: 5vh;
+  bottom: 5vh;
+  width: 4em;
+  height: 2em;
+  z-index: 200;
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: #00A652;
+}
+
+.notes-close-btn:hover {
+  background-color: #0C7436;
 }
 
 #message-bar {
@@ -284,7 +344,7 @@ th.action-col, th.color-coded {
 
 #pages {
   float: right;
-  width: 150px;
+  width: 170px;
   height: 28px;
   background-color: #eee;
   margin: 0px;
@@ -312,4 +372,8 @@ th.action-col, th.color-coded {
 
 #prior-page, #after-page {
   text-decoration: none;
+}
+
+#notes-box {
+  margin-bottom: 5vh;
 }

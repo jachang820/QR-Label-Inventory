@@ -17,7 +17,6 @@ module.exports = (type) => {
     /* Validate new style name, ensure that they are not already
        in use. */
     body('name').trim()
-      .isLowercase().withMessage(`${cap_type} must be in lower case.`)
       .isLength({ min: 1 }).withMessage(`${cap_type} empty.`)
       .isLength({ max: 32 }).withMessage(`${cap_type} too long.`),
 
@@ -32,7 +31,6 @@ module.exports = (type) => {
       const max = (type === 'size') ? 2 : 7;
       return express.Router().use(body('abbrev').trim()
         .isAlpha().withMessage('Abbreviation must be alphabetical.')
-        .isLowercase().withMessage('Abbreviation must be in lower case.')
         .isLength({ min: 1 }).withMessage('Abbreviation too short.')
         .isLength({ max: max }).withMessage('Abbreviation too long.')
       )(req, res, next);
@@ -114,11 +112,7 @@ module.exports = (type) => {
         return res.json({ added: style });
       
       } catch (err) {
-        if (err.name === 'ValidationError') {
-          return res.json({ errors: err.errors });
-        } else {
-          return res.json({ errors: 'unknown'});
-        }
+        return res.json({ errors: err.errors || 'unknown' });
       } 
     }
 

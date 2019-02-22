@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const inventoryGet = require('../controllers/inventoryGet');
-//const inventoryViewPost = require('../controllers/inventoryViewPost');
+const inventoryNewItemGet = require('../controllers/inventoryNewItemGet');
+const inventoryPost = require('../controllers/inventoryPost');
 
 router.all('*', (req, res, next) => {
   res.locals.css = ['listView.css'];
@@ -13,7 +14,9 @@ router.all('*', (req, res, next) => {
 
 router.get('/', inventoryGet);
 
-//router.post('/manual', inventoryViewPost);
+router.get('/new_item', inventoryNewItemGet);
+
+router.post('/', inventoryPost);
 
 
 module.exports = router;

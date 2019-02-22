@@ -17,15 +17,15 @@ class ProfileRepo extends BaseRepo {
     order = order ? [[order, direction]] : this.defaultOrder;
     return this._list({ 
       order,
-      attributes: { exclude: ['id'] },
+      attributes: { include: [['id', 'clickId']], exclude: ['id'] },
       offset: (page - 1) * 20 
     });
   }
 
   async get(email) {
     return this._get({
-      where: { email: email },
-      attributes: { exclude: ['id'] }
+      where: { email },
+      attributes: { include: [['id', 'clickId']], exclude: ['id'] }
     });
   }
 
@@ -46,12 +46,12 @@ class ProfileRepo extends BaseRepo {
       lastName: last,
       email: new_email || email
     }, {
-      where: { email: email }
+      where: { email }
     });
   }
 
   async delete(email) {
-    let profile = await this._delete({ where: { email: email }}, true);
+    let profile = await this._delete({ where: { email }}, true);
     delete profile.id;
     return profile;
   }

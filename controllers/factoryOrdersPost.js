@@ -14,7 +14,6 @@ module.exports = [
   body('items.*.sku').trim()
     .exists().withMessage("Cannot find SKUs.")
     .isString().withMessage("SKU must be a string.")
-    .isLowercase().withMessage("SKUs must be in lower case.")
     .isLength({ min: 1, max: 16}).withMessage("SKU must be 1-16 characters."),
 
   /* Validate master. */
@@ -60,12 +59,7 @@ module.exports = [
         req.body.items 
       );
     } catch (err) {
-      console.log(err);
-      if (err.name === 'ValidationError') {
-        return res.json({ errors: err.errors });
-      } else {
-        return res.json({ errors: 'unknown'});
-      }
+      return res.json({ errors: err.errors || 'unknown' });
     }
     
     return res.json({ order });

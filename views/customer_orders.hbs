@@ -2,144 +2,90 @@
 
 <div class="container">
 
-  <h1>Customer Orders</h1>
+  <h1>{{@title}}</h1>
+  <p class="description">{{@description}}</p>
 
-  {{> error_msg }}
+  <div class="list-all">
 
-  <table>
-    <tr>
-      <th>ID</th>
-      <th>Serial #</th>
-      <th>Size</th>
-      <th>Notes</th>
-      <th>Action</th>
-    </tr>
+    <select name="type" id="select-type">
+      <option value="retail" selected>Retail</option>
+      <option value="wholesale">Wholesale</option>
+    </select>
 
-    {{#each orders}}
-      <tr>
-        <td>
-          <a href="/customer_orders/{{this.id}}">{{this.id}}</a>
-          </td>
-        <td>{{this.serial}}</td>
-        <td>{{this.size}}</td>
-        <td>{{this.notes}}</td>
-        <td>
-          <button class="btn btn-danger" onclick="deleteOrder('{{this.id}}')">Delete</button>
-        </td>
-      </tr>
-    {{/each}}
-
-  </table>
-
-  <div id="new-order">
-    <h2>New Order</h2>
-
-    <form action="/customer_orders" method="POST">
-      <select name="type">
-        <option value="Retail" selected>Retail</option>
-        <option value="Wholesale">Wholesale</option>
-      </select>
-
+    <div id="serial-box">
       <label for="serial">Serial #: </label>
       <input id="serial" type="text" name="serial">
-
+      <ul class="error"></ul>
+    </div>
+    
+    <div id="notes-box">
       <label for="notes">Notes: </label>
-      <input id="notes" type="text" name="notes">
+      <textarea id="notes" name="notes" rows="3" cols="50" maxlength="128"></textarea>
+      <ul class="error"></ul>
+    </div>
 
-      <table id="new-order-table">
-        <tbody>
-          <tr>
-            <th>Item</th>
-            <th>SKU</th>
-            <th>Action</th>
-          </tr>
+    <table id="list-table">
+      <thead id="list-head">
+        <tr>
+          <th class="action-col">Action</th>
+          <th class="color-coded"></th>
+          <th>
+            Serial 
+            <img src="/images/none.png" class="none"></th>
+          <th>
+            SKU 
+            <img src="/images/none.png" class="none"></th>
+          <th>
+            Created 
+            <img src="/images/none.png" class="none"></th>
+          <th>
+            Inner 
+            <img src="/images/none.png" class="none"></th>
+          <th>
+            Master
+            <img src="/images/none.png" class="none"></th>
+          <th>
+            Item Qty.
+            <img src="/images/none.png" class="none"></th>
+        </tr>
+      </thead>
+      <tbody id="list-body">
+        <tr>
+          <td class="action-col add">
+            <img class="action-icon" src="/images/new.png">
+          </td>
+          <td class="color-coded add"></td>
+          <td class="serial add">
+            <input type="text" name="serial">
+            <ul class="error"></ul>
+          </td>
+          <td class="sku add"></td>
+          <td class="created add"></td>
+          <td class="inner add"></td>
+          <td class="master add"></td>
+          <td class="quantity add"></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>TOTAL:</td>
+          <td colspan="6"></td>
+          <td id="total"></td>
+        </tr>
+      </tfoot>
+    </table>
 
-          <tr class="new-order-row">
-            <td>
-              <input id="qrcode0" type="text" name="items[0][qrcode]">
-            </td>
+    <div id="items-box" class="items">
+      <ul class="error"></ul>
+    </div>
 
-            <td>
-              <select id="sku0" name="items[0][sku]">
-                <option>Select a SKU:</option>
-                {{#each skus}}
-                  <option>{{this.id}}</option>
-                {{/each}}
-              </select>
-            </td>
-            <td></td>
-          </tr>
-        </tbody>
+    <br>
+    <input id="submit-order-btn" class="btn btn-success" type="submit" value="Submit Order">
 
-      </table>
-
-      <button class="btn btn-primary" onClick="addItem()" type="button">New Item</button>
-      <br>
-      <br>
-      <input class="btn btn-success" type="submit" value="Submit Order">
-    </form>
+    {{!-- Hidden element contains model name necessary for Javascript function. --}}
+    <div id="model-name" class="hidden-name">{{@modelName}}</div>
   </div>
 </div>
 
-<script>
-  let itemCount = 1;
-
-  function deleteOrder(id) {
-    let xhttp = new XMLHttpRequest();
-    xhttp.open("DELETE", "/api/customer_orders/" + id, true);
-    xhttp.onreadystatechange = function(event) {
-      if (xhttp.readyState === 4) {
-        if (xhttp.status === 200) {
-          location.reload();
-        } else {
-          error.innerHTML = "<ul><li>Error: " + xhttp.statusText + "</li></ul>";
-        }
-      }
-    };
-    xhttp.send();
-  }
-
-  function createDeleteButton() {
-    let deleteButton = document.createElement("button");
-    deleteButton.textContent = "Delete";
-    deleteButton.setAttribute("class", "btn btn-danger");
-    deleteButton.addEventListener("click", function() {
-      return deleteItem(this)
-    });
-    return deleteButton;
-  }
-
-  function addItem() {
-    let newRow = document.getElementsByClassName("new-order-row")[0].cloneNode(true);
-
-    let inputItem = newRow.querySelector("#qrcode0");
-    inputItem.name = "items[" + itemCount + "][qrcode]";
-    inputItem.id = "qrcode" + itemCount;
-    inputItem.value = "";
-
-    let selectSKU = newRow.querySelector("#sku0");
-    selectSKU.name = "items[" + itemCount + "][sku]";
-    selectSKU.id = "sku" + itemCount;
-
-    newRow.children[2].appendChild(createDeleteButton());
-
-    document.getElementById("new-order-table").children[0].appendChild(newRow);
-
-    itemCount++;
-  }
-
-  function deleteItem(deleteButton) {
-    let row = deleteButton.parentNode.parentNode;
-    let table = row.parentNode;
-
-    table.removeChild(row);
-    itemCount--;
-  }
-
-  document.addEventListener('keypress', function(event) {
-    if (event.keyCode == 13) {
-      event.preventDefault();
-      addItem();
-    }
-  });
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script src="/js/customerOrder.js"></script>

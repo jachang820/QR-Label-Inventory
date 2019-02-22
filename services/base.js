@@ -4,7 +4,7 @@ class BaseService {
     this.repo = new repo();
   }
 
-  async getListView(page = 1, order, desc) {
+  async _getListView(page = 1, order, desc) {
     let list = await this.repo.list(page, order, desc);
     if (list.length === 0) return [];
     list = BaseService._addListStatus(list);
@@ -12,25 +12,39 @@ class BaseService {
     return list;
   }
 
-  async getSchema() {
+  async _getSchema() {
     let schema = await this.repo.describe();
     schema = BaseService._prepareSchema(schema);
     return schema;
   }
 
-  async get(id) {
+  async _get(id) {
     let model = await this.repo.get(id);
     if (!model) return null;  
     model = BaseService._addListStatus(model);
     return model[0];
   }
 
-  async changeState(id) {
-    const model = await this.get(id);
+  async _changeState(id) {
+    const model = await this._get(id);
     if (model.state === 'new') await this.repo.delete(id);
     else if (model.state === 'used') await this.repo.hide(id);
     else if (model.state === 'hidden') await this.repo.use(id);
-    else throw new Error("State cannot be changed.");
+    else {
+      let err = new Error("State cannot be changed.");
+      err.errors = [{
+        msg: err.message,
+        param: null,
+        critical: true
+      }];
+      throw err;
+    }
+  }
+
+  async _add(attributes) {
+    let model = await this.repo.create(...attributes);
+    model = BaseService._addListStatus(model);
+    return model[0];
   }
 
   static _addListStatus(list) {
@@ -90,6 +104,12 @@ class BaseService {
     if ('updated' in schema) delete schema.updated;
     if ('used' in schema) delete schema.used;
     return schema;
+  }
+
+  static toTitleCase(str) {
+    return str.split(' ').map(e => {
+      return e.charAt(0).toUpperCase() + e.substring(1).toLowerCase();
+    }).join(' ');
   }
 
   static mapColumn(table, column) {

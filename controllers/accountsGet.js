@@ -9,10 +9,10 @@ module.exports = [
     .isInt({ min: 1 }).withMessage("Invalid page."),
 
   query('sort').optional().trim()
-  	.isAlpha().withMessage("Sort column must be alphabetical."),
+    .isAlpha().withMessage("Sort column must be alphabetical."),
 
   query('desc').optional().trim()
-  	.isBoolean().withMessage("Sort must be ascending or descending."),
+    .isBoolean().withMessage("Sort must be ascending or descending."),
 
   sanitizeQuery('page').trim().escape().stripLow().toInt(),
   sanitizeQuery('sort').trim().escape().stripLow(),
@@ -27,20 +27,22 @@ module.exports = [
     return next();
   },
 
-	async (req, res, next) => {
-	  const profiles = new Profiles();
-		res.locals.page = req.query.page || 1;
-		res.locals.sort = req.query.sort || null;
-		res.locals.desc = req.query.desc === "true";
+  async (req, res, next) => {
+    const profiles = new Profiles();
+    res.locals.page = req.query.page || 1;
+    res.locals.sort = req.query.sort || null;
+    res.locals.desc = req.query.desc === "true";
 
-	  res.locals.list = await profiles.getListView(
-	  	res.locals.page,
-	  	res.locals.sort,
-	  	res.locals.desc
-	  );
-	  if (res.locals.list.length < 21) res.locals.last = true;
-	  else res.locals.list.pop();
-	  res.locals.types = await profiles.getSchema();
-	  return res.render('listView');
-	}
+    res.locals.list = await profiles.getListView(
+      res.locals.page,
+      res.locals.sort,
+      res.locals.desc
+    );
+    if (res.locals.list.length < 21) res.locals.last = true;
+    else res.locals.list.pop();
+
+    res.locals.types = await profiles.getSchema();
+    
+    return res.render('listView');
+  }
 ];

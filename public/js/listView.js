@@ -91,7 +91,7 @@ window.addEventListener('load', function() {
         query.push('sort=' + instructions.sort);
       
       } else if (dirIcon) {
-        let th = dirIcon.parentNode.parentNode;
+        let th = dirIcon.parentNode;
         query.push('sort=' + th.className);
       }
 
@@ -254,7 +254,7 @@ window.addEventListener('load', function() {
         let tbody = document.createElement('tbody');
         for (let i = 0; i < data.length; i++) {
           tr = document.createElement('tr');
-          console.log(data[i]);
+
           for (let j = 0; j < titles.length; j++) {
             let td = document.createElement('td');
             let text = document.createTextNode(data[i][titles[j]]);
@@ -276,11 +276,13 @@ window.addEventListener('load', function() {
   const sortEvent = function(event) {
     const link = event.currentTarget;
     let sort = link.parentNode.className;
-    const dir = link.firstElementChild.className;
+    const dir = link.parentNode.lastElementChild.className;
+
     let desc;
     if (dir === 'none') desc = "false";
     else if (dir === 'asc') desc = "true";
     else if (dir === 'desc') desc = "default";
+    else return;
 
     let instructions = {};
     if (sort) instructions.sort = sort;
@@ -288,6 +290,42 @@ window.addEventListener('load', function() {
     const path = '/' + model + buildQueryString(instructions);
     return window.location.replace(path);
   };
+
+  const notesEvent = function(event) {
+    let notes = event.currentTarget.nextElementSibling;
+    notes.style.display = 'block';
+    return;
+  };
+
+  const notesCloseEvent = function(event) {
+    event.currentTarget.parentNode.style.display = 'none';
+    return;
+  }
+
+  const explainEvent = function(event) {
+    let explain = event.currentTarget.nextElementSibling;
+    if (explain.className === 'explain') {
+      explain.style.display = "block";
+      const source = event.currentTarget.getBoundingClientRect();
+      const sourceRight = Math.floor(source.right);
+      const sourceTop = Math.floor(source.top);
+      
+      const target = explain.getBoundingClientRect();
+      const targetHeight = Math.floor(target.top - target.bottom);
+
+      explain.style.left = (sourceRight - 5) + 'px';
+      explain.style.top = (sourceTop + targetHeight) + 'px';
+    }
+    return;
+  }
+
+  const explainCloseEvent = function(event) {
+    let explain = event.currentTarget.nextElementSibling;
+    if (explain.className === 'explain') {
+      explain.style.display = 'none';
+    }
+    return; 
+  }
 
   const showWaitMessage = function(event) {
     let bar = document.getElementById('message-bar');
@@ -297,12 +335,17 @@ window.addEventListener('load', function() {
     }, 6000);
   };
 
-  const addActions = function(actionClass, eventFun, startVal = 0) {
+  const addActions = function(actionClass, event, eventFun, startVal = 0) {
     let actions = document.getElementsByClassName(actionClass);
     for (let i = startVal; i < actions.length; i++) {
-      actions[i].addEventListener('click', eventFun);
+      actions[i].addEventListener(event, eventFun);
     }
   };
+
+  const addExplainers = function(actionClass) {
+    addActions(actionClass, 'mouseover', explainEvent);
+    addActions(actionClass, 'mouseout', explainCloseEvent);
+  }
 
   /* Register event to each row representing existing line items. */
   const tr = tbody.firstElementChild;
@@ -315,11 +358,18 @@ window.addEventListener('load', function() {
       newAction.addEventListener('click', createEvent);
       startVal = 1;
     }
-    addActions('action-icon', statusEvent, startVal);
-    addActions('print-qr', showWaitMessage);
-    addActions('expand', expandEvent);
-    addActions('stock', arrivalEvent);
-    addActions('sort-link', sortEvent);
+    addActions('action-icon', 'click', statusEvent, startVal);
+    addActions('print-qr', 'click', showWaitMessage);
+    addActions('expand', 'click', expandEvent);
+    addActions('stock', 'click', arrivalEvent);
+    addActions('sort-link', 'click', sortEvent);
+    addActions('notes-icon', 'click', notesEvent);
+    addActions('notes-close-btn', 'click', notesCloseEvent);
+    addExplainers('action-icon');
+    addExplainers('print-qr');
+    addExplainers('expand');
+    addExplainers('stock');
+    addExplainers('sort-link');
   }
 
   const priorUrl = '/' + model + buildQueryString({ page: "-" });

@@ -35,17 +35,20 @@ module.exports = [
 
     res.locals.listOnly = true;
     res.locals.modelName = 'inventory';
-    res.locals.columns = 10;
-  	
+    res.locals.columns = 12;
+    
     res.locals.list = await items.getListView(
       null,
       res.locals.page,
       res.locals.sort,
       res.locals.desc
     );
+    
     if (res.locals.list.length < 51) res.locals.last = true;
     else res.locals.list.pop();
+
     res.locals.types = await items.getSchema();
+
     return res.render('listView');
   }
 ];

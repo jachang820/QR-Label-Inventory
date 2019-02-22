@@ -1,0 +1,70 @@
+{{> nav }}
+
+<div class="container">
+
+  <h1>Add Individual Item</h1>
+  <p class="description">{{@description}}</p>
+
+  <div class="list-all">
+
+    <table id="list-table">
+      <thead id="list-head">
+        <tr>
+          <th class="action-col">Action</th>
+          <th class="color-coded"></th>
+          <th>
+            Serial 
+            <img src="/images/none.png" class="none"></th>
+          <th>
+            SKU 
+            <img src="/images/none.png" class="none"></th>
+          <th>
+            Item Qty.
+            <img src="/images/none.png" class="none"></th>
+        </tr>
+      </thead>
+      <tbody id="list-body">
+        <tr>
+          <td class="action-col add">
+            <img class="action-icon" src="/images/new.png">
+          </td>
+          <td class="color-coded add"></td>
+          <td class="serial add">
+            <input type="text" name="serial">
+            <ul class="error"></ul>
+          </td>
+          <td class="sku add">
+            <select name="sku">
+              <option disabled selected value="">Select a SKU:</option>
+              {{#each skus}}
+                <option value="{{this}}">{{this}}</option>
+              {{/each}}
+            </select>
+            <ul class="error"></ul>
+          </td>
+          <td class="quantity add"></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>TOTAL:</td>
+          <td colspan="3"></td>
+          <td id="total"></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div id="items-box" class="items">
+      <ul class="error"></ul>
+    </div>
+
+    <br>
+    <input id="submit-order-btn" class="btn btn-success" type="submit" value="Submit Order">
+
+    {{!-- Hidden element contains model name necessary for Javascript function. --}}
+    <div id="model-name" class="hidden-name">{{@modelName}}</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script src="/js/newItem.js"></script>

@@ -19,6 +19,7 @@ class ColorRepo extends BaseRepo {
     order = order ? [[order, direction]] : this.defaultOrder;
     return this._list({
       order,
+      attributes: { include: [['id', 'clickId']], exclude: ['id']},
       offset: (page - 1) * 20,
       paranoid: false 
     }); 
@@ -29,13 +30,14 @@ class ColorRepo extends BaseRepo {
     order = order ? [[order, direction]] : this.defaultOrder;
     return this._list({
       order,
+      attributes: { include: [['id', 'clickId']], exclude: ['id']},
       offset: (page - 1) * 20
     }); 
   }
 
-  async get(name) {
-    return this._get({
-      where: { name: name },
+  async get(id) {
+    return this._get({ 
+      where: { id }, 
       paranoid: false
     });
   }
@@ -47,27 +49,23 @@ class ColorRepo extends BaseRepo {
     }); 
   }
 
-  async renew(name) {
-    return this._use({
-      where: { name: name }
-    }, false);
+  async renew(id) {
+    return this._use({ where: { id } }, false);
   }
 
-  async use(name) {
-    return this._use({
-      where: { name: name }
-    }, true);
+  async use(id) {
+    return this._use({ where: { id } }, true);
   }
 
-  async hide(name) {
-    return this._delete({ where: { name: name }}, false);
+  async hide(id) {
+    return this._delete({ where: { id }}, false);
   }
 
-  async delete(name) {
-    return this._delete({ where: { name: name }}, true);
+  async delete(id) {
+    return this._delete({ where: { id }}, true);
   }
 
-  describe() { return this._describe(); }
+  describe() { return this._describe(['id']); }
 
 };
 

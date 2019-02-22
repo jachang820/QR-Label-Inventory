@@ -5,13 +5,26 @@ class BaseRepo {
 
   constructor(Model, key) {
     this.Model = Model;
+
+    /* Set primary key. */
     if (key) this.key = key;
+
+    /* Set transaction for multiple queries. */
     this.tx = null;
+
+    /* Cache recent queries. Useful in some cases. */
     this.cache = {};
+
+    /* Associated repos. */
     this.assoc = null;
   }
 
+  /* Sequelize options.
+     Set 'offset' to 0 to turn off limiting. */
   async _list(options = {}) {
+
+    /* Looks for an extra record past the limit to determine
+       last page. */
     if (options.offset > 0) {
       if (!options.limit) options.limit = 21;
       else options.limit += 1;
@@ -41,6 +54,8 @@ class BaseRepo {
 
   async _create(modelObj) {
     let model, err;
+
+    /* Use bulkCreate if an array of objects passed in. */
     if (Array.isArray(modelObj)) {
      [err, model] = await to(this.Model.bulkCreate(modelObj, {
       validate: true,
@@ -145,7 +160,8 @@ class BaseRepo {
         return key;
       }
     }
-    BaseRepo._handleErrors(new Error("No primary key?!"));
+    BaseRepo._handleErrors(new Error("No primary key?!"),
+      null, true);
   }
 
   transaction(fun, transaction) {
@@ -159,7 +175,7 @@ class BaseRepo {
     }
   }
 
-  static _handleErrors(err) {
+  static _handleErrors(err, param, critical = false) {
     let newErr = new Error();
     newErr.name = 'ValidationError';
     newErr.status = 500;
@@ -195,8 +211,14 @@ class BaseRepo {
         break;
 
       default:
-        newErr.errors = 'unknown';
-        if (err.message) newErr.message = err.message;
+        if (critical) {
+          newErr.errors = 'unknown';
+        } else {
+          newErr.errors.push({
+            msg: err.message,
+            param
+          });
+        }
     }
     console.log(newErr);
     throw newErr;

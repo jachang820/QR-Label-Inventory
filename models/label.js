@@ -9,15 +9,9 @@ module.exports = (sequelize, DataTypes) => {
 
   var Label = sequelize.define('Label', {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-      validate: {
-        isUUID: {
-          args: [4],
-          msg: "ID is invalid. Must be UUID format."
-        }
-      }
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
     },
     prefix: {
       type: DataTypes.STRING,
@@ -36,12 +30,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     style: {
       type: DataTypes.ENUM,
-      values: ['querystring', 'path'],
+      values: ['Querystring', 'Path'],
       allowNull: false,
       unique: 'unique_path',
       validate: {
         isIn: {
-          args: [['querystring', 'path']],
+          args: [['Querystring', 'Path']],
           msg: "Style is invalid."
         }
       }

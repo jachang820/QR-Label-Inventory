@@ -6,7 +6,6 @@ const Sizes = require('../services/size');
 /* Get the necessary information to populate form. */
 module.exports = (type) => {
 
-  const types = `${type}s`;
   const styles = (type === 'color') ? new Colors() : new Sizes();
 
   return [
@@ -34,7 +33,7 @@ module.exports = (type) => {
     },
 
     async (req, res, next) => {
-  		res.locals.page = req.query.page || 1;
+      res.locals.page = req.query.page || 1;
       res.locals.sort = req.query.sort || null;
       res.locals.desc = req.query.desc === "true";
 
@@ -44,8 +43,10 @@ module.exports = (type) => {
         res.locals.desc
       );
       if (res.locals.list.length < 21) res.locals.last = true;
-    	else res.locals.list.pop();
+      else res.locals.list.pop();
+
       res.locals.types = await styles.getSchema();
+
       return res.render('listView');
     }
   ];

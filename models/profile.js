@@ -2,15 +2,9 @@
 module.exports = (sequelize, DataTypes) => {
   var Profile = sequelize.define('Profile', {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
       primaryKey: true,
-      validate: {
-        isUUID: {
-          args: [4],
-          msg: "ID is invalid. Must be UUID format."
-        }
-      }
+      autoIncrement: true
     },
     firstName: {
       type: DataTypes.STRING,
@@ -61,14 +55,14 @@ module.exports = (sequelize, DataTypes) => {
     },
     role: {
       type: DataTypes.ENUM,
-      values: ['administrator', 'shipper', 'factory', 'partner'],
+      values: ['Administrator', 'Shipper', 'Factory', 'Partner'],
       allowNull: false,
       validate: {
         notEmpty: {
           msg: "Role must be assigned."
         },
         isIn: {
-          args: [['administrator', 'shipper', 'factory', 'partner']],
+          args: [['Administrator', 'Shipper', 'Factory', 'Partner']],
           msg: "Role is invalid."
         }
       }

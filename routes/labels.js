@@ -20,6 +20,6 @@ router.get('/', labelsGet);
 router.post('/', labelsPost);
 
 /* Hide unused label URLs. */
-router.put('/', labelsPut);
+router.put('/:id', labelsPut);
 
 module.exports = router;

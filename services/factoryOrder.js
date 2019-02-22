@@ -12,23 +12,28 @@ class FactoryOrders extends BaseService {
   async getListView(page = 1, order, desc) {
     let list = await this.repo.list(page, order, desc);
     if (list.length === 0) return [];
-    for (let i = 0; i < list.length; i++) {
-      if (list[i].arrival) list[i].state = 'eternal';
-      else if (list[i].hidden) list[i].state = 'hidden';
-      else list[i].state = 'used';
-      delete list[i].hidden;
-    }
+    list = FactoryOrders._addListStatus(list);
     list = FactoryOrders._convertDate(list);
     return list;
+  }
+
+  async getSchema() {
+    let schema = await this._getSchema();
+    schema.serial.alias = "Order";
+    schema.ordered.alias = "Created";
+    schema.masterCartons.alias = "Master Ctns.";
+    schema.innerCartons.alias = "Inner Ctns.";
+    schema.serial.explanation = "Factory order serial number.";
+    schema.arrival.explanation = "Date order was received by warehouse.";
+    schema.ordered.explanation = "Date order was created.";
+    return schema;
   }
 
   async get(id) {
     let model = await this.repo.get(id);
     if (!model) return null;
-    if (model.arrival) model.state = 'eternal';
-    else if (model.hidden) model.state = 'hidden';
-    else model.state = 'used';
-    return model;
+    model = FactoryOrders._addListStatus(model);
+    return model[0];
   }
 
   async add(serial, notes, order) {
@@ -41,6 +46,19 @@ class FactoryOrders extends BaseService {
 
   async stock(id) {
     return this.repo.stock(id);
+  }
+
+  static _addListStatus(list) {
+    if (!Array.isArray(list)) {
+      list = [list];
+    }
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].arrival) list[i].state = 'eternal';
+      else if (list[i].hidden) list[i].state = 'hidden';
+      else list[i].state = 'used';
+      delete list[i].hidden;
+    }
+    return list;
   }
 
   print(pdfDoc, callback) {

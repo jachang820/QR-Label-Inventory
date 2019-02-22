@@ -1,5 +1,5 @@
 const BaseRepo = require('./base');
-const { Sku, Size, Sequelize } = require('../models');
+const { Sku, Color, Size, Sequelize } = require('../models');
 
 class SkuRepo extends BaseRepo {
 
@@ -20,13 +20,14 @@ class SkuRepo extends BaseRepo {
     this.defaultOrder = [
       ['hidden', 'DESC NULLS FIRST'],
       ['used', 'ASC'],
-      ['size', 'ASC'],
-      ['color', 'ASC']
+      ['id', 'ASC'],
     ];
   }
 
   async list(page = 1, order, desc) {
     const direction = desc ? 'DESC' : 'ASC';
+    if (order === 'color') order = Sequelize.col('Color.name');
+    if (order === 'size') order = Sequelize.col('Size.name');
     order = order ? [[order, direction]] : this.defaultOrder;
     return this._list(
       this._listOptions(null, false, page, order)
@@ -50,34 +51,29 @@ class SkuRepo extends BaseRepo {
   }
 
   async get(id) {
-    return this._get(this._listOptions({ id: id }, false));
+    return this._get(this._listOptions({ id }, false));
   }
 
   async getSize(id) {
-    return this._get(this._listSizeOptions({ id: id }));    
+    return this._get(this._listSizeOptions({ id }));    
   }
 
-  async create(id, upc, newColor, newSize) {
+  async create(id, upc, colorId, sizeId) {
     return this.transaction(async (t) => {
-      let sku = await this._create({
-        id: id,
-        upc: upc,
-        color: newColor,
-        size: newSize
-      }, {
-        attributes: ['id', 'upc', 'color', 'size', 'created',
+      let sku = await this._create({ id, upc, colorId, sizeId }, {
+        attributes: ['id', 'upc', 'colorId', 'sizeId', 'created',
                      'used', 'hidden']
       });
 
-      let color = await this.assoc.color.get(sku.color);
-      let size = await this.assoc.size.get(sku.size);
+      let color = await this.assoc.color.get(sku.colorId);
+      let size = await this.assoc.size.get(sku.sizeId);
 
       if (!this.assoc.color.cache.get.used) {
-        await this.assoc.color.use(color.name);
+        await this.assoc.color.use(color.id);
       }
 
       if (!this.assoc.size.cache.get.used) {
-        await this.assoc.size.use(size.name);
+        await this.assoc.size.use(size.id);
       }
 
       return sku;
@@ -119,8 +115,8 @@ class SkuRepo extends BaseRepo {
     return {
       id: schema.id,
       upc: schema.upc,
-      color: schema.color,
-      size: schema.size,
+      color: schema.colorId,
+      size: schema.sizeId,
       created: schema.created,
       used: schema.used,
       hidden: schema.hidden
@@ -129,8 +125,19 @@ class SkuRepo extends BaseRepo {
 
   _listOptions(by, paranoid, page = 1, order) {
     let opts = { 
-      attributes: ['id', 'upc', 'color', 'size', 'created',
-                   'used', 'hidden'],
+      attributes: [
+        ['id', 'clickId'], 'id', 'upc', 
+        [Sequelize.col('Color.name'), 'color'], 
+        [Sequelize.col('Size.name'), 'size'], 
+        'created', 'used', 'hidden'
+      ],
+      include: [{
+        model: Color,
+        attributes: []
+      }, {
+        model: Size,
+        attributes: []
+      }],
       order: order || this.defaultOrder,
       offset: (page - 1) * 20,
       paranoid: paranoid

@@ -1,14 +1,19 @@
-const { body, validationResult } = require('express-validator/check');
-const { sanitizeBody } = require('express-validator/filter');
+const { param, validationResult } = require('express-validator/check');
+const { sanitizeParam } = require('express-validator/filter');
 const express = require('express');
 const Skus = require('../services/sku');
 
 /* Updates SKU status. */
 module.exports = [
 
+  /* Validate id. */
+  param("id").trim()
+    .isLength({ min: 1, max: 32}).withMessage("SKU ID must be between 1-32 characters.")
+    .not().contains(' ').withMessage("SKU ID cannot contain whitespace."),
+
   /* Trim trailing spaces and remove escape characters to prevent
      SQL injections. */
-  sanitizeBody("id").trim().escape().stripLow(),
+  sanitizeParam("id").trim().escape().stripLow(),
 
   /* Handle errors. */
   (req, res, next) => {
@@ -26,15 +31,11 @@ module.exports = [
   async (req, res, next) => {
     const skus = new Skus();
     try {
-      await skus.changeState(req.body.id);
+      await skus.changeState(req.params.id);
       return res.json();
 
     } catch (err) {
-      if (err.name === 'ValidationError') {
-        return res.json({ errors: err.errors });
-      } else {
-        return res.json({ errors: 'unknown'});
-      }
+      return res.json({ errors: err.errors || 'unknown' });
     }
   }
 

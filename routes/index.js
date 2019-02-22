@@ -5,14 +5,11 @@ const auth = require('../middleware/authorize');
 
 const indexGet = require('../controllers/indexGet');
 
-//const apiRouter = require('./api/index');
 const authRouter = require('./auth');
 const customerRouter = require('./customer_orders');
 const inventoryRouter = require('./inventory');
-const itemRouter = require('./item');
 const factoryRouter = require('./factory_orders');
 const accountsRouter = require('./accounts');
-const qrCodeRouter = require('./qr_code');
 //const scanRouter = require('./scan');
 const colorsRouter = require('./colors');
 const sizesRouter = require('./sizes');
@@ -30,22 +27,17 @@ router.all(/^(\/auth)|(\/$)/, (req, res, next) => {
 router.get('/', indexGet);
 router.use('/auth', authRouter);
 
-/* Temporary public pages (for testing purposes). */
-router.use('/qr', qrCodeRouter);
-
 /* Protected pages. */
 router.use(secured);
-//router.use('/api', apiRouter);
-router.use('/item', itemRouter);
 router.use('/inventory', inventoryRouter);
-router.use('/factory_orders', auth(['a']), factoryRouter);
-router.use('/accounts', auth(['a']), accountsRouter);
+router.use('/factory_orders', auth(['AS']), factoryRouter);
+router.use('/accounts', auth(['A']), accountsRouter);
 //router.use('/scan', scanRouter);
-router.use('/customer_orders', auth(['a']), customerRouter);
-router.use('/colors', auth(['a']), colorsRouter);
-router.use('/sizes', auth(['a']), sizesRouter);
-router.use('/skus', auth(['a']), skusRouter);
-router.use('/labels', auth(['a']), labelsRouter);
+router.use('/customer_orders', auth(['AS']), customerRouter);
+router.use('/colors', auth(['A']), colorsRouter);
+router.use('/sizes', auth(['A']), sizesRouter);
+router.use('/skus', auth(['A']), skusRouter);
+router.use('/labels', auth(['A']), labelsRouter);
 router.use('/error', errorRouter);
 
 module.exports = router;
