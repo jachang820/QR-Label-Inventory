@@ -7,8 +7,8 @@ class Skus extends BaseService {
     super(SkuRepo);
   }
 
-  async getListView(page = 1, order, desc) {
-    return this._getListView(page, order, desc);
+  async getListView(page = 1, order, desc, filter) {
+    return this._getListView(page, order, desc, filter);
   }
 
   async getSize(sku) {
@@ -44,7 +44,8 @@ class Skus extends BaseService {
   }
 
   async changeState(id) {
-    return this._changeState(id);
+    const sku = await this._get(id);
+    return this._changeState(sku, id);
   }
 
   async add(id, upc, colorId, sizeId) {

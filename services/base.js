@@ -4,10 +4,14 @@ class BaseService {
     this.repo = new repo();
   }
 
-  async _getListView(page = 1, order, desc) {
-    let list = await this.repo.list(page, order, desc);
+  async _getListView(page = 1, order, desc, filter, statusFun) {
+    let list = await this.repo.list(page, order, desc, filter);
     if (list.length === 0) return [];
-    list = BaseService._addListStatus(list);
+    if (statusFun) {
+      list = statusFun(list);
+    } else {
+      list = BaseService._addListStatus(list);
+    }
     list = BaseService._convertDate(list);
     return list;
   }
@@ -18,18 +22,21 @@ class BaseService {
     return schema;
   }
 
-  async _get(id) {
+  async _get(id, statusFun) {
     let model = await this.repo.get(id);
-    if (!model) return null;  
-    model = BaseService._addListStatus(model);
+    if (!model) return null;
+    if (statusFun) {
+      model = statusFun(model);
+    } else {
+      model = BaseService._addListStatus(model);
+    }
     return model[0];
   }
 
-  async _changeState(id) {
-    const model = await this._get(id);
-    if (model.state === 'new') await this.repo.delete(id);
-    else if (model.state === 'used') await this.repo.hide(id);
-    else if (model.state === 'hidden') await this.repo.use(id);
+  async _changeState(model, id) {
+    if (model.state === 'new') model = await this.repo.delete(id);
+    else if (model.state === 'used') model = await this.repo.hide(id);
+    else if (model.state === 'hidden') model = await this.repo.use(id);
     else {
       let err = new Error("State cannot be changed.");
       err.errors = [{
@@ -39,6 +46,7 @@ class BaseService {
       }];
       throw err;
     }
+    return model;
   }
 
   async _add(attributes) {

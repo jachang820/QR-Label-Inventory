@@ -11,6 +11,71 @@
   <div class="list-all">
     <table id="list-table">
       {{!-- Table head generated from keys of @types local. --}}
+      <thead id="filter-head">
+        <tr>
+          <th colspan="{{@columns}}">
+            <select name="filter-select" id="filter-select">
+              {{#each @types~}}{{#unless this.unsortable~}}
+              <option value="{{@key}}">
+              {{~#if this.alias~}}
+                {{this.alias}}
+              {{~else~}}
+                {{@key}}
+              {{~/if~}}
+              </option>
+              {{/unless}}{{/each}}
+            </select>
+
+            {{#each @types~}}
+            {{~#eq? this.type "string"~}}
+            <div id="filter-{{@key}}" class="filter">
+              {{@key}}: <input type="text" name="{{@key}}" value="">
+            </div>
+            {{~/eq?~}}
+
+            {{~#eq? this.type "integer"~}}
+            <div id="filter-{{@key}}" class="filter">
+              {{@key}}: <input type="number" name="{{@key}}" value="" min="1">
+            </div>
+            {{~/eq?~}}
+
+            {{~#eq? this.type "date"~}}
+            <div id="filter-{{@key}}" class="filter">
+              {{@key}}: <input type="date" name="{{@key}}" 
+                pattern="[0-1][0-2]/[0-3][0-9]/2[0-9]{3}">
+            </div>
+            {{~/eq?~}}
+            {{~#eq? this.type "dateonly"~}}
+            <div id="filter-{{@key}}" class="filter">
+              {{@key}}: <input type="date" name="{{@key}}" 
+                pattern="[0-1][0-2]/[0-3][0-9]/2[0-9]{3}">
+            </div>
+            {{~/eq?~}}
+
+            {{~#eq? this.type "enum"~}}
+            <div id="filter-{{@key}}" class="filter">
+              {{@key}}: <select name="{{@key}}">
+                {{#each this.select}}
+                <option value="{{this}}">{{this}}</option>
+                {{/each}}
+              </select>
+            </div>
+            {{~/eq?~}}
+
+            {{~#eq? this.type "reference"~}}
+            <div id="filter-{{@key}}" class="filter">
+              {{@key}}: <select name="{{@key}}">
+                {{#each this.select}}
+                <option value="{{this.value}}">{{this.text}}</option>
+                {{/each}}
+              </select>
+            </div>
+            {{~/eq?~}}
+            {{~/each}}
+            <button type="button" id="filter-button">Filter</button>
+          </th>
+        </tr>
+      </thead>
       <thead id="list-head">
         <tr>
           {{!-- Action column contains icons that act as
@@ -23,11 +88,11 @@
             <th class="{{@key}}">
               {{#unless this.unsortable}}<a class="sort-link">
               {{~/unless~}}
-                {{~#if this.alias~}}
-                  {{this.alias}}
-                {{~else~}}
-                  {{~@key~}}
-                {{~/if~}}
+              {{~#if this.alias~}}
+                {{this.alias}}
+              {{~else~}}
+                {{@key}}
+              {{~/if~}}
               {{~#unless this.unsortable}}</a>{{/unless}}
               {{~#if this.explanation~}}
               <div class="explain">{{this.explanation}}</div>

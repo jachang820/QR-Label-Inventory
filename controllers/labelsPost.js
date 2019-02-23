@@ -16,10 +16,13 @@ module.exports = [
       const regex = new RegExp([
         /^https?:\/\/([\w-]+\.)+/,
         /((com)|(net)|(org)|(uk)|(cn)|(ca)|(mx)|(info)|(biz)|(name)|(mobi))/, 
-        /(\/[\w-.,@$%*+;]+)*\/?$/
+        /\/([\w-.,@$%*+;]+\/?)*$/
       ].map(r => r.source).join(''));
 
       const match = prefix.match(regex);
+      const dumb = "http://".match(regex);
+      console.log(dumb);
+      console.log(!dumb);
       if (!match) {
         throw new Error("Invalid URL.");
       }

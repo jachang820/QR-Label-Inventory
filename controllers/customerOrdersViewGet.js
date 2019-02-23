@@ -1,6 +1,7 @@
 const { query, validationResult } = require('express-validator/check');
 const { sanitizeQuery } = require('express-validator/filter');
 const CustomerOrders = require('../services/customerOrder');
+const organizeQuery = require('../middleware/organizeQuery');
 
 /* Get the necessary information to populate form. */
 module.exports = [
@@ -27,28 +28,13 @@ module.exports = [
     return next();
   },
 
-  async (req, res, next) => {
-    const orders = new CustomerOrders();
-    res.locals.page = req.query.page || 1;
-    res.locals.sort = req.query.sort || null;
-    res.locals.desc = req.query.desc === "true";
+  organizeQuery(new CustomerOrders()),
 
+  async (req, res, next) => {
     res.locals.listOnly = true;
     res.locals.modelName = 'customer_orders/view';
     res.locals.expand = true;
     res.locals.columns = 7;
-    
-    res.locals.list = await orders.getListView(
-      res.locals.page,
-      res.locals.sort,
-      res.locals.desc
-    );
-    
-    if (res.locals.list.length < 21) res.locals.last = true;
-    else res.locals.list.pop();
-
-    res.locals.types = await orders.getSchema();
-
     return res.render('listView');
   }
 ];

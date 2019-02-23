@@ -7,8 +7,8 @@ class Sizes extends BaseService {
     super(SizeRepo);
   }
 
-  async getListView(page = 1, order, desc) {
-    return this._getListView(page, order, desc);
+  async getListView(page = 1, order, desc, filter) {
+    return this._getListView(page, order, desc, filter);
   }
 
   async getSchema() {
@@ -30,7 +30,8 @@ class Sizes extends BaseService {
   }
 
   async changeState(id) {
-    return this._changeState(id);
+    const size = await this._get(id);
+    return this._changeState(size, id);
   }
 
   async add(name, abbrev, innerSize, masterSize) {

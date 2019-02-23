@@ -8,12 +8,9 @@ class CustomerOrders extends BaseService {
     super(CustomerOrderRepo);
   }
 
-  async getListView(page = 1, order, desc) {
-    let list = await this.repo.list(page, order, desc);
-    if (list.length === 0) return [];
-    list = CustomerOrders._addListStatus(list);
-    list = CustomerOrders._convertDate(list);
-    return list;
+  async getListView(page = 1, order, desc, filter) {
+    return this._getListView(page, order, desc, filter,
+      CustomerOrders._addListStatus);
   }
 
   async getSchema() {
@@ -26,10 +23,12 @@ class CustomerOrders extends BaseService {
   }
 
   async get(id) {
-    let model = await this.repo.get(id);
-    if (!model) return null;
-    let model = CustomerOrders._addListStatus(model);
-    return model[0];
+    return this._get(id, CustomerOrders._addListStatus);
+  }
+
+  async changeState(id) {
+    const order = await this.get(id);
+    return this._changeState(order, id);
   }
 
   async add(serial, type, notes, items) {
@@ -47,7 +46,7 @@ class CustomerOrders extends BaseService {
   }
 
   static _addListStatus(list) {
-    if (!Array.isArray) {
+    if (!Array.isArray(list)) {
       list = [list];
     }
     for (let i = 0; i < list.length; i++) {

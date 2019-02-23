@@ -1,6 +1,7 @@
 const { query, validationResult } = require('express-validator/check');
 const { sanitizeQuery } = require('express-validator/filter');
 const FactoryOrders = require('../services/factoryOrder');
+const organizeQuery = require('../middleware/organizeQuery');
 
 /* Get the necessary information to populate form. */
 module.exports = [
@@ -27,29 +28,15 @@ module.exports = [
     return next();
   },
 
-  async (req, res, next) => {
-    const orders = new FactoryOrders();
-    res.locals.page = req.query.page || 1;
-    res.locals.sort = req.query.sort || null;
-    res.locals.desc = req.query.desc === "true";
+  organizeQuery(new FactoryOrders()),
 
+  async (req, res, next) => {
     res.locals.printQr = true;
     res.locals.listOnly = true;
     res.locals.modelName = 'factory_orders/view';
     res.locals.expand = true;
     res.locals.stock = true;
     res.locals.columns = 9;
-    
-    res.locals.list = await orders.getListView(
-      res.locals.page,
-      res.locals.sort,
-      res.locals.desc
-    );
-    if (res.locals.list.length < 21) res.locals.last = true;
-    else res.locals.list.pop();
-
-    res.locals.types = await orders.getSchema();
-
     return res.render('listView');
   }
 ];

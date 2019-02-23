@@ -12,25 +12,15 @@ class LabelRepo extends BaseRepo {
     ];
   }
 
-  async list(page = 1, order, desc) {
-    const direction = desc ? 'DESC' : 'ASC';
-    order = order ? [[order, direction]] : this.defaultOrder;
-    return this._list({
-      attributes: [['id', 'clickId'], 'prefix', 'style', 'created', 'hidden'],
-      order,
-      offset: (page - 1) * 20,
-      paranoid: false
-    });
+  async list(page = 1, order, desc, filter) {
+    let opts = this._buildList(page, order, desc, filter);
+    opts.paranoid = false;
+    return this._list(opts);
   }
 
   async listActive(page = 1, order, desc) {
-    const direction = desc ? 'DESC' : 'ASC';
-    order = order ? [[order, direction]] : this.defaultOrder;
-    return this._list({
-      attributes: [['id', 'clickId'], 'prefix', 'style', 'created', 'hidden'],
-      order,
-      offset: (page - 1) * 20
-    });
+    let opts = this._buildList(page, order, desc);
+    return this._list(opts);
   }
 
   async get(id) {
@@ -67,6 +57,18 @@ class LabelRepo extends BaseRepo {
 
   styles() {
     return this.Model.rawAttributes.style.values;
+  }
+
+  _buildList(page, order, desc, filter) {
+    const direction = desc ? 'DESC' : 'ASC';
+    order = order ? [[order, direction]] : this.defaultOrder;
+    let opts = {
+      attributes: [['id', 'clickId'], 'prefix', 'style', 'created', 'hidden'],
+      order
+    };
+    if (page > 0) opts.offset = (page - 1) * 20;
+    if (filter) opts.where = LabelRepo.insertDateRange(filter);
+    return opts;
   }
 
 };

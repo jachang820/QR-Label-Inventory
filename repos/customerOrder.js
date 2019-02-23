@@ -20,7 +20,7 @@ class CustomerOrderRepo extends BaseRepo {
     ];
   }
 
-  async list(page = 1, order, desc) {
+  async list(page = 1, order, desc, filter) {
     /* Page is not an integer. */
     if (isNaN(parseInt(page))) {
       FactoryOrderRepo._handleErrors(new Error("Invalid page."), 
@@ -43,7 +43,11 @@ class CustomerOrderRepo extends BaseRepo {
       sort = [[order, direction]];
     }
 
-    const offset = (page - 1) * 20;
+    let offset = '';
+    if (page > 0) {
+      offset = `LIMIT 21 OFFSET ${(page - 1) * 20}`;
+    }
+    const where = CustomerOrderRepo.buildFilterString(filter);
     const buildOrder = (order) => {
       order = order.map(e => `"CustomerOrder"."${e[0]}" ${e[1]}`);
       return order.join(', ');
@@ -60,9 +64,10 @@ class CustomerOrderRepo extends BaseRepo {
         COUNT("Item".id) AS count
       FROM "CustomerOrder"
         LEFT JOIN "Item" ON "CustomerOrder".id = "Item"."customerOrderId"
+      ${where}
       GROUP BY "CustomerOrder".id
       ORDER BY ${buildOrder(sort)}
-      LIMIT 21 OFFSET ${offset}
+      ${offset}
       `.replace(/\s+/g, ' ').trim();
 
     const orders = await db.sequelize.query(query);

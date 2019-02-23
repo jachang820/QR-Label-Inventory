@@ -156,7 +156,7 @@ window.addEventListener('load', function() {
     /* Update line status, move to appropriate place in table. */
     const path = '/' + model + '/' + id;
     axios.put(path).then(function(response) {
-
+      console.log(response.data);
       if (response.data.errors) {
 
         if (response.data.errors === 'unknown') {
@@ -309,7 +309,7 @@ window.addEventListener('load', function() {
       const source = event.currentTarget.getBoundingClientRect();
       const sourceRight = Math.floor(source.right);
       const sourceTop = Math.floor(source.top);
-      
+
       const target = explain.getBoundingClientRect();
       const targetHeight = Math.floor(target.top - target.bottom);
 
@@ -387,5 +387,19 @@ window.addEventListener('load', function() {
       '/' + model + buildQueryString({ page: parseInt(page) })
     );
   });
+
+  let filterSelect = document.getElementById('filter-select');
+  filterSelect.addEventListener('change', function(event) {
+    const column = event.currentTarget.value;
+    console.log(column);
+    let selector = document.getElementById('filter-' + column);
+    let allSelectors = document.getElementsByClassName('filter');
+    for (let i = 0; i < allSelectors.length; i++) {
+      allSelectors[i].style.display = 'none';
+    }
+    selector.style.display = 'block';
+    return;
+  });
+  document.getElementsByClassName('filter')[0].style.display = 'block';
 
 });

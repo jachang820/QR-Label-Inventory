@@ -20,6 +20,6 @@ router.get('/', accountsGet);
 router.post('/', accountsPost);
 
 /* Deletes a user account given his email. */
-router.put('/', accountsPut);
+router.put('/:id', accountsPut);
 
 module.exports = router;

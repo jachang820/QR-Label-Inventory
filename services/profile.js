@@ -6,11 +6,9 @@ class Profiles extends BaseService {
     super(ProfileRepo);
   }
 
-  async getListView(page = 1, order, desc) {
-    let list = await this.repo.list(page, order, desc);
-    list = Profiles._addListStatus(list);
-    list = Profiles._convertDate(list);
-    return list;
+  async getListView(page = 1, order, desc, filter) {
+    return this.repo.list(page, order, desc, filter,
+      Profiles._addListStatus);
   }
 
   async getSchema() {
@@ -28,7 +26,11 @@ class Profiles extends BaseService {
   }
 
   async get(id) {
-    return this._get(id);
+    return this._get(id, Profiles._addListStatus);
+  }
+
+  async getByEmail(email) {
+    return this.repo.getByEmail(email);
   }
 
   async add(first, last, email, role) {
@@ -37,18 +39,10 @@ class Profiles extends BaseService {
     return profile[0];
   }
 
-  async changeState(email) {
-    const profile = await this.get(email);
-    if (profile.role !== 'Administrator') {
-      return this.repo.delete(email);
-    }
-    let err = new Error("Cannot delete administrators.");
-    err.errors = [{
-      msg: err.message,
-      param: null,
-      critical: true
-    }];
-    throw err;
+  async changeState(id) {
+    const profile = await this.get(id);
+    console.log(profile);
+    return this._changeState(profile, id);
   }
 
   static _addListStatus(list) {

@@ -7,12 +7,13 @@ class Items extends BaseService {
     super(ItemRepo);
   }
 
-  async getListView(by, page = 1, order, desc) {
-    let list = await this.repo.list(by, page, order, desc);
-    if (list.length === 0) return [];
-    list = Items._addListStatus(list);
-    list = Items._convertDate(list);
-    return list;
+  async getListView(page = 1, order, desc, filter) {
+    if (filter.serial) {
+      const labels = await this.repo.associate.label.listActive(0);
+      filter.serial = this._matchLabelURLs(qrcode, labels);
+    }
+    return this._getListView(page, order, desc, filter, 
+      Items._addListStatus);
   }
 
   async getSchema() {
@@ -32,11 +33,12 @@ class Items extends BaseService {
   }
 
   async get(id) {
-    return this._get(id);
+    return this._get(id, Items._addListStatus);
   }
 
   async changeState(id) {
-    return this._changeState(id);
+    const item = await this.get(id);
+    return this._changeState(item, id);
   }
 
   /* 'items' is in format of [...{qrcode, sku, quantity}] */
@@ -45,7 +47,6 @@ class Items extends BaseService {
     let cartons = [];
     for (let i = 0; i < items.length; i++) {
       let id = this._matchLabelURLs(items[i].serial, labels);
-      if (id !== null) items[i].serial = id;
       items[i].status = "In Stock";
       delete items[i].quantity;
       cartons.push({ carton: items[i], quantity: 1 });
@@ -57,8 +58,6 @@ class Items extends BaseService {
   async getStock(qrcode) {
     const labels = await this.repo.associate.label.listActive(0);
     let id = this._matchLabelURLs(qrcode, labels);
-    if (id === null) id = qrcode;
-
     return this.repo.getStock(id);
   }
 
@@ -70,7 +69,7 @@ class Items extends BaseService {
    RETURNS ID if prefix and style matches, otherwise null.
    Note that ID might not be valid even if URL matches. */
   _matchLabelURLs(qrcode, labels) {
-    if (typeof qrcode !== 'string') return null;
+    if (typeof qrcode !== 'string') return qrcode;
 
     for (let i = 0; i < labels.length; i++) {
       let prefix = labels[i].prefix;
@@ -112,7 +111,7 @@ class Items extends BaseService {
         }
       }
     }
-    return null;
+    return qrcode;
   };
 
   async getDetails(id) {

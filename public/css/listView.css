@@ -89,6 +89,10 @@ input[type=number] {
   display: inline-block;
 }
 
+.filter {
+  display: none;
+}
+
 .add {
   border-width: 0px;
   vertical-align: top;
@@ -134,6 +138,7 @@ th.action-col, th.color-coded {
   height: 0.8rem;
   opacity: 0.6;
   cursor: pointer;
+  margin: 3px 2px 0px 2px;
   display: inline-block;
 }
 

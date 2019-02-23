@@ -27,7 +27,7 @@ class FactoryOrderRepo extends BaseRepo {
 
   }
 
-  async list(page = 1, order, desc) {
+  async list(page = 1, order, desc, filter) {
     /* Page is not an integer. */
     if (isNaN(parseInt(page))) {
       FactoryOrderRepo._handleErrors(new Error("Invalid page."),
@@ -50,7 +50,11 @@ class FactoryOrderRepo extends BaseRepo {
       sort = [[order, direction]];
     }
 
-    const offset = (page - 1) * 20;
+    let offset = '';
+    if (page > 0) {
+      offset = `LIMIT 21 OFFSET ${(page - 1) * 20}`;
+    }
+    const where = FactoryOrderRepo.buildFilterString(filter);
     const aggregate = (column) => {
       return `(
         SELECT COALESCE(SUM(line_item."${column}"), 0)
@@ -85,9 +89,10 @@ class FactoryOrderRepo extends BaseRepo {
         ${aggregate('innerCartons')},
         ${aggregate('count')}
       FROM "FactoryOrder"
+      ${where}
       GROUP BY "FactoryOrder".id
       ORDER BY ${buildOrder(sort)}
-      LIMIT 21 OFFSET ${offset}
+      ${offset}
       `.replace(/\s+/g, ' ').trim();
 
     const orders = await db.sequelize.query(query);
@@ -168,7 +173,7 @@ class FactoryOrderRepo extends BaseRepo {
     let skusList = order.map(e => e.sku);
     skusList = [...new Set(skusList)];
 
-    const skus = await this.assoc.sku.listSize({
+    const skus = await this.assoc.sku.listSize(1, null, null, {
       id: { [Op.or]: skusList }
     });
 
@@ -201,6 +206,11 @@ class FactoryOrderRepo extends BaseRepo {
       }
 
       await this.assoc.masterCarton.create(masterList, t);
+
+      for (let i = 0; i < skus.length; i++) {
+        await this.assoc.sku.use(skus[i].id);
+      }
+
       delete factoryOrder.id;
       return factoryOrder;
     }, transaction);
@@ -240,6 +250,7 @@ class FactoryOrderRepo extends BaseRepo {
           null, true
         );
       }
+      
       const master = await this.assoc.masterCarton.hide(id, t);
       delete order.id;
       return order;

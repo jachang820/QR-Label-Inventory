@@ -24,38 +24,47 @@ class SkuRepo extends BaseRepo {
     ];
   }
 
-  async list(page = 1, order, desc) {
+  async list(page = 1, order, desc, filter) {
     const direction = desc ? 'DESC' : 'ASC';
     if (order === 'color') order = Sequelize.col('Color.name');
     if (order === 'size') order = Sequelize.col('Size.name');
     order = order ? [[order, direction]] : this.defaultOrder;
+    filter = SkuRepo.insertDateRange(filter);
     return this._list(
-      this._listOptions(null, false, page, order)
+      this._listOptions({
+        paranoid: false, page, order, filter
+      })
     ); 
   }
 
-  async listSize(by, page = 1, order, desc) {
+  async listSize(page = 1, order, desc, filter) {
     const direction = desc ? 'DESC' : 'ASC';
     order = order ? [[order, direction]] : this.defaultOrder;
+    filter = SkuRepo.insertDateRange(filter);
     return this._list(
-      this._listSizeOptions(by, page, order)
+      this._listSizeOptions({ page, order, filter })
     );    
   }
 
-  async listActive(page = 1, order, desc) {
+  async listActive(page = 1, order, desc, filter) {
     const direction = desc ? 'DESC' : 'ASC';
     order = order ? [[order, direction]] : this.defaultOrder;
+    filter = SkuRepo.insertDateRange(filter);
     return this._list(
-      this._listOptions(null, true, page, order)
+      this._listOptions({ page, order, filter })
     );
   }
 
   async get(id) {
-    return this._get(this._listOptions({ id }, false));
+    return this._get(this._listIdOptions({
+      filter: { id }, paranoid: false
+    }));
   }
 
   async getSize(id) {
-    return this._get(this._listSizeOptions({ id }));    
+    return this._get(this._listSizeOptions({
+      filter: { id }, paranoid: false
+    }));    
   }
 
   async create(id, upc, colorId, sizeId) {
@@ -82,28 +91,34 @@ class SkuRepo extends BaseRepo {
   }
 
   async renew(id) {
-    return this._use(this._listOptions({ id }), false);
+    return this._use(this._listIdOptions({
+      filter: { id }
+    }), false);
   }
 
   async use(id) {
-    return this._use(this._listOptions({ id }), true);
+    return this._use(this._listIdOptions({
+      filter: { id }
+    }), true);
   }
 
   async hide(id) {
-    return this._delete(this._listOptions({ id }, true), false);
+    return this._delete(this._listIdOptions({
+      filter: { id }, paranoid: true
+    }), false);
   }
 
   async delete(id) {
     return this.transaction(async (t) => {
       let sku = await this._delete(
-        this._listOptions({ id }, true), 
+        this._listIdOptions({ filter: { id }, paranoid: true }), 
         true);
 
-      let color = await this.assoc.color.get(sku.color);
-      let size = await this.assoc.size.get(sku.size);
+      let color = await this.assoc.color.get(sku.colorId);
+      let size = await this.assoc.size.get(sku.sizeId);
 
-      if (!color) await this.assoc.color.renew(sku.color);
-      if (!size) await this.assoc.size.renew(sku.size);
+      if (!color) await this.assoc.color.renew(sku.colorId);
+      if (!size) await this.assoc.size.renew(sku.sizeId);
 
       return sku;
 
@@ -123,41 +138,46 @@ class SkuRepo extends BaseRepo {
     };
   }
 
-  _listOptions(by, paranoid, page = 1, order) {
-    let opts = { 
-      attributes: [
-        ['id', 'clickId'], 'id', 'upc', 
-        [Sequelize.col('Color.name'), 'color'], 
-        [Sequelize.col('Size.name'), 'size'], 
-        'created', 'used', 'hidden'
-      ],
+  _listIdOptions({ paranoid = true, page = 1, order = null, filter = null } = {}) {
+    return this._buildList(page, order, filter, [
+      ['id', 'clickId'], 'id', 'upc', 'colorId', 
+      'sizeId', 'created', 'used', 'hidden'
+    ], paranoid);
+  }
+
+  _listOptions({ paranoid = true, page = 1, order = null, filter = null } = {}) {
+    return this._buildList(page, order, filter, [
+      ['id', 'clickId'], 'id', 'upc',
+      [Sequelize.col('Color.name'), 'color'], 
+      [Sequelize.col('Size.name'), 'size'], 
+      'created', 'used', 'hidden'
+    ], paranoid);
+  }
+
+  _listSizeOptions({ page = 1, order = null, filter = null } = {}) {
+    return this._buildList(page, order, filter, [
+      'id', 
+      [Sequelize.col('Size.innerSize'), 'innerSize'],
+      [Sequelize.col('Size.masterSize'), 'masterSize']
+    ], false);
+  }
+
+  _buildList(page = 1, order, filter, attributes, paranoid) {
+    let opts = {
       include: [{
         model: Color,
         attributes: []
       }, {
         model: Size,
         attributes: []
-      }],
-      order: order || this.defaultOrder,
-      offset: (page - 1) * 20,
-      paranoid: paranoid
+      }]
     };
-    if (by) opts.where = by;
+    if (page > 0) opts.offset = (page - 1) * 20;
+    opts.order = order || this.defaultOrder;
+    if (filter) opts.where = filter;
+    opts.paranoid = paranoid || true;
+    if (attributes) opts.attributes = attributes;
     return opts;
-  }
-
-  _listSizeOptions(by, page = 1, order) {
-    return { 
-      where: by,
-      attributes: ['id', 
-        [Sequelize.col('Size.innerSize'), 'innerSize'],
-        [Sequelize.col('Size.masterSize'), 'masterSize']
-      ],
-      include: [{ model: Size, attributes: [] }],
-      order: order || this.defaultOrder,
-      offset: (page - 1) * 20,
-      paranoid : false
-    };
   }
 };
 

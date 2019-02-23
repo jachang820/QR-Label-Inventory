@@ -74,11 +74,14 @@ class InnerCartonRepo extends BaseRepo {
       let inner = await this._use({ 
         where: { masterId: id }
       }, true);
+      inner = inner.map(e => e.get({ plain: true }));
+
       for (let i = 0; i < inner.length; i++) {
         const items = await this.assoc.item.order(
           inner[i].id, t);
-        inner[i].push(items);
+        inner[i].items = items;
       }
+      
       return inner;
     }, transaction);
   }
@@ -88,8 +91,9 @@ class InnerCartonRepo extends BaseRepo {
       let inner = await this._delete({ 
         where: { masterId: id } 
       }, false);
+
       for (let i = 0; i < inner.length; i++) {
-        const items = await this.assoc.item.cancel(
+        let items = await this.assoc.item.cancel(
           inner[i].id, t);
         inner[i].push(items);
       }

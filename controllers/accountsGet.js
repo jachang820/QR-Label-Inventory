@@ -1,6 +1,7 @@
 const { query, validationResult } = require('express-validator/check');
 const { sanitizeQuery } = require('express-validator/filter');
 const Profiles = require('../services/profile');
+const organizeQuery = require('../middleware/organizeQuery');
 
 /* Get the necessary information to populate form. */
 module.exports = [
@@ -27,22 +28,9 @@ module.exports = [
     return next();
   },
 
+  organizeQuery(new Profiles()),
+
   async (req, res, next) => {
-    const profiles = new Profiles();
-    res.locals.page = req.query.page || 1;
-    res.locals.sort = req.query.sort || null;
-    res.locals.desc = req.query.desc === "true";
-
-    res.locals.list = await profiles.getListView(
-      res.locals.page,
-      res.locals.sort,
-      res.locals.desc
-    );
-    if (res.locals.list.length < 21) res.locals.last = true;
-    else res.locals.list.pop();
-
-    res.locals.types = await profiles.getSchema();
-    
     return res.render('listView');
   }
 ];

@@ -46,7 +46,7 @@ class BaseRepo {
     let model, err;
     [err, model] = await to(this.Model.findOne(options));
     if (err) BaseRepo._handleErrors(err);
-
+    
     this.cache.get = model;
     if (!model) return null;
     else return model.get({ plain: true });
@@ -82,6 +82,7 @@ class BaseRepo {
   async _update(query, options) {
     let ret, err;
     let opts = Object.assign({ returning: true }, options);
+
     [err, ret] = await to(this.Model.update(query, opts));
     if (err) BaseRepo._handleErrors(err);
     let [count, models] = ret;
@@ -116,7 +117,9 @@ class BaseRepo {
 
     this.cache.delete = model;
     if (!model) return null;
-    else return model.get({ plain: true });
+    else {
+      return model.get({ plain: true });
+    }
   }
 
   async active(id) {
@@ -222,6 +225,39 @@ class BaseRepo {
     }
     console.log(newErr);
     throw newErr;
+  }
+
+  static insertDateRange(whereObj) {
+    if (!whereObj) return whereObj;
+    
+    const keys = Object.keys(whereObj);
+    for (let i = 0; i < keys.length; i++) {
+      let value = whereObj[keys[i]];
+      if (Array.isArray(value)) {
+        value = { [sequelize.Op.between] : value };
+        whereObj[keys[i]] = value;
+      }
+    }
+    return whereObj;
+  }
+
+  static buildFilterString(filter) {
+    let where = '';
+    if (typeof filter === 'object' && filter !== null && filter.length > 0) {
+
+      where = 'WHERE ' + Object.entries(filter)
+      .map(e => {
+        let str = `"Item"."${e[0]}" `; 
+        if (Array.isArray(e[1])) {
+          return str + `BETWEEN '${e[1][0]}' AND '${e[1][1]}'`;
+        } else {
+          return str + `= '${e[1]}'`;
+        }
+      }).join(' AND ');
+    } else if (typeof filter === 'string') {
+      where = 'WHERE ' + by;
+    }
+    return where;
   }
 
   get associate() {

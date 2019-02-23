@@ -1,6 +1,7 @@
 const { query, validationResult } = require('express-validator/check');
 const { sanitizeQuery } = require('express-validator/filter');
 const Items = require('../services/item');
+const organizeQuery = require('../middleware/organizeQuery');
 
 /* Get the necessary information to populate form. */
 module.exports = [
@@ -27,28 +28,12 @@ module.exports = [
     return next();
   },
 
-  async (req, res, next) => {
-    const items = new Items();
-    res.locals.page = req.query.page || 1;
-    res.locals.sort = req.query.sort || null;
-    res.locals.desc = req.query.desc === "true";
+  organizeQuery(new Items(), 50),
 
+  async (req, res, next) => {
     res.locals.listOnly = true;
     res.locals.modelName = 'inventory';
     res.locals.columns = 12;
-    
-    res.locals.list = await items.getListView(
-      null,
-      res.locals.page,
-      res.locals.sort,
-      res.locals.desc
-    );
-    
-    if (res.locals.list.length < 51) res.locals.last = true;
-    else res.locals.list.pop();
-
-    res.locals.types = await items.getSchema();
-
     return res.render('listView');
   }
 ];

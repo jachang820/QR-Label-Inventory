@@ -6,11 +6,9 @@ class Labels extends BaseService {
     super(LabelRepo);
   }
 
-  async getListView(page = 1, order, desc) {
-    let list = await this.repo.list(page, order, desc);
-    list = Labels._addListStatus(list);
-    list = Labels._convertDate(list);
-    return list;
+  async getListView(page = 1, order, desc, filter) {
+    return this.repo.list(page, order, desc, filter,
+      Labels._addListStatus);
   }
 
   async getSchema() {
@@ -28,7 +26,7 @@ class Labels extends BaseService {
   }
 
   async get(id) {
-    return this._get(id);
+    return this._get(id, Labels._addListStatus);
   }
 
   async add(prefix, style) {
@@ -36,11 +34,8 @@ class Labels extends BaseService {
   }
 
   async changeState(id) {
-    let label = await this.repo.get(id);
-    if (label.hidden) label = await this.repo.use(id);
-    else label = await this.repo.hide(id);
-    label = Labels._addListStatus(label);
-    return label[0];
+    let label = await this.get(id);
+    return this._changeState(label, id);
   }
 
   static _addListStatus(list) {

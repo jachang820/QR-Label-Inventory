@@ -2,6 +2,7 @@ const { query, validationResult } = require('express-validator/check');
 const { sanitizeQuery } = require('express-validator/filter');
 const Colors = require('../services/color');
 const Sizes = require('../services/size');
+const organizeQuery = require('../middleware/organizeQuery');
 
 /* Get the necessary information to populate form. */
 module.exports = (type) => {
@@ -32,21 +33,9 @@ module.exports = (type) => {
       return next();
     },
 
+    organizeQuery(styles),
+
     async (req, res, next) => {
-      res.locals.page = req.query.page || 1;
-      res.locals.sort = req.query.sort || null;
-      res.locals.desc = req.query.desc === "true";
-
-      res.locals.list = await styles.getListView(
-        res.locals.page,
-        res.locals.sort,
-        res.locals.desc
-      );
-      if (res.locals.list.length < 21) res.locals.last = true;
-      else res.locals.list.pop();
-
-      res.locals.types = await styles.getSchema();
-
       return res.render('listView');
     }
   ];

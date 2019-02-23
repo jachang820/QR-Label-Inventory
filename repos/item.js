@@ -30,15 +30,8 @@ class ItemRepo extends BaseRepo {
     ];
   }
 
-  async list(by, page = 1, order, desc) {
-    let where = '';
-    if (typeof by === 'object' && by !== null) {
-      where = 'WHERE ' + Object.entries(by)
-      .map(e => `"Item"."${e[0]}" = '${e[1]}'`)
-      .join(' AND ');
-    } else if (typeof by === 'string') {
-      where = 'WHERE ' + by;
-    }
+  async list(page = 1, order, desc, filter) {
+    const where = ItemRepo.buildFilterString(filter);
 
     let offset = '';
     if (page > 0) {
@@ -140,7 +133,7 @@ class ItemRepo extends BaseRepo {
   async order(innerId, transaction) {
     return this.transaction(async (t) => {
       return this._update(
-        { status: 'ordered' },
+        { status: 'Ordered' },
         { paranoid: false, 
           where: { innerId } 
         }
@@ -153,7 +146,7 @@ class ItemRepo extends BaseRepo {
     const Op = db.Sequelize.Op;
     return this.transaction(async (t) => {
       return this._update(
-        { status: 'in stock' },
+        { status: 'In Stock' },
         { paranoid: false, 
           where: {
             [Op.or]: [
@@ -168,38 +161,36 @@ class ItemRepo extends BaseRepo {
 
   async ship(customerOrderId, itemId, transaction) {
     return this.transaction(async (t) => {
-      let item = await this._update({
-        status: 'shipped',
+      return this._update({
+        status: 'Shipped',
         customerOrderId
       }, {  
         where: { id: itemId },
+        limit: 1,
         paranoid: false
       });
-      return item[0].get({ plain: true });
     }, transaction);
   }
 
   async reship(customerOrderId, transaction) {
     return this.transaction(async (t) => {
-      let items = await this._update({
-        status: 'shipped'
+      return this._update({
+        status: 'Shipped'
       }, {
         where: { customerOrderId },
         paranoid: false
       });
-      return items.map(e => e.get({ plain: true }));
     }, transaction);
   }
 
   async cancel(innerId, transaction) {
     return this.transaction(async (t) => {
-      let items = this._update(
-        { status: 'cancelled' },
+      return this._update(
+        { status: 'Cancelled' },
         { paranoid: false, 
           where: { innerId } 
         }
       );
-      return items.map(e => e.get({ plain: true }));
     }, transaction);
   }
 

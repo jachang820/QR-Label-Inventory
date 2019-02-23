@@ -12,20 +12,29 @@ class ProfileRepo extends BaseRepo {
     ];
   }
 
-  async list(page = 1, order, desc) {
+  async list(page = 1, order, desc, filter) {
     const direction = desc ? 'DESC' : 'ASC';
     order = order ? [[order, direction]] : this.defaultOrder;
-    return this._list({ 
+    let opts = { 
       order,
       attributes: { include: [['id', 'clickId']], exclude: ['id'] },
       offset: (page - 1) * 20 
+    };
+    if (page > 0) opts.offset = (page - 1) * 20;
+    if (filter) opts.where = ProfileRepo.insertDateRange(filter);
+    return this._list(opts);
+  }
+
+  async get(id) {
+    return this._get({
+      where: { id },
+      attributes: { include: [['id', 'clickId']], exclude: ['id'] }
     });
   }
 
-  async get(email) {
+  async getByEmail(email) {
     return this._get({
       where: { email },
-      attributes: { include: [['id', 'clickId']], exclude: ['id'] }
     });
   }
 
@@ -50,8 +59,8 @@ class ProfileRepo extends BaseRepo {
     });
   }
 
-  async delete(email) {
-    let profile = await this._delete({ where: { email }}, true);
+  async delete(id) {
+    let profile = await this._delete({ where: { id }}, true);
     delete profile.id;
     return profile;
   }

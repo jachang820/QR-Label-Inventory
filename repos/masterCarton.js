@@ -89,22 +89,26 @@ class MasterCartonRepo extends BaseRepo {
 
   async use(id, transaction) {
     return this.transaction(async (t) => {
-      const master = await this._use({ 
+      let master = await this._use({ 
         where: { factoryOrderId: id }
       }, true);
+      master = master.map(e => e.get({ plain: true }));
+
       for (let i = 0; i < master.length; i++) {
         const inner = await this.assoc.innerCarton.use(
           master[i].id, t);
+        master[i].innerCartons = inner;
       }
       return master;
     }, transaction);
   }
 
-  async hide(by, transaction) {
+  async hide(id, transaction) {
     return this.transaction(async (t) => {
       const master = await this._delete({
         where: { factoryOrderId: id } 
       }, false);
+
       for (let i = 0; i < master.length; i++) {
         const inner = await this.assoc.innerCarton.hide(
           master[i].id, t);

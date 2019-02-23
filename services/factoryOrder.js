@@ -9,12 +9,9 @@ class FactoryOrders extends BaseService {
     super(FactoryOrderRepo);
   }
 
-  async getListView(page = 1, order, desc) {
-    let list = await this.repo.list(page, order, desc);
-    if (list.length === 0) return [];
-    list = FactoryOrders._addListStatus(list);
-    list = FactoryOrders._convertDate(list);
-    return list;
+  async getListView(page = 1, order, desc, filter) {
+    return this._getListView(page, order, desc, filter,
+      FactoryOrders._addListStatus);
   }
 
   async getSchema() {
@@ -30,10 +27,12 @@ class FactoryOrders extends BaseService {
   }
 
   async get(id) {
-    let model = await this.repo.get(id);
-    if (!model) return null;
-    model = FactoryOrders._addListStatus(model);
-    return model[0];
+    return this._get(id, FactoryOrders._addListStatus);
+  }
+
+  async changeState(id) {
+    const model = await this.get(id);
+    return this._changeState(model, id);
   }
 
   async add(serial, notes, order) {
@@ -184,7 +183,7 @@ class LabelTemplate {
       this.url = `${qrUrl.prefix}?id=`;
       this.fill = ' '.repeat(URL_MAXLEN - urlLength - 4);
     }
-    console.log(this.url);
+
     if (serial) this.serial = serial;
     this.printer = new PdfPrinter(fonts);
     this.canvas = new LabelCanvas();

@@ -33,7 +33,7 @@ module.exports = [
     let email = res.locals.user.emails[0].value;
     let profile;
     try {
-      profile = await profiles.get(email);
+      profile = await profiles.getByEmail(email);
       if (!profile) {
         throw new Error("Invalid user.");
       }
@@ -49,36 +49,47 @@ module.exports = [
     }
   },
 
+  /* Check if profile picture exists. */
+  (req, res, next) => {
+    let email = res.locals.user.emails[0].value.replace('@', '-');
+    res.locals.pic = `${__dirname}/../public/images/thumbs/${email}.jpg`;
+    fs.access(res.locals.pic, fs.constants.F_OK, (err) => {
+      res.locals.picExists = !err;
+      return next();
+    });
+  },
+
   /* Save user thumbnail. */
   (req, res, next) => {
-    /* Download options. */
-    const picUrl = url.parse(res.locals.user.picture);
-    const options = {
-      host: picUrl.hostname,
-      port: 80,
-      path: picUrl.pathname
-    };
+    if (!res.locals.picExists) {
 
-    /* Write options. */
-    let email = res.locals.user.emails[0].value.replace('@', '-');
-    const saveAs = `${__dirname}/../public/images/thumbs/${email}.jpg`;
-    const writeOpts = { encoding: 'binary', flag: 'w' };
+      /* Download options. */
+      const picUrl = url.parse(res.locals.user.picture);
+      const options = {
+        host: picUrl.hostname,
+        port: 80,
+        path: picUrl.pathname
+      };
 
-    /* GET file by appending chunks of binary data. */
-    const request = https.get(res.locals.user.picture, (response) => {
-      let imagedata = '';
-      response.setEncoding('binary');
-      response.on('data', (chunk) => {
-        imagedata += chunk;
-      });
+      /* GET file by appending chunks of binary data. */
+      const request = https.get(res.locals.user.picture, (response) => {
+        let imagedata = '';
+        response.setEncoding('binary');
+        response.on('data', (chunk) => {
+          imagedata += chunk;
+        });
 
-      /* Save file as /public/images/thumbs/[user email].jpg. */
-      response.on('end', () => {
-        fs.writeFile(saveAs, imagedata, writeOpts, (err) => {
-          if (err) throw err;
+        /* File options. */
+        const writeOpts = { encoding: 'binary', flag: 'w' };
+
+        /* Save file as /public/images/thumbs/[user email].jpg. */
+        response.on('end', () => {
+          fs.writeFile(res.locals.pic, imagedata, writeOpts, (err) => {
+            if (err) throw err;
+          });
         });
       });
-    });
+    }
     return next();
   },
 
