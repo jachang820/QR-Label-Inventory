@@ -8,7 +8,12 @@ module.exports = [
   /* Validate type. */
   body('type').trim()
     .exists().withMessage("Type must be selected.")
-    .isIn(['retail', 'wholesale']).withMessage("Invalid type selected."),
+    .isIn(['Retail', 'Wholesale']).withMessage("Invalid type selected."),
+
+  /* Validate id. */
+  body('serial').trim()
+    .exists().withMessage("Order ID is mandatory.")
+    .not().contains(' ').withMessage("Order ID cannot contain whitespace."),
 
   /* Validate notes. */
   body('notes').trim()

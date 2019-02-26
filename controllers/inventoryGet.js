@@ -28,7 +28,7 @@ module.exports = [
     return next();
   },
 
-  organizeQuery(new Items(), 50),
+  organizeQuery(new Items(), 50, ['created', 'arrival', 'shipped']),
 
   async (req, res, next) => {
     res.locals.listOnly = true;

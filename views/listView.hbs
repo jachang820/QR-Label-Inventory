@@ -5,7 +5,18 @@
   {{!-- Locals here appear at the top of the page to explain
         what the page is about. --}}
   <h1>{{@title}}</h1>
-  <p class="description">{{@description}}</p>
+  <a id="help" href="/manual#{{@modelName}}">
+    Click to see how to use this page.
+  </a>
+
+  <div>
+    {{#each @filter}}
+    <span class="past-filters">{{@key}} = {{this}}
+      <button class="remove-filter">X</button>
+      <div class="explain">Remove filter.</div>
+    </span>
+    {{/each}}
+  </div>
 
   {{!-- Wrapper div provides positional styling options. --}}
   <div class="list-all">
@@ -14,64 +25,62 @@
       <thead id="filter-head">
         <tr>
           <th colspan="{{@columns}}">
+            <span id="filter-title">Filter By </span>
             <select name="filter-select" id="filter-select">
-              {{#each @types~}}{{#unless this.unsortable~}}
+              {{#each @types}}{{#unless this.unsortable}}
               <option value="{{@key}}">
               {{~#if this.alias~}}
                 {{this.alias}}
               {{~else~}}
-                {{@key}}
+                {{capitalize @key}}
               {{~/if~}}
               </option>
-              {{/unless}}{{/each}}
+              {{~/unless}}{{/each}}
             </select>
 
-            {{#each @types~}}
-            {{~#eq? this.type "string"~}}
+            {{#each @types}}
             <div id="filter-{{@key}}" class="filter">
-              {{@key}}: <input type="text" name="{{@key}}" value="">
-            </div>
-            {{~/eq?~}}
-
-            {{~#eq? this.type "integer"~}}
-            <div id="filter-{{@key}}" class="filter">
-              {{@key}}: <input type="number" name="{{@key}}" value="" min="1">
-            </div>
-            {{~/eq?~}}
-
-            {{~#eq? this.type "date"~}}
-            <div id="filter-{{@key}}" class="filter">
-              {{@key}}: <input type="date" name="{{@key}}" 
-                pattern="[0-1][0-2]/[0-3][0-9]/2[0-9]{3}">
-            </div>
-            {{~/eq?~}}
-            {{~#eq? this.type "dateonly"~}}
-            <div id="filter-{{@key}}" class="filter">
-              {{@key}}: <input type="date" name="{{@key}}" 
-                pattern="[0-1][0-2]/[0-3][0-9]/2[0-9]{3}">
-            </div>
-            {{~/eq?~}}
-
-            {{~#eq? this.type "enum"~}}
-            <div id="filter-{{@key}}" class="filter">
-              {{@key}}: <select name="{{@key}}">
+              {{~#if this.alias~}}
+                {{this.alias}}
+              {{~else~}}
+                {{capitalize @key}}
+              {{~/if~}}: 
+              {{#eq? this.type "string"}}
+              <input type="text" name="{{@key}}" value="">
+              {{/eq?}}
+              {{#eq? this.type "integer"}}
+              <input type="text" name="{{@key}}" value="">
+              {{/eq?}}
+              {{#eq? this.type "date"}}
+              <input type="date" name="{{@key}}" 
+                class="filter-start-date" 
+                pattern="2[0-9]{3}-[0-1][0-9]-[0-3][0-9]"> -
+              <input type="date" name="{{@key}}" disabled 
+                pattern="2[0-9]{3}-[0-1][0-9]-[0-3][0-9]">
+              {{/eq?}}
+              {{#eq? this.type "dateonly"}}
+              <input type="date" name="{{@key}}"  
+                class="filter-start-date" 
+                pattern="2[0-9]{3}-[0-1][0-9]-[0-3][0-9]"> -
+              <input type="date" name="{{@key}}" disabled 
+                pattern="2[0-9]{3}-[0-1][0-9]-[0-3][0-9]">
+              {{/eq?}}
+              {{#eq? this.type "enum"}}
+              <select name="{{@key}}">
                 {{#each this.select}}
                 <option value="{{this}}">{{this}}</option>
-                {{/each}}
+              {{/each}}
               </select>
-            </div>
-            {{~/eq?~}}
-
-            {{~#eq? this.type "reference"~}}
-            <div id="filter-{{@key}}" class="filter">
-              {{@key}}: <select name="{{@key}}">
+              {{/eq?}}
+              {{#eq? this.type "reference"}}
+              <select name="{{@key}}">
                 {{#each this.select}}
                 <option value="{{this.value}}">{{this.text}}</option>
-                {{/each}}
+              {{/each}}
               </select>
+              {{/eq?}}
             </div>
-            {{~/eq?~}}
-            {{~/each}}
+            {{/each}}
             <button type="button" id="filter-button">Filter</button>
           </th>
         </tr>
@@ -80,12 +89,14 @@
         <tr>
           {{!-- Action column contains icons that act as
                 submission buttons. --}}
-          <th class="action-col">Action</th>
-          {{!-- Color-coded line represents status of each row. --}}
-          <th class="color-coded"></th>
+          <th colspan="2" class="action-col">Action
+            <img src="/images/filter.png" class="filter-icon">
+            <div class="explain">Open filter menu.</div>
+          </th>
+
           {{!-- The remaining rows are populated from data. --}}
           {{#each @types}}
-            <th class="{{@key}}">
+            <th class="{{@key}} {{this.type}}">
               {{#unless this.unsortable}}<a class="sort-link">
               {{~/unless~}}
               {{~#if this.alias~}}
@@ -120,6 +131,8 @@
             <img class="action-icon" src="/images/new.png">
             <div class="explain">Submit new record.</div>
           </td>
+
+          {{!-- Color-coded line represents status of each row. --}}
           <td class="color-coded add"></td>
           {{~#each @types~}}
             {{!-- @key: Database column names,
@@ -147,7 +160,7 @@
                     based on database attributes. --}}
               {{~#eq? this.type "enum"~}}
                 <select name="{{@key}}">
-                  <option disabled selected value=""> Select a {{@key}}: </option>
+                  <option disabled selected value=""> Select {{@key}}: </option>
                   {{#each this.select}}
                     <option value="{{this}}">{{this}}</option>
                   {{/each}}
@@ -157,7 +170,7 @@
                     based on associated database GET calls. --}}
               {{~#eq? this.type "reference"~}}
                 <select name="{{@key}}">
-                  <option disabled selected value=""> Select a {{@key}}: </option>
+                  <option disabled selected value=""> Select {{@key}}: </option>
                   {{#each this.select}}
                     <option value="{{this.value}}">{{this.text}}</option>
                   {{/each}}
@@ -180,14 +193,14 @@
             <img class="expand" src="/images/expand.png">
             <div class="explain">Show details.</div>
             {{/if}}
-            {{~#if @stock}}
+            {{~#if @stock}}{{#if-role @role "in" 'AS'}}
               {{#neq? this.state 'eternal'}}
               <img class="stock" src="/images/stock.png">
               <div class="explain">Mark order as received.</div>
               {{else}}
               <img class="none" src="/images/none.png">
-              {{/neq?}}
-            {{/if}}
+              {{/neq?~}}
+            {{~/if-role~}}{{~/if~}}
             {{#if @printQr}}
               <a href="/{{@modelName}}/labels/{{this.clickId}}">
                 <img class="print-qr" src="/images/print.png">

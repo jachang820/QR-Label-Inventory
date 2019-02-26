@@ -28,7 +28,7 @@ module.exports = [
     return next();
   },
 
-  organizeQuery(new FactoryOrders()),
+  organizeQuery(new FactoryOrders(), 20, ['ordered', 'arrival']),
 
   async (req, res, next) => {
     res.locals.printQr = true;

@@ -8,8 +8,8 @@
   <div class="list-all">
 
     <select name="type" id="select-type">
-      <option value="retail" selected>Retail</option>
-      <option value="wholesale">Wholesale</option>
+      <option value="Retail" selected>Retail</option>
+      <option value="Wholesale">Wholesale</option>
     </select>
 
     <div id="serial-box">
@@ -80,7 +80,7 @@
     </div>
 
     <br>
-    <input id="submit-order-btn" class="btn btn-success" type="submit" value="Submit Order">
+    <button id="submit-order-btn">Submit Order</button>
 
     {{!-- Hidden element contains model name necessary for Javascript function. --}}
     <div id="model-name" class="hidden-name">{{@modelName}}</div>
@@ -88,4 +88,5 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
-<script src="/js/customerOrder.js"></script>
+<script src="/js/orders.js"></script>
+<script src="/js/customer.js"></script>

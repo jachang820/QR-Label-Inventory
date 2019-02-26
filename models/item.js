@@ -33,9 +33,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: "Status is invalid."
         }
       }
-    },
-    created: DataTypes.DATEONLY,
-    hidden: DataTypes.DATEONLY
+    }
   }, {
     timestamps: true,
     createdAt: 'created',

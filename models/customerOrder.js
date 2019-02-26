@@ -39,7 +39,6 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: '',
       allowNull: true
     },
-    shipped: DataTypes.DATEONLY,
     hidden: DataTypes.DATEONLY
   }, {
     timestamps: true,

@@ -2,152 +2,35 @@
 window.addEventListener('load', function() {
 
   let tbody = document.getElementById('list-body');
-  const model = document.getElementById('model-name').textContent;
 
-  /* Add new line to form. */
-  const createNewLine = function(line) {
-  	let tr = document.createElement('tr');
-  	tr.classList.add('new');
-  	tr.appendChild(createActionColumn());
-  	tr.appendChild(createCodedColumn());
-
-    const serial = line.serial;
-  	const sku = line.sku;
-  	const quantity = line.quantity;
-  	tr.appendChild(createDataColumn({serial}));
-    tr.appendChild(createDataColumn({sku}));
-  	tr.appendChild(createDataColumn({quantity}));
-  	tbody.appendChild(tr);
-  }
-
-  /* Create action column. */
-  const createActionColumn = function() {
-  	let tdAction = document.createElement('td');
-  	tdAction.classList.add('new', 'action-col');
-
-  	let img = document.createElement('img');
-  	img.classList.add('action-icon');
-  	img.src = '/images/remove.png';
-  	img.addEventListener('click', deleteRowEvent);
-  	tdAction.appendChild(img);
-  	return tdAction;
+  /* Get selected serial. */
+  const getSerial = function(line, tr) {
+    const tdSerial = tr.children[2];
+    const serialInput = tdSerial.firstElementChild;
+    line.serial = serialInput.value.trim();
   };
 
-  /* Create coded column. */
-  const createCodedColumn = function() {
-  	let tdCoded = document.createElement('td');
-  	tdCoded.classList.add('new', 'color-coded');
-  	return tdCoded;
-  };
-
-  /* Create data column. */
-  const createDataColumn = function(data) {
-  	const name = Object.keys(data)[0];
-  	const value = Object.values(data)[0];
-  	let tdData = document.createElement('td');
-  	tdData.classList.add(name, 'new');
-
-  	const text = document.createTextNode(value);
-  	tdData.appendChild(text);
-  	return tdData;
-  };
-
-  /* Sum total. */
-  const sumItemTotal = function() {
-  	const rows = tbody.children;
-  	let sum = 0;
-  	for (let i = 0; i < rows.length; i++) {
-  		const quantity = parseInt(rows[i].lastChild.textContent);
-  		if (!isNaN(quantity)) {
-  			sum += quantity;
-  		}
-  	}
-  	const text = document.createTextNode(sum);
-  	let total = document.getElementById('total');
-  	total.textContent = '';
-  	document.getElementById('total').appendChild(text);
-  };
-
-  /* Event to delete clicked row. */
-  const deleteRowEvent = function(event) {
-  	const tr = event.currentTarget.parentNode.parentNode;
-  	tbody.removeChild(tr);
-  }
-
-  /* Create list representing all the line items. */
-  const getItems = function() {
-    let lines = [];
-    for (let i = 1; i < tbody.children.length; i++) {
-    	const tr = tbody.children[i];
-      lines.push(getItem(tr));
-    }
-    return lines;
-  };
-
-  /* Create object representing one line item. */
-  const getItem = function(tr) {
-  	let line = {};
-  	for (let j = 2; j < tr.children.length; j++) {
-  		const td = tr.children[j];
-  		const name = td.className.split(' ')[0];
-  		const text = td.textContent.trim();
-  		line[name] = text;
-  	}
-  	return line;
-  }
-
-  /* Create object representing newly entered line. */
-  const getNewItem = function() {
-  	let line = {};
-  	const tr = tbody.firstElementChild;
-  	
-  	/* Get selected serial. */
-  	const tdSerial = tr.children[2];
-  	const serialInput = tdSerial.firstElementChild;
-  	line.serial = serialInput.value.trim();
-
-    /* Get selected SKU. */
+  /* Get selected SKU. */
+  const getSku = function(line, tr) {
     const tdSku = tr.children[3];
     const skuOption = tdSku.firstElementChild;
     const skuIndex = skuOption.selectedIndex;
     if (skuIndex >= 0) {
       line.sku = skuOption.options[skuIndex].value;
     }
+  };
 
+  const getQuantity = function(line, tr) {
     line.quantity = 1;
-  	
-    return line;
   };
 
-  /* Remove all children nodes. */
-  const empty = function(root) {
-    while (root.firstChild) {
-      root.removeChild(root.firstChild);
-    }
-  };
-
-  /* Propagate errors to a cell. */
-  const appendErrors = function(col, errors) {
-  	if (!errors || errors.length == 0) return;
-
-    /* Empty the corresponding error list. */
-    let errList = col.getElementsByTagName('ul')[0];
-    if (errList) {
-      empty(errList);
-
-      /* Find relevant errors and add to cell. */
-      for (let k = 0; k < errors.length; k++) {
-        let li = document.createElement('li');
-        li.textContent = errors[k];
-        errList.appendChild(li);
-      }
-    }
-  };
+  /* List of functions to get new item. */
+  const getFields = [getSerial, getSku, getQuantity];
 
   /* Function attached to new line item event listener. */
   const createLineEvent = function(event) {
     const tr = tbody.firstElementChild;
-    const line = getNewItem();
+    const line = getNewItem(getFields);
 
     /* Validate serial. */
     let errors = [];
@@ -238,24 +121,11 @@ window.addEventListener('load', function() {
   	}).catch(function(err) {
   		const tr = tbody.firstElementChild;
   		appendErrors(tr.children[2], ["Server error."]);
-  		console.log(err);
       button.disabled = false;
   	});
   }
 
-  /* POST to create new. */
-  let addImg = document.getElementsByClassName('action-icon')[0];
-  addImg.addEventListener('click', createLineEvent);
-
-  let submitBtn = document.getElementById('submit-order-btn');
-  submitBtn.addEventListener('click', createOrderEvent);
-
-  /* Add new line on enter key. */
-  document.addEventListener('keypress', function(event) {
-    if (event.keyCode == 13) {
-      event.preventDefault();
-      createLineEvent(event);
-    }
-  });
+  /* Add event listeners. */
+  setupEvents(createLineEvent, createOrderEvent);
 
 });

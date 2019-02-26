@@ -1,5 +1,5 @@
 const BaseRepo = require('./base');
-const { Profile } = require('../models');
+const { Profile, sequelize } = require('../models');
 
 class ProfileRepo extends BaseRepo {
 
@@ -17,7 +17,13 @@ class ProfileRepo extends BaseRepo {
     order = order ? [[order, direction]] : this.defaultOrder;
     let opts = { 
       order,
-      attributes: { include: [['id', 'clickId']], exclude: ['id'] },
+      attributes: {
+        include: [
+          ['id', 'clickId'],
+          [sequelize.literal(`COALESCE(created::text , '')`), 'created']
+        ], 
+        exclude: ['id']
+      },
       offset: (page - 1) * 20 
     };
     if (page > 0) opts.offset = (page - 1) * 20;
@@ -28,7 +34,13 @@ class ProfileRepo extends BaseRepo {
   async get(id) {
     return this._get({
       where: { id },
-      attributes: { include: [['id', 'clickId']], exclude: ['id'] }
+      attributes: {
+        include: [
+          ['id', 'clickId'],
+          [sequelize.literal(`COALESCE(created::text , '')`), 'created']
+        ], 
+        exclude: ['id']
+      }
     });
   }
 

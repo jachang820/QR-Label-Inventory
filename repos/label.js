@@ -1,5 +1,5 @@
 const BaseRepo = require('./base');
-const { Label } = require('../models');
+const { Label, sequelize } = require('../models');
 
 class LabelRepo extends BaseRepo {
 
@@ -63,7 +63,11 @@ class LabelRepo extends BaseRepo {
     const direction = desc ? 'DESC' : 'ASC';
     order = order ? [[order, direction]] : this.defaultOrder;
     let opts = {
-      attributes: [['id', 'clickId'], 'prefix', 'style', 'created', 'hidden'],
+      attributes: [
+        ['id', 'clickId'], 'prefix', 'style', 
+        [sequelize.literal(`COALESCE(created::text , '')`), 'created'], 
+        'hidden'
+      ],
       order
     };
     if (page > 0) opts.offset = (page - 1) * 20;

@@ -62,7 +62,13 @@ class ColorRepo extends BaseRepo {
     order = order ? [[order, direction]] : this.defaultOrder;
     let opts = {
       order,
-      attributes: { include: [['id', 'clickId']], exclude: ['id']}
+      attributes: {
+        include: [
+          ['id', 'clickId'],
+          [sequelize.literal(`COALESCE(created::text , '')`), 'created']
+        ], 
+        exclude: ['id']
+      }
     };
     if (page > 0) opts.offset = (page - 1) * 20;
     if (filter) opts.where = ColorRepo.insertDateRange(filter);

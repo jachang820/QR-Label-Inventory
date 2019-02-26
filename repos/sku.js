@@ -140,8 +140,9 @@ class SkuRepo extends BaseRepo {
 
   _listIdOptions({ paranoid = true, page = 1, order = null, filter = null } = {}) {
     return this._buildList(page, order, filter, [
-      ['id', 'clickId'], 'id', 'upc', 'colorId', 
-      'sizeId', 'created', 'used', 'hidden'
+      ['id', 'clickId'], 'id', 'upc', 'colorId', 'sizeId', 
+      [Sequelize.literal(`COALESCE("Sku".created::text , '')`), 'created'],
+      'used', 'hidden'
     ], paranoid);
   }
 
@@ -150,7 +151,8 @@ class SkuRepo extends BaseRepo {
       ['id', 'clickId'], 'id', 'upc',
       [Sequelize.col('Color.name'), 'color'], 
       [Sequelize.col('Size.name'), 'size'], 
-      'created', 'used', 'hidden'
+      [Sequelize.literal(`COALESCE("Sku".created::text , '')`), 'created'], 
+      'used', 'hidden'
     ], paranoid);
   }
 

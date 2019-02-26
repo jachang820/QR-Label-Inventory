@@ -1,8 +1,6 @@
-/* List all elements of a model. */
 window.addEventListener('load', function() {
 
   let tbody = document.getElementById('list-body');
-  const model = document.getElementById('model-name').textContent;
 
   /* Add new line to form. */
   const createNewLine = function(line) {
@@ -20,7 +18,7 @@ window.addEventListener('load', function() {
   	tr.appendChild(createDataColumn({inner}));
   	tr.appendChild(createDataColumn({quantity}));
   	tbody.appendChild(tr);
-  }
+  };
 
   /* Create action column. */
   const createActionColumn = function() {
@@ -74,7 +72,7 @@ window.addEventListener('load', function() {
   const deleteRowEvent = function(event) {
   	const tr = event.currentTarget.parentNode.parentNode;
   	tbody.removeChild(tr);
-  }
+  };
 
   /* Create list representing all the line items. */
   const getItems = function() {
@@ -96,7 +94,7 @@ window.addEventListener('load', function() {
   		line[name] = text;
   	}
   	return line;
-  }
+  };
 
   /* Create object representing newly entered line. */
   const getNewItem = function() {
@@ -127,9 +125,7 @@ window.addEventListener('load', function() {
   };
 
   /* Propagate errors to a cell. */
-  const appendErrors = function(col, errors) {
-  	if (!errors) return;
-
+  const appendErrors = function(col, errors = []) {
     /* Empty the corresponding error list. */
     let errList = col.getElementsByTagName('ul')[0];
     empty(errList);
@@ -204,6 +200,10 @@ window.addEventListener('load', function() {
       	/* Erase input data. */
       	tr.children[2].firstElementChild.selectedIndex = -1;
       	tr.children[3].firstElementChild.value = "";
+
+        /* Clear errors. */
+        appendErrors(tr.children[2]);
+        appendErrors(tr.children[3]);
         
       }
     }).catch(function(err) {

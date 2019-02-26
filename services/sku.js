@@ -7,7 +7,16 @@ class Skus extends BaseService {
     super(SkuRepo);
   }
 
-  async getListView(page = 1, order, desc, filter) {
+  async getListView(page = 1, order = false, desc = false, filter = {}) {
+    if (filter.id) filter.id = filter.id.toUpperCase();
+    if (filter.color) {
+      filter.colorId = filter.color;
+      delete filter.color;
+    }
+    if (filter.size) {
+      filter.sizeId = filter.size;
+      delete filter.size;
+    }
     return this._getListView(page, order, desc, filter);
   }
 

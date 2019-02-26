@@ -2,18 +2,22 @@
   <ul>
     <li><a href="http://www.smokebuddy.com">
       <img id="nav-logo" src="/images/smokebuddy-logo-nav.png"></a></li>
-    {{#if-role @role "in" "A"}}
+    {{#if-role @role "in" "A"~}}
       <li><div id="nav-settings">Settings</div></li>
-    {{/if-role}}
+    {{/if-role~}}
     <li><div id="nav-inventory">Inventory</div></li>
-    <li><a href="/scan">Scan</a></li>
-    <li><div id="nav-customer">Customer Orders</div></li>
-    <li><div id="nav-factory">Factory Orders</div></li>
+    {{#if-role @role "in" "AS"~}}
+      <li><div id="nav-customer">Customer Orders</div></li>
+    {{/if-role~}}
+    {{~#if-role @role "in" "ASF"}}
+      <li><div id="nav-factory">Factory Orders</div></li>
+    {{/if-role~}}
     <li><a href="/auth/logout">Logout</a></li>
-    <li><img src="/images/thumbs/{{@picture}}" id="profile-photo" alt="User photo"></li>
   </ul>
+  <img src="/images/thumbs/{{@picture}}" id="profile-photo" alt="User photo">
 </nav>
 
+{{#if-role @role "in" "A"~}}
 <div id="nav-settings-menu">
   <ul>
     <li><a href="/accounts">Account</a></li>
@@ -23,32 +27,35 @@
     <li><a href="/labels">Label URL</a></li>
   </ul>
 </div>
+{{/if-role~}}
 
 <div id="nav-inventory-menu">
   <ul>
-    {{#if-role @role "in" "AS"}}
-      <li><a href="/inventory">View</a></li>
-    {{/if-role}}
-    <li><a href="/inventory/new_item">Add Item</a></li>
+    <li><a href="/inventory">View</a></li>
+    {{#if-role @role "in" "AS"~}}
+      <li><a href="/inventory/new_item">Add Item</a></li>
+    {{/if-role~}}
   </ul>
 </div>
 
+{{#if-role @role "in" "AS"~}}
 <div id="nav-customer-menu">
   <ul>
-    {{#if-role @role "in" "AS"}}
-      <li><a href="/customer_orders">Create</a></li>
-    {{/if-role}}
+    <li><a href="/customer_orders">Create</a></li>
     <li><a href="/customer_orders/view">View</a></li>
   </ul>
 </div>
+{{/if-role~}}
 
+{{#if-role @role "in" "ASF"~}}
 <div id="nav-factory-menu">
   <ul>
-    {{#if-role @role "in" "AS"}}
-      <li><a href="/factory_orders">Create</a></li>
-    {{/if-role}}
+    {{#if-role @role "in" "AS"~}}
+    <li><a href="/factory_orders">Create</a></li>
+    {{/if-role~}}
     <li><a href="/factory_orders/view">View</a></li>
   </ul>
 </div>
+{{/if-role~}}
 
 <script src="/js/nav.js"></script>

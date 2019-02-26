@@ -1,52 +1,93 @@
 window.addEventListener('load', function() {
 
+  /* All navigation elements. */
   let settings = document.getElementById('nav-settings');
-  let settings_menu = document.getElementById('nav-settings-menu');
-  let inventory = document.getElementById('nav-inventory');
-  let inventory_menu = document.getElementById('nav-inventory-menu');
-  let customer = document.getElementById('nav-customer');
-  let customer_menu = document.getElementById('nav-customer-menu');
-  let factory = document.getElementById('nav-factory');
-  let factory_menu = document.getElementById('nav-factory-menu');
-
-  const hideAllMenus = function() {
-    settings.style.backgroundColor = '#0C7436';
-    settings_menu.style.display = 'none';
-    inventory.style.backgroundColor = '#0C7438';
-    inventory_menu.style.display = 'none';
-    customer.style.backgroundColor = '#0C7436';
-    customer_menu.style.display = 'none';
-    factory.style.backgroundColor = '#0C7436';
-    factory_menu.style.display = 'none';
+  let settingsMenu = document.getElementById('nav-settings-menu');
+  if (settingsMenu) {
+    const settingsLeft = settings.getBoundingClientRect().left;
+    settingsMenu.style.left = parseInt(settingsLeft + 5) + 'px';
   }
 
-  settings.addEventListener('click', function(event) {
-    hideAllMenus();
-    settings.style.backgroundColor = '#0C4426';
-    settings_menu.style.display = 'block';
-    event.stopPropagation();
-  });
+  let inventory = document.getElementById('nav-inventory');
+  let inventoryMenu = document.getElementById('nav-inventory-menu');
+  if (inventoryMenu) {
+    const inventoryLeft = inventory.getBoundingClientRect().left;
+    inventoryMenu.style.left = parseInt(inventoryLeft + 5) + 'px';
+  }
 
-  inventory.addEventListener('click', function(event) {
-    hideAllMenus();
-    inventory.style.backgroundColor = '#0C4426';
-    inventory_menu.style.display = 'block';
-    event.stopPropagation();
-  });
+  let customer = document.getElementById('nav-customer');
+  let customerMenu = document.getElementById('nav-customer-menu');
+  if (customerMenu) {
+    const customerLeft = customer.getBoundingClientRect().left;
+    customerMenu.style.left = parseInt(customerLeft + 5) + 'px';
+  }
 
-  customer.addEventListener('click', function(event) {
-    hideAllMenus();
-    customer.style.backgroundColor = '#0C4426';
-    customer_menu.style.display = 'block';
-    event.stopPropagation();
-  });
+  let factory = document.getElementById('nav-factory');
+  let factoryMenu = document.getElementById('nav-factory-menu');
+  if (factoryMenu) {
+    const factoryLeft = factory.getBoundingClientRect().left;
+    factoryMenu.style.left = parseInt(factoryLeft + 5) + 'px';
+  }
 
-  factory.addEventListener('click', function(event) {
-    hideAllMenus();
-    factory.style.backgroundColor = '#0C4426';
-    factory_menu.style.display = 'block';
-    event.stopPropagation();
-  })
+  const INACTIVE = '#0C7436';
+  const ACTIVE = '#0C4426';
+
+  /* Hide all submenus. */
+  const hideAllMenus = function() {
+    if (settings && settingsMenu) {
+      settings.style.backgroundColor = INACTIVE;
+      settingsMenu.style.display = 'none';
+    }
+    if (inventory && inventoryMenu) {
+      inventory.style.backgroundColor = INACTIVE;
+      inventoryMenu.style.display = 'none';
+    }
+    if (customer && customerMenu) {
+      customer.style.backgroundColor = INACTIVE;
+      customerMenu.style.display = 'none';
+    }
+    if (factory && factoryMenu) {
+      factory.style.backgroundColor = INACTIVE;
+      factoryMenu.style.display = 'none';
+    }
+  }
+
+  /* Show a particular submenu, and hide all others, if clicked. */
+  if (settings && settingsMenu) {
+    settings.addEventListener('click', function(event) {
+      hideAllMenus();
+      settings.style.backgroundColor = ACTIVE;
+      settingsMenu.style.display = 'block';
+      event.stopPropagation();
+    });
+  }
+
+  if (inventory && inventoryMenu) {
+    inventory.addEventListener('click', function(event) {
+      hideAllMenus();
+      inventory.style.backgroundColor = ACTIVE;
+      inventoryMenu.style.display = 'block';
+      event.stopPropagation();
+    });
+  }
+
+  if (customer && customerMenu) {
+    customer.addEventListener('click', function(event) {
+      hideAllMenus();
+      customer.style.backgroundColor = ACTIVE;
+      customerMenu.style.display = 'block';
+      event.stopPropagation();
+    });
+  }
+
+  if (factory && factoryMenu) {
+    factory.addEventListener('click', function(event) {
+      hideAllMenus();
+      factory.style.backgroundColor = ACTIVE;
+      factoryMenu.style.display = 'block';
+      event.stopPropagation();
+    });
+  }
 
   document.addEventListener('click', function() {
     hideAllMenus();

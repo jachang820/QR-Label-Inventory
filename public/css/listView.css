@@ -1,13 +1,14 @@
 table {
   border-collapse: separate;
   border-spacing: 0px;
+  margin: 0px;
 }
 
 table tbody tr:hover {
   background-image: linear-gradient(to right, white, #f4e242, #f4e242, #f4e242);
 }
 
-table th {
+table th, #filter-title {
   background-color: #40404b;
   border-width: 0px;
   text-transform: capitalize;
@@ -15,13 +16,28 @@ table th {
               -1px -1px 0px black,
               1px -1px 0px black,
               -1px 1px 0px black;
-  vertical-align: top;
-  padding: 5px;
-  padding-bottom: 3px;
   font-weight: lighter;
   font-size: 1.25em;
   color: white;
   word-break: break-word;
+}
+
+table th {
+  vertical-align: top;
+  padding: 5px;
+  padding-bottom: 3px;
+}
+
+table,
+thead tr:first-child td:first-child {
+  border-top-left-radius: 10px;
+  overflow: hidden;
+}
+
+table,
+thead tr:first-child td:last-child {
+  border-top-right-radius: 10px;
+  overflow: hidden;
 }
 
 table tr {
@@ -72,7 +88,8 @@ tfoot tr td:last-child {
   border-width: 0px;
 }
 
-input[type=text], input[type=number], select {
+input[type=text], input[type=number], 
+input[type=date], select {
   font-size: 14px;
   padding: 4px;
   display: block;
@@ -81,16 +98,62 @@ input[type=text], input[type=number], select {
   margin: 5px 2px;
 }
 
+select, select option {
+  text-transform: capitalize;
+}
+
 input[type=number] {
   width: 8em;
+}
+
+button {
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: #c9cec0;
+  height: 1.8em;
+}
+
+button:hover {
+  background-color: #95a872;
+}
+
+h1 {
+  margin-bottom: 0px;
 }
 
 .list-all {
   display: inline-block;
 }
 
+.past-filters {
+  border: 2px solid black;
+  border-radius: 10px;
+  padding: 5px;
+  margin: 0px;
+  display: inline-block;
+  background-color: #eee;
+}
+
+.remove-filter {
+  border-radius: 5px;
+  vertical-align: middle;
+  margin: 0px;
+  padding: auto;
+}
+
 .filter {
   display: none;
+}
+
+.active-filter {
+  display: block;
+  height: 32px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.active-filter input {
+  margin: 10px;
 }
 
 .add {
@@ -133,7 +196,7 @@ th.action-col, th.color-coded {
   cursor: default;
 }
 
-.asc, .desc, th .none {
+.asc, .desc, th .none, .filter-icon {
   width: 0.8rem;
   height: 0.8rem;
   opacity: 0.6;
@@ -144,14 +207,16 @@ th.action-col, th.color-coded {
 
 .action-icon:hover, .print-qr:hover,
 .expand:hover, .stock:hover,
-.asc:hover, .desc:hover, .notes-icon:hover {
+.asc:hover, .desc:hover, 
+.notes-icon:hover, .filter-icon:hover {
   opacity: 1.0;
 }
 
 .action-icon:active, .print-qr:active,
 .expand:active, .stock:active,
 .asc:active, .desc:active, 
-.notes-icon:active, .notes-close-btn:active {
+.notes-icon:active, .notes-close-btn:active,
+.filter-icon:active {
   transform: translate(2px, 2px);
 }
 
@@ -163,7 +228,6 @@ th.action-col, th.color-coded {
 
 .today {
   font-style: italic;
-  margin-top: 12px;
 }
 
 .color-coded.add {
@@ -318,15 +382,24 @@ th.action-col, th.color-coded {
   right: 5vh;
   bottom: 5vh;
   width: 4em;
-  height: 2em;
   z-index: 200;
-  border: 1px solid black;
-  border-radius: 5px;
-  background-color: #00A652;
 }
 
-.notes-close-btn:hover {
-  background-color: #0C7436;
+#filter-head th {
+  text-align: left;
+  border-bottom: 1px solid #222;
+  display: none;
+  padding-left: 2vw;
+}
+
+#filter-head input, #filter-head select {
+  display: inline;
+  margin: 10px;
+}
+
+#filter-button {
+  margin: 10px;
+  margin-left: 2.5vw;
 }
 
 #message-bar {
@@ -381,4 +454,12 @@ th.action-col, th.color-coded {
 
 #notes-box {
   margin-bottom: 5vh;
+}
+
+#help {
+  font-size: 0.8em;
+  font-style: italic;
+  text-decoration: underline;
+  margin-top: 0px;
+  cursor: pointer;
 }

@@ -7,6 +7,7 @@ router.all('*', (req, res, next) => {
   return next();
 });
 
+/* Show error status code. */
 router.get('/:status', errorGet);
 
 module.exports = router;

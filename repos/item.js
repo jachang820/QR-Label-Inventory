@@ -23,15 +23,14 @@ class ItemRepo extends BaseRepo {
     }
 
     this.defaultOrder = [
-      ['hidden', 'DESC NULLS FIRST'],
       ['status', 'ASC'],
       ['customerOrderId', 'DESC'],
-      ['id', 'DESC']
+      ['id', 'ASC']
     ];
   }
 
   async list(page = 1, order, desc, filter) {
-    const where = ItemRepo.buildFilterString(filter);
+    let where = ItemRepo.buildFilterString(filter, 'Item');
 
     let offset = '';
     if (page > 0) {
@@ -43,6 +42,23 @@ class ItemRepo extends BaseRepo {
     order = order.map(e => `"Item"."${e[0]}" ${e[1]}`);
     order = order.join(', ');
 
+    /* Convert columns to associate columns. */
+    const map = {
+      factoryOrderId: ['FactoryOrder', 'serial'],
+      customerOrderId: ['CustomerOrder', 'serial'],
+      innerId: ['InnerCarton', 'serial'],
+      masterId: ['MasterCarton', 'serial'],
+      arrival: ['FactoryOrder', 'arrival'],
+      shipped: ['CustomerOrder', 'shipped']
+    };
+    let keys = Object.keys(map);
+    for (let i = 0; i < keys.length; i++) {
+      const oldString = `"Item"."${keys[i]}"`;
+      const newString = `"${map[keys[i]][0]}".${map[keys[i]][1]}`;
+      where = where.split(oldString).join(newString);
+      order = order.split(oldString).join(newString);
+    }
+
     const query = `
       SELECT
         "Item".id AS "clickId", 
@@ -52,10 +68,10 @@ class ItemRepo extends BaseRepo {
         COALESCE("InnerCarton".serial, '') AS "innerId", 
         COALESCE("MasterCarton".serial, '') AS "masterId",
         COALESCE("FactoryOrder".serial, '') AS "factoryId",
-        "Item".created,
-        "FactoryOrder".arrival,
+        COALESCE("Item".created::text, '') AS created,
+        COALESCE("FactoryOrder".arrival::text, '') AS arrival,
         COALESCE("CustomerOrder".serial, '') AS "customerId",
-        "CustomerOrder".shipped
+        COALESCE("CustomerOrder".shipped::text, '') AS shipped
       FROM "Item"
         LEFT JOIN "CustomerOrder" ON "Item"."customerOrderId" = "CustomerOrder".id
         LEFT JOIN "InnerCarton" ON "Item"."innerId" = "InnerCarton".id
@@ -81,7 +97,7 @@ class ItemRepo extends BaseRepo {
         ['serial', 'unit'], 
         'status', 
         [db.sequelize.literal(`UPPER(sku)`), 'SKU'], 
-        'created', 
+        [db.sequelize.literal(`COALESCE(created::text , '')`), 'created'], 
         [db.sequelize.literal(`COALESCE("FactoryOrder".serial, '')`), 
           'Factory Order']
       ],
@@ -94,25 +110,31 @@ class ItemRepo extends BaseRepo {
   }
 
   async getStock(id) {
-    const Op = db.Sequelize.Op;
     const tables = ['Item', 'InnerCarton', 'MasterCarton'];
-    const by = tables.map(e => `"${e}".serial = '${id}'`).join(` OR `);
+    const filter = tables.map(e => `"${e}".serial = '${id}'`).join(` OR `);
     
-    let items = await this.list(by, 0, 'id', 'true');
+    let items = await this.list(0, 'id', true, filter);
 
     if (items.length === 0) {
       ItemRepo._handleErrors(new Error("Item not found."), 'serial');
 
-    } else if (items.filter(e => e.status !== 'in stock').length > 0) {
+    } else if (items.filter(e => e.status !== 'In Stock').length > 0) {
       ItemRepo._handleErrors(new Error("Item is not in stock."), 'serial');
     }
-
-    for (let i = 0; i < items.length; i++) {
-      delete items[i].status;
-      delete items[i].factorySerial;
-      delete items[i].customerSerial;
-    }
     return items;
+  }
+
+  async get(id) {
+    return this._get({
+      where: { id },
+      attributes: {
+        include: [
+          [db.sequelize.literal(`COALESCE(created::text , '')`), 'created']
+        ], 
+        exclude: ['id'] 
+      },
+      paranoid: false
+    });
   }
 
   /* Cartons is a list in the format
@@ -135,13 +157,12 @@ class ItemRepo extends BaseRepo {
       return this._update(
         { status: 'Ordered' },
         { paranoid: false, 
-          where: { innerId } 
+          where: { innerId }
         }
       );
     }, transaction);
   }
 
-  /* 'id' can be factoryOrderId or customerOrderId. */
   async stock(id, transaction) {
     const Op = db.Sequelize.Op;
     return this.transaction(async (t) => {
@@ -150,6 +171,7 @@ class ItemRepo extends BaseRepo {
         { paranoid: false, 
           where: {
             [Op.or]: [
+              { id },
               { factoryOrderId: id },
               { customerOrderId: id }
             ] 
@@ -157,6 +179,11 @@ class ItemRepo extends BaseRepo {
         }
       );
     }, transaction);
+  }
+
+  /* Alias for stock. */
+  async use(id) {
+    return this.stock(id);
   }
 
   async ship(customerOrderId, itemId, transaction) {
@@ -183,15 +210,26 @@ class ItemRepo extends BaseRepo {
     }, transaction);
   }
 
-  async cancel(innerId, transaction) {
+  async cancel(id, transaction) {
+    const Op = db.Sequelize.Op;
     return this.transaction(async (t) => {
       return this._update(
         { status: 'Cancelled' },
         { paranoid: false, 
-          where: { innerId } 
+          where: {
+            [Op.or]: [
+              { id },
+              { innerId: id }
+            ]
+          }
         }
       );
     }, transaction);
+  }
+
+  /* Alias for cancel. */
+  async hide(id) {
+    return this.cancel(id);
   }
 
   describe() { 
@@ -204,12 +242,15 @@ class ItemRepo extends BaseRepo {
       masterId: columns.masterId,
       factoryOrderId: columns.factoryOrderId,
       created: columns.created,
-      arrival: { type: 'dateonly', optional: true },
+      arrival: { type: 'date', optional: true },
       customerOrderId: columns.customerOrderId,
-      shipped: { type: 'dateonly', optional: true }
+      shipped: { type: 'date', optional: true }
     };
   }
 
+  statuses() {
+    return this.Model.rawAttributes.status.values;
+  }
 };
 
 module.exports = ItemRepo;

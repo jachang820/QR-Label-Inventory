@@ -66,8 +66,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: "Role is invalid."
         }
       }
-    },
-    created: DataTypes.DATEONLY
+    }
   }, {
     timestamps: true,
     createdAt: 'created',

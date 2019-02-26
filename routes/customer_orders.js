@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/authorize');
 
 const ordersGet = require('../controllers/customerOrdersGet');
 const ordersIdGet = require('../controllers/customerOrdersIdGet');
@@ -15,16 +16,22 @@ router.all('*', (req, res, next) => {
   return next();
 });
 
+/* Show form to add new customer orders. */
 router.get('/', ordersGet);
 
+/* View existing customer orders. */
 router.get('/view', ordersViewGet);
 
+/* Get scanned item details for new order form. */
 router.get('/:id', ordersIdGet);
 
-router.put('/view/:id', ordersViewPut);
+/* Cancel or re-enable orders. */
+router.put('/view/:id', auth('A'), ordersViewPut);
 
+/* Submit new customer order. */
 router.post('/', ordersPost);
 
+/* Show items shipped out by a particular order. */
 router.get('/view/details/:id', ordersDetailsGet);
 
 module.exports = router;

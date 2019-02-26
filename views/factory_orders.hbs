@@ -45,7 +45,7 @@
           <td class="color-coded add"></td>
           <td class="sku add">
             <select name="sku">
-              <option disabled selected value="">Select a SKU:</option>
+              <option disabled selected value="">Select SKU:</option>
               {{#each skus}}
                 <option value="{{this}}">{{this}}</option>
               {{/each}}
@@ -74,7 +74,7 @@
     </div>
 
     <br>
-    <input id="submit-order-btn" class="btn btn-success" type="submit" value="Submit Order">
+    <button id="submit-order-btn">Submit Order</button>
 
     {{!-- Hidden element contains model name necessary for Javascript function. --}}
     <div id="model-name" class="hidden-name">{{@modelName}}</div>
@@ -82,4 +82,5 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
-<script src="/js/factoryOrder.js"></script>
+<script src="/js/orders.js"></script>
+<script src="/js/factory.js"></script>

@@ -19,10 +19,9 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     arrival: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.DATE,
       allowNull: true
     },
-    ordered: DataTypes.DATEONLY,
     hidden: DataTypes.DATEONLY
   }, {
     timestamps: true,

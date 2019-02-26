@@ -9,7 +9,10 @@ class FactoryOrders extends BaseService {
     super(FactoryOrderRepo);
   }
 
-  async getListView(page = 1, order, desc, filter) {
+  async getListView(page = 1, order = false, desc = false, filter = {}) {
+    if (filter.serial) {
+      filter.serial = [filter.serial, filter.serial.toUpperCase()];
+    }
     return this._getListView(page, order, desc, filter,
       FactoryOrders._addListStatus);
   }

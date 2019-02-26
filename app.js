@@ -11,6 +11,7 @@ const hbs = require('hbs');
 
 const hbsRoles = require('./helpers/hbsRoles');
 const hbsEquals = require('./helpers/hbsEquals');
+const hbsCapitalize = require('./helpers/hbsCapitalize');
 const indexRouter = require('./routes/index');
 
 dotenv.load();
@@ -61,6 +62,7 @@ hbs.localsAsTemplateData(app);
 // register Handlebars helpers
 hbsRoles(hbs);
 hbsEquals(hbs);
+hbsCapitalize(hbs);
 
 // config session cookie
 var sess = {

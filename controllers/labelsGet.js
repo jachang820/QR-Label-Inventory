@@ -31,6 +31,7 @@ module.exports = [
   organizeQuery(new Labels()),
 
   async (req, res, next) => {
+    console.dir(res.locals.list, {depth: null});
     return res.render('listView');
   }
 ];

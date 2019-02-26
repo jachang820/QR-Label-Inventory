@@ -8,13 +8,20 @@ class CustomerOrders extends BaseService {
     super(CustomerOrderRepo);
   }
 
-  async getListView(page = 1, order, desc, filter) {
+  async getListView(page = 1, order = false, desc = false, filter = {}) {
+    if (filter.serial) {
+      filter.serial = [filter.serial, filter.serial.toUpperCase()];
+    }
+    if (filter.type) {
+      filter.type = CustomerOrders.toTitleCase(filter.type);
+    }
     return this._getListView(page, order, desc, filter,
       CustomerOrders._addListStatus);
   }
 
   async getSchema() {
     let schema = await this._getSchema();
+    schema.type.select = this.repo.types();
     schema.serial.alias = "Order";
     schema.serial.explanation = "Customer order serial number.";
     schema.type.explanation = "Order either sold retail or wholesale.";

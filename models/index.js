@@ -11,7 +11,7 @@ const config = require('../config/config.json')[env];
 const db = {};
 
 Sequelize.useCLS(namespace);
-config.define = { freezeTableName: true };
+config.define = { freezeTableName: true, timezone: 'UTC' };
 
 var sequelize;
 if (config.use_env_variable) {

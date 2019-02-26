@@ -6,8 +6,9 @@ class Profiles extends BaseService {
     super(ProfileRepo);
   }
 
-  async getListView(page = 1, order, desc, filter) {
-    return this.repo.list(page, order, desc, filter,
+  async getListView(page = 1, order = false, desc = false, filter = {}) {
+    if (filter.role) filter.role = Profiles.toTitleCase(filter.role);
+    return this._getListView(page, order, desc, filter,
       Profiles._addListStatus);
   }
 

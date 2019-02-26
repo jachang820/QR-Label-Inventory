@@ -15,7 +15,7 @@ class CustomerOrderRepo extends BaseRepo {
 
     this.defaultOrder = [
       ['hidden', 'DESC NULLS FIRST'],
-      ['shipped', 'DESC NULLS FIRST'],
+      ['shipped', 'DESC'],
       ['serial', 'DESC']
     ];
   }
@@ -47,7 +47,9 @@ class CustomerOrderRepo extends BaseRepo {
     if (page > 0) {
       offset = `LIMIT 21 OFFSET ${(page - 1) * 20}`;
     }
-    const where = CustomerOrderRepo.buildFilterString(filter);
+    const where = 
+      CustomerOrderRepo.buildFilterString(filter, 'CustomerOrder');
+
     const buildOrder = (order) => {
       order = order.map(e => `"CustomerOrder"."${e[0]}" ${e[1]}`);
       return order.join(', ');
@@ -59,7 +61,7 @@ class CustomerOrderRepo extends BaseRepo {
         "CustomerOrder".serial,
         "CustomerOrder".type,
         "CustomerOrder".notes,
-        "CustomerOrder".shipped,
+        COALESCE("CustomerOrder".shipped::text, '') AS shipped,
         "CustomerOrder".hidden,
         COUNT("Item".id) AS count
       FROM "CustomerOrder"
@@ -90,7 +92,12 @@ class CustomerOrderRepo extends BaseRepo {
   async get(id) {
     return this._get({
       where: { id },
-      attributes: { exclude: ['id'] },
+      attributes: { 
+        include: [
+          [db.sequelize.literal(`COALESCE(shipped::text , '')`), 'shipped']
+        ],
+        exclude: ['id'] 
+      },
       paranoid: false
     });
   }
@@ -152,6 +159,10 @@ class CustomerOrderRepo extends BaseRepo {
       optional: false 
     };
     return columns;
+  }
+
+  types() {
+    return this.Model.rawAttributes.type.values;
   }
 };
 

@@ -1,10 +1,10 @@
 const { param, validationResult } = require('express-validator/check');
 const { sanitizeParam } = require('express-validator/filter');
-const CustomerOrders = require('../services/customerOrder');
+const Items = require('../services/item');
 
-/* Get the necessary information to populate details. */
+/* Update status or return error. */
 module.exports = [
-  
+
   param('id').isInt({ min: 1 }).withMessage("Invalid id."),
 
   sanitizeParam('id').trim().escape().stripLow().toInt(),
@@ -18,12 +18,13 @@ module.exports = [
   },
 
   async (req, res, next) => {
-    const id = req.params.id;
-    const orders = new CustomerOrders();
-    let details = await orders.getDetails(id);
-    for (let i = 0; i < details.length; i++) {
-      details[i].created = new Date(details[i].created).toISOString();
+    const items = new Items();
+    try {
+      await items.changeState(req.params.id);
+      return res.json();
+
+    } catch (err) {
+      return res.json({ errors: err.errors || 'unknown' });
     }
-    return res.json({ details });
   }
 ];

@@ -6,7 +6,7 @@ module.exports = (hbs) => {
   });
 
   hbs.registerHelper('neq?', function(a, b, options) {
-    /* Describe view based on equality. */
+    /* Describe view based on non-equality. */
     return (a != b) ? options.fn(this) : options.inverse(this);
   });
 };

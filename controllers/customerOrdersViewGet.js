@@ -28,7 +28,7 @@ module.exports = [
     return next();
   },
 
-  organizeQuery(new CustomerOrders()),
+  organizeQuery(new CustomerOrders(), 20, ['shipped']),
 
   async (req, res, next) => {
     res.locals.listOnly = true;

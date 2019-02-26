@@ -40,7 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    created: DataTypes.DATEONLY,
     hidden: DataTypes.DATEONLY
   }, {
     timestamps: true,

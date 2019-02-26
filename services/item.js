@@ -7,10 +7,30 @@ class Items extends BaseService {
     super(ItemRepo);
   }
 
-  async getListView(page = 1, order, desc, filter) {
+  async getListView(page = 1, order = false, desc = false, filter = {}) {
     if (filter.serial) {
       const labels = await this.repo.associate.label.listActive(0);
-      filter.serial = this._matchLabelURLs(qrcode, labels);
+      filter.serial = this._matchLabelURLs(filter.serial, labels);
+    }
+    if (filter.status) filter.status = Items.toTitleCase(filter.status);
+    if (filter.sku) filter.sku = filter.sku.toUpperCase();
+    if (filter.masterId) {
+      filter.masterId = [filter.masterId, filter.masterId.toUpperCase()];
+    }
+    if (filter.innerId) {
+      filter.innerId = [filter.innerId, filter.innerId.toUpperCase()];
+    }
+    if (filter.customerOrderId) {
+      filter.customerOrderId = [
+        filter.customerOrderId, 
+        filter.customerOrderId.toUpperCase()
+      ];
+    }
+    if (filter.factoryOrderId) {
+      filter.factoryOrderId = [
+        filter.factoryOrderId, 
+        filter.factoryOrderId.toUpperCase()
+      ];
     }
     return this._getListView(page, order, desc, filter, 
       Items._addListStatus);
@@ -18,12 +38,18 @@ class Items extends BaseService {
 
   async getSchema() {
     let schema = await this._getSchema();
+    const skus = await this.repo.associate.sku.listActive();
+    schema.sku.type = 'reference';
+    schema.status.select = this.repo.statuses();
+    schema.sku.select = skus.map(e => { 
+      return { value: e.id, text: e.id }
+    });
     schema.serial.alias = 'Unit';
     schema.sku.alias = 'SKU';
     schema.innerId.alias = 'Inner';
     schema.masterId.alias = 'Master';
-    schema.factoryOrderId.alias = 'Factory Order';
-    schema.customerOrderId.alias = 'Customer Order';
+    schema.factoryOrderId.alias = 'Factory';
+    schema.customerOrderId.alias = 'Customer';
     schema.serial.explanation = "Item unit serial number.";
     schema.innerId.explanation = "Inner carton serial number.";
     schema.masterId.explanation = "Master carton serial number.";
@@ -85,7 +111,7 @@ class Items extends BaseService {
       /* ID is the next term in the path, or the remaining part of
          last term. */
       if (style === 'Path') {
-        return suffix.split('/')[0];
+        return suffix.split('/')[0].toUpperCase();
 
       /* ID is in the querystring, with key='id'. */
       } else {
@@ -104,14 +130,14 @@ class Items extends BaseService {
             const pair = pairs[j].split('=');
             if (pair.length === 2 && pair[0] === 'id') { 
               if (pair[1].length > 0 && pair[1].length <= 8) {
-                return pair[1];
+                return pair[1].toUpperCase();
               }
             }
           }
         }
       }
     }
-    return qrcode;
+    return qrcode.toUpperCase();
   };
 
   async getDetails(id) {
@@ -124,6 +150,7 @@ class Items extends BaseService {
     }
     for (let i = 0; i < list.length; i++) {
       if (list[i].status === 'In Stock') list[i].state = 'used';
+      else if (list[i].status === 'Cancelled') list[i].state = 'hidden';
       else list[i].state = 'eternal';
       delete list[i].hidden;
     }

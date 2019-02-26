@@ -7,7 +7,9 @@ class Colors extends BaseService {
     super(ColorRepo);
   }
 
-  async getListView(page = 1, order, desc, filter) {
+  async getListView(page = 1, order = false, desc = false, filter = {}) {
+    if (filter.name) filter.name = Colors.toTitleCase(filter.name);
+    if (filter.abbrev) filter.abbrev = filter.abbrev.toUpperCase();
     return this._getListView(page, order, desc, filter);
   }
 

@@ -1,6 +1,6 @@
 const BaseRepo = require('./base');
 const SkuRepo = require('./sku');
-const { Size } = require('../models');
+const { Size, sequelize } = require('../models');
 
 class SizeRepo extends BaseRepo {
 
@@ -64,7 +64,13 @@ class SizeRepo extends BaseRepo {
     order = order ? [[order, direction]] : this.defaultOrder;
     let opts = {
       order,
-      attributes: { include: [['id', 'clickId']], exclude: ['id'] }
+      attributes: {
+        include: [
+          ['id', 'clickId'],
+          [sequelize.literal(`COALESCE(created::text , '')`), 'created']
+        ], 
+        exclude: ['id']
+      }
     };
     if (page > 0) opts.offset = (page - 1) * 20;
     if (filter) opts.where = SizeRepo.insertDateRange(filter);

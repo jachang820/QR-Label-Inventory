@@ -241,21 +241,29 @@ class BaseRepo {
     return whereObj;
   }
 
-  static buildFilterString(filter) {
+  static buildFilterString(filter, model) {
     let where = '';
-    if (typeof filter === 'object' && filter !== null && filter.length > 0) {
+    let keys = Object.keys(filter);
+    if (typeof filter === 'object' && filter !== null && keys.length > 0) {
 
-      where = 'WHERE ' + Object.entries(filter)
-      .map(e => {
-        let str = `"Item"."${e[0]}" `; 
-        if (Array.isArray(e[1])) {
-          return str + `BETWEEN '${e[1][0]}' AND '${e[1][1]}'`;
+      where = 'WHERE ' + Object.entries(filter).map(e => {
+        let str = `"${model}"."${e[0]}"`; 
+        if (Array.isArray(e[1]) && e[1].length === 2) {
+          /* Determine if date. */
+          const referenceDate = new Date('12/12/2012'); // arbitrary
+          if (new Date(e[1][0]) > referenceDate) {
+            return `(${str} BETWEEN '${e[1][0]}' AND '${e[1][1]}')`;  
+          } else {
+            return `(${str} = '${e[1][0]}' OR ${str} = '${e[1][1]}')`;
+          }
+          
         } else {
-          return str + `= '${e[1]}'`;
+          return `${str} = '${e[1]}'`;
         }
       }).join(' AND ');
+
     } else if (typeof filter === 'string') {
-      where = 'WHERE ' + by;
+      where = 'WHERE ' + filter;
     }
     return where;
   }

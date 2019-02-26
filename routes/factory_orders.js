@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/authorize');
 
 const ordersGet = require('../controllers/factoryOrdersGet');
 const ordersSizeGet = require('../controllers/factoryOrdersSizeGet');
@@ -17,21 +18,28 @@ router.all('*', (req, res, next) => {
   return next();
 });
 
-router.get('/', ordersGet);
+/* Show form to add new factory order. */
+router.get('/', auth('AS'), ordersGet);
 
-/* Send SKU size information through JSON. */
-router.get('/size/:sku', ordersSizeGet);
+/* Get SKU size information for new order form. */
+router.get('/size/:sku', auth('AS'), ordersSizeGet);
 
+/* Show existing factory orders. */
 router.get('/view', ordersViewGet);
 
-router.put('/view/:id', ordersViewPut);
+/* Cancel factory orders. */
+router.put('/view/:id', auth('A'), ordersViewPut);
 
-router.put('/view/stock/:id', ordersStockPut);
+/* Receive factory order to mark it as In Stock. */
+router.put('/view/stock/:id', auth('AS'), ordersStockPut);
 
-router.post('/', ordersPost);
+/* Submit new factory order. */
+router.post('/', auth('AS'), ordersPost);
 
+/* Download QR templates. */
 router.get('/view/labels/:id', ordersLabelsGet);
 
+/* Expand to show master cartons created by factory order. */
 router.get('/view/details/:id', ordersDetailsGet);
 
 module.exports = router;

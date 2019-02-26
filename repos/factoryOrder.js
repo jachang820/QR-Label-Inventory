@@ -54,7 +54,9 @@ class FactoryOrderRepo extends BaseRepo {
     if (page > 0) {
       offset = `LIMIT 21 OFFSET ${(page - 1) * 20}`;
     }
-    const where = FactoryOrderRepo.buildFilterString(filter);
+    const where = 
+      FactoryOrderRepo.buildFilterString(filter, 'FactoryOrder');
+      
     const aggregate = (column) => {
       return `(
         SELECT COALESCE(SUM(line_item."${column}"), 0)
@@ -82,8 +84,8 @@ class FactoryOrderRepo extends BaseRepo {
         "FactoryOrder".id AS "clickId",
         "FactoryOrder".serial,
         "FactoryOrder".notes,
-        "FactoryOrder".arrival,
-        "FactoryOrder".ordered,
+        COALESCE("FactoryOrder".arrival::text, '') AS arrival,
+        COALESCE("FactoryOrder".ordered::text, '') AS ordered,
         "FactoryOrder".hidden, 
         ${aggregate('masterCartons')},
         ${aggregate('innerCartons')},
@@ -139,8 +141,8 @@ class FactoryOrderRepo extends BaseRepo {
       )
       SELECT
         "FactoryOrder".serial,
-        "FactoryOrder".ordered,
-        "FactoryOrder".arrival,
+        COALESCE("FactoryOrder".ordered::text, '') AS ordered,
+        COALESCE("FactoryOrder".arrival::text, '') AS arrival,
         "FactoryOrder".hidden,
         (
           SELECT JSON_AGG(master) FROM master

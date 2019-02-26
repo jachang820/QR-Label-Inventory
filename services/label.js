@@ -6,8 +6,9 @@ class Labels extends BaseService {
     super(LabelRepo);
   }
 
-  async getListView(page = 1, order, desc, filter) {
-    return this.repo.list(page, order, desc, filter,
+  async getListView(page = 1, order = false, desc = false, filter = {}) {
+    if (filter.style) filter.style = Labels.toTitleCase(filter.style);
+    return this._getListView(page, order, desc, filter,
       Labels._addListStatus);
   }
 

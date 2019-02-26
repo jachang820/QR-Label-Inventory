@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/authorize');
 
 const inventoryGet = require('../controllers/inventoryGet');
+const inventoryPut = require('../controllers/inventoryPut');
 const inventoryNewItemGet = require('../controllers/inventoryNewItemGet');
 const inventoryPost = require('../controllers/inventoryPost');
 
@@ -12,11 +14,16 @@ router.all('*', (req, res, next) => {
   return next();
 });
 
+/* Show existing items in inventory. */
 router.get('/', inventoryGet);
 
-router.get('/new_item', inventoryNewItemGet);
+/* Cancel or reuse an item. */
+router.put('/:id', auth('A'), inventoryPut);
 
-router.post('/', inventoryPost);
+/* Show form to add new individual item. */
+router.get('/new_item', auth('AS'), inventoryNewItemGet);
 
+/* Submit new item. */
+router.post('/', auth('AS'), inventoryPost);
 
 module.exports = router;
