@@ -32,34 +32,11 @@ class InnerCartonRepo extends BaseRepo {
   }
 
   /* Cartons is a list in the format
-     [...{carton: {sku, masterId, factoryOrderId}, quantity, innerSize}] */
+     [...{sku, masterId}] */
   async create(cartons, transaction) {
+    console.log("IN INNER");
     return this.transaction(async (t) => {
-      let innerList = [];
-      let itemList = [];
-
-      for (let i = 0; i < cartons.length; i++) {
-        const cartonList = Array(cartons[i].quantity).fill(cartons[i].carton);
-        const inner = await this._create(cartonList);
-        innerList.push(inner);
-
-        for (let j = 0; j < inner.length; j++) {
-          const carton = {
-            sku: inner[j].sku,
-            innerId: inner[j].id,
-            masterId: inner[j].masterId,
-            factoryOrderId: cartons[i].carton.factoryOrderId
-          };
-
-          itemList.push({
-            carton: carton,
-            quantity: cartons[i].innerSize
-          });
-        }
-      }
-
-      await this.assoc.item.create(itemList, t);
-      return innerList;
+      return this._create(cartons);
     }, transaction);
   }
 

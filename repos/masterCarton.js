@@ -50,34 +50,10 @@ class MasterCartonRepo extends BaseRepo {
   }
 
   /* Cartons is a list in the format
-     [...{carton: {sku, factoryOrderId}, quantity, innerSize, masterSize}] */
+     [...{sku, factoryOrderId}] */
   async create(cartons, transaction) {
     return this.transaction(async (t) => {
-      let masterList = [];
-      let innerList = [];
-
-      for (let i = 0; i < cartons.length; i++) {
-        const cartonList = Array(cartons[i].quantity).fill(cartons[i].carton);
-        const master = await this._create(cartonList);
-        masterList.push(master);
-
-        for (let j = 0; j < master.length; j++) {
-          const carton = {
-            sku: master[j].sku,
-            masterId: master[j].id,
-            factoryOrderId: master[j].factoryOrderId
-          };
-        
-          innerList.push({
-            carton: carton,
-            quantity: cartons[i].masterSize,
-            innerSize: cartons[i].innerSize
-          });
-        }
-      }
-
-      await this.assoc.innerCarton.create(innerList, t);
-      return masterList;
+      return this._create(cartons);
     }, transaction);
   }
 

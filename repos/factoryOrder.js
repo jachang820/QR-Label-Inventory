@@ -164,7 +164,7 @@ class FactoryOrderRepo extends BaseRepo {
 
   /* 'order' consists of a list of objects with 
      sku and quantity (in number of master cartons).
-     [...{sku, quantity}] */
+     [...{sku, master}] */
   async create(serial, notes, order, transaction) {
     if (typeof serial === 'string' && serial.startsWith('F')) {
       FactoryOrderRepo._handleErrors(
@@ -195,23 +195,51 @@ class FactoryOrderRepo extends BaseRepo {
 
       let masterList = [];
       for (let i = 0; i < order.length; i++) {
-        const carton = {
-          sku: order[i].sku,
-          factoryOrderId: factoryOrder.id 
-        };
+        for (let j = 0; j < order[i].master; j++) {
+          masterList.push({
+            sku: order[i].sku,
+            factoryOrderId: factoryOrder.id
+          });
+        }
+      }
+      const MasterCartonRepo = this.assoc.masterCarton;
+      const masterCartons = await MasterCartonRepo.create(
+        masterList, t);
 
-        const sku = skuDict[carton.sku];
-
-        masterList.push({
-          carton: carton,
-          quantity: order[i].master,
-          innerSize: sku.innerSize,
-          masterSize: sku.masterSize
-        });
+      let innerList = [];
+      for (let i = 0; i < masterCartons.length; i++) {
+        const masterSku = masterCartons[i].sku;
+        const masterSize = skuDict[masterSku].masterSize;
+        for (let j = 0; j < masterSize; j++) {
+          innerList.push({
+            sku: masterCartons[i].sku,
+            masterId: masterCartons[i].id
+          });
+        }
       }
 
-      await this.assoc.masterCarton.create(masterList, t);
+      const InnerCartonRepo = MasterCartonRepo.assoc.innerCarton;
+      const innerCartons = await InnerCartonRepo.create(
+        innerList, t);
 
+      let itemList = [];
+      for (let i = 0; i < innerCartons.length; i++) {
+        const innerSku = innerCartons[i].sku;
+        const innerSize = skuDict[innerSku].innerSize;
+        for (let j = 0; j < innerSize; j++) {
+          itemList.push({
+            status: 'Ordered',
+            sku: innerCartons[i].sku,
+            factoryOrderId: factoryOrder.id,
+            masterId: innerCartons[i].masterId,
+            innerId: innerCartons[i].id
+          });
+        }
+      }
+      
+      const ItemRepo = InnerCartonRepo.assoc.item;
+      const items = await ItemRepo.create(itemList, t);
+       
       for (let i = 0; i < skus.length; i++) {
         await this.assoc.sku.use(skus[i].id);
       }

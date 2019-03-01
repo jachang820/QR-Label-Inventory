@@ -593,7 +593,7 @@ window.addEventListener('load', function() {
 
         /* Replace values with m/d/yyyy part. */
         if (textDate !== "Invalid Date") {
-          dateValues[j].textContent = textDate.substring(0, 9);
+          dateValues[j].textContent = textDate.split(',')[0];
         }
       }
     }

@@ -138,17 +138,10 @@ class ItemRepo extends BaseRepo {
   }
 
   /* Cartons is a list in the format
-     [...{carton: {serial, sku, innerId, masterId, factoryOrderId}, quantity}] */
+     [...{serial, sku, innerId, masterId, factoryOrderId}] */
   async create(cartons, transaction) {
     return this.transaction(async (t) => {
-      let itemList = [];
-
-      for (let i = 0; i < cartons.length; i++) {
-        const cartonList = Array(cartons[i].quantity).fill(cartons[i].carton);
-        const item = await this._create(cartonList);
-        itemList.push(item); 
-      }
-      return itemList;
+      return this._create(cartons);
     }, transaction);
   }
 

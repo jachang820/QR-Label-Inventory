@@ -57,6 +57,7 @@ class BaseRepo {
   /* Create one or more records. */
   async _create(modelObj) {
     let model, err;
+    console.log(modelObj);
 
     /* Use bulkCreate if an array of objects passed in. */
     if (Array.isArray(modelObj)) {

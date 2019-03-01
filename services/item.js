@@ -75,17 +75,15 @@ class Items extends BaseService {
     return this._changeState(item, id);
   }
 
-  /* 'items' is in format of [...{qrcode, sku, quantity}] */
+  /* 'items' is in format of [...{serial, sku, quantity}] */
   async add(items) {
     const labels = await this.repo.associate.label.listActive(0);
-    let cartons = [];
     for (let i = 0; i < items.length; i++) {
       items[i].serial = this._matchLabelURLs(items[i].serial, labels);
       items[i].status = "In Stock";
       delete items[i].quantity;
-      cartons.push({ carton: items[i], quantity: 1 });
     }
-    return this.repo.create(cartons);
+    return this.repo.create(items);
   }
 
   /* 'qrcode' could be QR code or ID. */
