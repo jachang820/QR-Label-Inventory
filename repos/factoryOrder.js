@@ -172,13 +172,16 @@ class FactoryOrderRepo extends BaseRepo {
       );
     }
 
+    /* Array of skus used in order. */
     let skusList = order.map(e => e.sku);
     skusList = [...new Set(skusList)];
 
+    /* Inner and master carton size of skus used in order. */
     const skus = await this.assoc.sku.listSize(1, null, null, {
       id: { [Op.or]: skusList }
     });
 
+    /* Dictionary of { id: { innerSize, masterSize } } per sku. */
     let skuDict = {};
     for (let i = 0; i < skus.length; i++) {
       skuDict[skus[i].id] = {
