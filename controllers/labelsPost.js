@@ -3,7 +3,7 @@ const { sanitizeBody } = require('express-validator/filter');
 const express = require('express');
 const Labels = require('../services/label');
 
-/* Get the necessary information to populate form. */
+/* Create new label url. */
 module.exports = [
 
   /* Validate prefix. */

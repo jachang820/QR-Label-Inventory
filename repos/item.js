@@ -163,20 +163,16 @@ class ItemRepo extends BaseRepo {
     }, transaction);
   }
 
-  async stock(id, transaction) {
+  async stock(id, type, transaction) {
     const Op = db.Sequelize.Op;
+    let where = {};
+    if (type === 'customer') where.customerOrderId = id;
+    else if (type === 'factory') where.factoryOrderId = id;
+    else where.id = id;
     return this.transaction(async (t) => {
       return this._update(
         { status: 'In Stock' },
-        { paranoid: false, 
-          where: {
-            [Op.or]: [
-              { id },
-              { factoryOrderId: id },
-              { customerOrderId: id }
-            ] 
-          } 
-        }
+        { paranoid: false, where }
       );
     }, transaction);
   }
@@ -210,19 +206,15 @@ class ItemRepo extends BaseRepo {
     }, transaction);
   }
 
-  async cancel(id, transaction) {
+  async cancel(id, bulk, transaction) {
     const Op = db.Sequelize.Op;
+    let where = {};
+    if (bulk) where.innerId = id;
+    else where.id = id;
     return this.transaction(async (t) => {
       return this._update(
         { status: 'Cancelled' },
-        { paranoid: false, 
-          where: {
-            [Op.or]: [
-              { id },
-              { innerId: id }
-            ]
-          }
-        }
+        { paranoid: false, where }
       );
     }, transaction);
   }

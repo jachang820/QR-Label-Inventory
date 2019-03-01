@@ -3,7 +3,7 @@ const { sanitizeBody } = require('express-validator/filter');
 const express = require('express');
 const Skus = require('../services/sku');
 
-/* Generates middleware lists for creating SKUs. */
+/* Create new SKU. */
 module.exports = [
 
   /* Validate new SKU. */

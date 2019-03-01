@@ -3,7 +3,7 @@ const { sanitizeParam } = require('express-validator/filter');
 const express = require('express');
 const Labels = require('../services/label');
 
-/* Updates account status. */
+/* Update label urls. */
 module.exports = [
 
   /* Validate Id. */

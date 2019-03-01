@@ -4,13 +4,17 @@ const Colors = require('../services/color');
 const Sizes = require('../services/size');
 const organizeQuery = require('../middleware/organizeQuery');
 
-/* Get the necessary information to populate form. */
+/* Get information to populate form to add colors and sizes. */
 module.exports = (type) => {
 
   const styles = (type === 'color') ? new Colors() : new Sizes();
+  const modelName = `${type}s`;
+  const title = "Manage " + 
+    modelName.charAt(0).toUpperCase() + modelName.substring(1);
+  const columns = (type === 'color') ? 5 : 7;
 
   return [
-
+    /* Validate querystring parameters passed to req.query. */
     query('page').optional().trim()
     .isInt({ min: 1 }).withMessage("Invalid page."),
 
@@ -33,9 +37,16 @@ module.exports = (type) => {
       return next();
     },
 
+    /* Convert all querystring parameters to right format to query
+     database and display. */
     organizeQuery(styles),
 
     async (req, res, next) => {
+      res.locals.css = ['listView.css'];
+      res.locals.title = title;
+      res.locals.columns = columns;
+      /* Path for AJAX requests. */
+      res.locals.modelName = modelName;
       return res.render('listView');
     }
   ];

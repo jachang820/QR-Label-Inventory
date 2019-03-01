@@ -5,14 +5,6 @@ const stylesGet = require('../controllers/stylesGet');
 const stylesPost = require('../controllers/stylesPost');
 const stylesPut = require('../controllers/stylesPut');
 
-router.all('*', (req, res, next) => {
-  res.locals.css = ['listView.css'];
-  res.locals.modelName = 'colors';
-  res.locals.title = 'Colors';
-  res.locals.columns = 5;
-  return next();
-});
-
 /* Show form for managing colors. */
 router.get('/', stylesGet('color'));
 

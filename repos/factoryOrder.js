@@ -224,7 +224,8 @@ class FactoryOrderRepo extends BaseRepo {
       let order = await this._update({ arrival }, {
         where: { id }
       });
-      const items = await this.assoc.masterCarton.stock(id, t);
+      const items = await this.assoc.masterCarton.stock(
+        id, 'factory', t);
       delete order[0].id
       return order[0];
     }, transaction);

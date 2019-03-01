@@ -15,6 +15,8 @@ class Labels extends BaseService {
   async getSchema() {
     let schema = await this._getSchema();
     schema.style.select = this.repo.styles();
+
+    /* Explanations on mouse hovers. */
     schema.prefix.explanation =
       "Entire URL path preceding the serial, not including " +
       "the query string (denoted by '?').";

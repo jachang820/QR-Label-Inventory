@@ -15,9 +15,13 @@ class Sizes extends BaseService {
 
   async getSchema() {
     let schema = await this._getSchema();
+
+    /* Column names to show. */
     schema.abbrev.alias = "Label Abbreviation";
     schema.innerSize.alias = "Units/Inner";
     schema.masterSize.alias = "Inner/Master";
+
+    /* Explanations on mouse hovers. */
     schema.abbrev.explanation = 
       "Abbreviation printed on label template.";
     schema.innerSize.explanation = 
@@ -39,7 +43,7 @@ class Sizes extends BaseService {
   async add(name, abbrev, innerSize, masterSize) {
     name = Sizes.toTitleCase(name);
     abbrev = abbrev.toUpperCase();
-    return this._add(Array.from(arguments));
+    return this._add([name, abbrev, innerSize, masterSize]);
   }
 
 };

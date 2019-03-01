@@ -146,7 +146,8 @@ class CustomerOrderRepo extends BaseRepo {
   async hide(id, transaction) {
     return this.transaction(async (t) => {
       const order = await this._delete({ where: {id} }, false);
-      const item = await this.assoc.item.stock(order.id, transaction);
+      const item = await this.assoc.item.stock(
+        order.id, 'customer', transaction);
       return order;
     }, transaction);
   }

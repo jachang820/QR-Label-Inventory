@@ -3,9 +3,10 @@ const { sanitizeQuery } = require('express-validator/filter');
 const Skus = require('../services/sku');
 const organizeQuery = require('../middleware/organizeQuery');
 
-/* Get the necessary information to populate form. */
+/* Get information to populate form to add SKUs. */
 module.exports = [
 
+  /* Validate querystring parameters passed to req.query. */
   query('page').optional().trim()
     .isInt({ min: 1 }).withMessage("Invalid page."),
 
@@ -28,9 +29,16 @@ module.exports = [
     return next();
   },
 
+  /* Convert all querystring parameters to right format to query
+     database and display. */
   organizeQuery(new Skus()),
 
   async (req, res, next) => {
+    res.locals.css = ['listView.css'];
+    res.locals.title = "Manage SKUs";
+    res.locals.columns = 7;
+    /* Path for AJAX requests. */
+    res.locals.modelName = 'skus';
     return res.render('listView');
   }
 ];

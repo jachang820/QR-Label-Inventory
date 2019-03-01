@@ -4,7 +4,7 @@ const express = require('express');
 const Colors = require('../services/color');
 const Sizes = require('../services/size');
 
-/* Generates middleware lists for creating colors and sizes. */
+/* Create new color or size. */
 module.exports = (type) => {
 
   const styles = (type === 'color') ? new Colors() : new Sizes();

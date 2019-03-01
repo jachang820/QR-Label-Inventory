@@ -7,13 +7,6 @@ const inventoryPut = require('../controllers/inventoryPut');
 const inventoryNewItemGet = require('../controllers/inventoryNewItemGet');
 const inventoryPost = require('../controllers/inventoryPost');
 
-router.all('*', (req, res, next) => {
-  res.locals.css = ['listView.css'];
-  res.locals.modelName = 'inventory';
-  res.locals.title = 'Inventory';
-  return next();
-});
-
 /* Show existing items in inventory. */
 router.get('/', inventoryGet);
 

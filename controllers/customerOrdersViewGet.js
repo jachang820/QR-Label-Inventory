@@ -3,9 +3,10 @@ const { sanitizeQuery } = require('express-validator/filter');
 const CustomerOrders = require('../services/customerOrder');
 const organizeQuery = require('../middleware/organizeQuery');
 
-/* Get the necessary information to populate form. */
+/* Get information to populate form to view existing customer orders. */
 module.exports = [
 
+  /* Validate querystring parameters passed to req.query. */
   query('page').optional().trim()
     .isInt({ min: 1 }).withMessage("Invalid page."),
 
@@ -28,13 +29,20 @@ module.exports = [
     return next();
   },
 
+  /* Convert all querystring parameters to right format to query
+     database and display. */
   organizeQuery(new CustomerOrders(), 20, ['shipped']),
 
   async (req, res, next) => {
-    res.locals.listOnly = true;
-    res.locals.modelName = 'customer_orders/view';
-    res.locals.expand = true;
+    res.locals.css = ['listView.css'];
+    res.locals.title = 'View Customer Orders';
     res.locals.columns = 7;
+    /* Path for AJAX requests. */
+    res.locals.modelName = 'customer_orders/view';
+    /* Form only displays past data, doesn't add new data. */
+    res.locals.listOnly = true;
+    /* Allow expansion to see details. */
+    res.locals.expand = true;
     return res.render('listView');
   }
 ];

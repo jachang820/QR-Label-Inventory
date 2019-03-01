@@ -32,7 +32,7 @@ class ColorRepo extends BaseRepo {
     });
   }
 
-  async create(name, abbrev) { 
+  async create(name, abbrev) {
     return this._create({
       name: name, 
       abbrev: abbrev 

@@ -94,7 +94,7 @@ class InnerCartonRepo extends BaseRepo {
 
       for (let i = 0; i < inner.length; i++) {
         let items = await this.assoc.item.cancel(
-          inner[i].id, t);
+          inner[i].id, true, t);
         inner[i].push(items);
       }
       return inner;

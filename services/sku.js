@@ -8,6 +8,7 @@ class Skus extends BaseService {
   }
 
   async getListView(page = 1, order = false, desc = false, filter = {}) {
+    /* Convert inputs to correct text case. */
     if (filter.id) filter.id = filter.id.toUpperCase();
     if (filter.color) {
       filter.colorId = filter.color;
@@ -30,14 +31,20 @@ class Skus extends BaseService {
     const sizes = await this.repo.associate.size.listActive();
     schema.color.type = 'reference';
     schema.size.type = 'reference';
+
+    /* Include all colors and sizes in listboxes in form. */
     schema.color.select = colors.map(e => { 
       return { value: e.clickId, text: e.name }
     });
     schema.size.select = sizes.map(e => { 
       return { value: e.clickId, text: e.name }
     });
+
+    /* Column names to show. */
     schema.id.alias = "SKU";
     schema.upc.alias = "UPC";
+
+    /* Explanations on mouse hovers. */
     schema.id.explanation = 
       "The SKU represents a color/size combination in the inventory " +
       "system.";
@@ -59,7 +66,7 @@ class Skus extends BaseService {
 
   async add(id, upc, colorId, sizeId) {
     id = id.toUpperCase();
-    return this._add(Array.from(arguments));
+    return this._add([id, upc, colorId, sizeId]);
   }
 
 };

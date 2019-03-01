@@ -97,7 +97,7 @@ window.addEventListener('load', function() {
       /* No new instructions, use current settings. */
       } else if (dirIcon) {
         let th = dirIcon.parentNode;
-        query.push('sort=' + th.className);
+        query.push('sort=' + th.classList.item(0));
       }
 
       /* New sort direction instructions given. */
@@ -139,9 +139,10 @@ window.addEventListener('load', function() {
     let pastFilters = document.getElementsByClassName('past-filters');
     let filters = {};
     for (let i = 0; i < pastFilters.length; i++) {
-      const text = pastFilters[i].textContent.split(' = ');
-      if (text.length === 2) {
-        filters['filter-' + text[0]] = text[1];
+      const text = pastFilters[i].childNodes[0].nodeValue.trim();
+      const pair = text.split(' = ');
+      if (pair.length === 2) {
+        filters['filter-' + pair[0]] = pair[1];
       }
     }
 
@@ -279,7 +280,7 @@ window.addEventListener('load', function() {
     /* Hide details if already expanded. */
     if (detailsRow.classList.length === 3) {
       button.src = '/images/expand.png';
-      detailsRow.classList.remove(2);
+      detailsRow.classList.remove('show');
       return;
     }
 
@@ -331,9 +332,11 @@ window.addEventListener('load', function() {
             let td = document.createElement('td');
             let text = data[i][titles[j]];
 
-            /* Format date columns. */
+            /* Check if field is an ISO-8601 date string. 
+               Convert to m/d/yyyy. */
             const textDate = new Date(text).toLocaleString();
-            if (textDate !== "Invalid Date") {
+            if (textDate !== "Invalid Date" && 
+                typeof text !== 'number') {
               text = textDate.substring(0, 9);
             }
             text = document.createTextNode(text);

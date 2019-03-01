@@ -101,7 +101,7 @@ window.addEventListener('load', function() {
   	const notes = document.getElementById('notes').value;
 
     if (serial.startsWith('F')) {
-      appendErrors(serialDiv, ["Order ID cannot start with 'F'"]);
+      appendErrors(serialDiv, ["Order id cannot start with 'F'"]);
       return;
     }
 

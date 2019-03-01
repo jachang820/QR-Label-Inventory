@@ -62,22 +62,33 @@ window.addEventListener('load', function() {
     /* Test SKU. */
     if (!line.sku || line.sku.length === 0) {
       appendErrors(tr.children[3], ["SKU must be selected."]);
+      numErrors += 1;
     }
 
     if (numErrors > 0) return;
 
     /* No errors. Add line. */
   	const newLine = {
-      serial: line.serial,
+      serial: line.serial.toUpperCase(),
   		sku: line.sku.toUpperCase(),
   		quantity: 1
   	};
     createNewLine(newLine);
 
-  	sumItemTotal();
+  	const numLines = sumItemTotal();
+    let submitButton = document.getElementById('submit-order-btn');
+    if (numLines > 1) {
+      submitButton.value = "Add Items";
+    } else {
+      submitButton.value = "Add Item";
+    }
 
   	/* Erase input data. */
     tr.children[2].firstElementChild.value = "";
+
+    /* Clear errors. */
+    appendErrors(tr.children[2]);
+    appendErrors(tr.children[3]);
   };
 
   /* Send new order to database. */

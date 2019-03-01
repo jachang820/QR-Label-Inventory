@@ -67,6 +67,7 @@ const sumItemTotal = function() {
   let total = document.getElementById('total');
   total.textContent = '';
   document.getElementById('total').appendChild(text);
+  return sum;
 };
 
 /* Event to delete clicked row. */

@@ -1,6 +1,7 @@
 const Skus = require('../services/sku');
 
-/* Get the necessary information to populate form. */
+/* Get inner and master carton sizes to calculate count based on
+   SKU selection. */
 module.exports = async (req, res, next) => {
   const sku = req.params.sku;
   const skus = new Skus();

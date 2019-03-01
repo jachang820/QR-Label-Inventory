@@ -15,8 +15,12 @@ class Profiles extends BaseService {
   async getSchema() {
     let schema = await this._getSchema();
     schema.role.select = this.repo.roles();
+
+    /* Column names to show. */
     schema.firstName.alias = "First Name";
     schema.lastName.alias = "Last Name";
+
+    /* Explanations on mouse hovers. */
     schema.email.explanation = 
       "Unique email per account used to log in.";
     schema.role.explanation =

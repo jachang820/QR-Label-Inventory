@@ -1,6 +1,6 @@
 const Skus = require('../services/sku');
 
-/* Show page to add individual items. */
+/* Get information to populate form to add new items individually. */
 module.exports = [
 
   /* Get all SKUs. */
@@ -13,6 +13,8 @@ module.exports = [
 
   /* Render page. */
   (req, res, next) => {
+    res.locals.css = ['listView.css'];
+    res.locals.title = 'Add New Items';
     return res.render('new_item');
   }
 ];

@@ -21,10 +21,11 @@
   {{!-- Wrapper div provides positional styling options. --}}
   <div class="list-all">
     <table id="list-table">
-      {{!-- Table head generated from keys of @types local. --}}
+      {{!-- Filter options are hidden until expanded. --}}
       <thead id="filter-head">
         <tr>
           <th colspan="{{@columns}}">
+            {{!-- Filter selection box. --}}
             <span id="filter-title">Filter By </span>
             <select name="filter-select" id="filter-select">
               {{#each @types}}{{#unless this.unsortable}}
@@ -38,6 +39,7 @@
               {{~/unless}}{{/each}}
             </select>
 
+            {{!-- Inputs for every filter column. --}}
             {{#each @types}}
             <div id="filter-{{@key}}" class="filter">
               {{~#if this.alias~}}
@@ -85,6 +87,7 @@
           </th>
         </tr>
       </thead>
+      {{!-- Table head generated from keys of @types local. --}}
       <thead id="list-head">
         <tr>
           {{!-- Action column contains icons that act as
@@ -189,10 +192,12 @@
         {{~#each @list}}
         <tr class="{{this.state}}{{#if this.clickId}} id-{{this.clickId}}{{/if}}">
           <td class="action-col {{this.state}}">
+            {{!-- Action icon to expand hidden details row. --}}
             {{~#if @expand}}
             <img class="expand" src="/images/expand.png">
             <div class="explain">Show details.</div>
             {{/if}}
+            {{!-- Action icon to receive order. --}}
             {{~#if @stock}}{{#if-role @role "in" 'AS'}}
               {{#neq? this.state 'eternal'}}
               <img class="stock" src="/images/stock.png">
@@ -201,12 +206,15 @@
               <img class="none" src="/images/none.png">
               {{/neq?~}}
             {{~/if-role~}}{{~/if~}}
+            {{!-- Action icon to download QR template. --}}
             {{#if @printQr}}
               <a href="/{{@modelName}}/labels/{{this.clickId}}">
                 <img class="print-qr" src="/images/print.png">
                 <div class="explain">Download QR template.</div>
               </a>
             {{/if}}
+            {{!-- Action icon to update record status based on
+                  existing status. --}}
             {{~#if-role @role "in" 'A'}}
               {{~#eq? this.state 'new'~}}
                 <img class="action-icon" src="/images/remove.png">
@@ -230,6 +238,8 @@
           <td class="color-coded {{this.state}}"></td>
           {{~#each this}}{{#neq? @key 'state'}}{{#neq? @key 'clickId'}}
           <td class="{{@key}}">
+            {{!-- Notes have variable text and are unsuited for tables.
+                  Therefore, open them up in new modal frame. --}}
             {{~#eq? @key 'notes'~}}
               {{#neq? this ''}}
               <img class="notes-icon" src="/images/notes.png">
@@ -237,12 +247,14 @@
                 <button type="button" class="notes-close-btn">Close</button>
               </div>
               {{/neq?}}
+            {{!-- Show all other data besides notes. --}}
             {{~else~}}
               {{this}}
             {{~/eq?~}}
           </td>
           {{~/neq?}}{{/neq?}}{{/each}}
         </tr>
+        {{!-- Detail row is hidden unless expanded. --}}
         <tr class="details-row{{#if this.clickId}} id-{{this.clickId}}{{/if}}">
           <td colspan="{{@columns}}"></td>
         </tr>
@@ -250,6 +262,7 @@
       </tbody>
       <tfoot>
         <tr>
+          {{!-- Page navigation. --}}
           <td colspan="{{@columns}}">
             <nav id="pages">
               {{#neq? @page 1}}<a id="prior-page">&#12296;</a>{{/neq?}} 

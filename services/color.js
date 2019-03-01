@@ -15,7 +15,11 @@ class Colors extends BaseService {
 
   async getSchema() {
     let schema = await this._getSchema();
+
+    /* Column names to show. */
     schema.abbrev.alias = "Label Abbreviation";
+
+    /* Explanations on mouse hovers. */
     schema.abbrev.explanation = 
       "Abbreviation printed on label template.";
     return schema;
@@ -33,7 +37,7 @@ class Colors extends BaseService {
   async add(name, abbrev) {
   	name = Colors.toTitleCase(name);
   	abbrev = abbrev.toUpperCase();
-    return this._add(Array.from(arguments));
+    return this._add([name, abbrev]);
   }
 
 };

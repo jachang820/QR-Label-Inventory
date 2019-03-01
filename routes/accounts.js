@@ -5,14 +5,6 @@ const accountsGet = require('../controllers/accountsGet');
 const accountsPost = require('../controllers/accountsPost');
 const accountsPut = require('../controllers/accountsPut');
 
-router.all('*', (req, res, next) => {
-  res.locals.css = ['listView.css'];
-  res.locals.modelName = 'accounts';
-  res.locals.title = 'Accounts';
-  res.locals.columns = 7;
-  return next();
-});
-
 /* Get all users and populate user management form. */
 router.get('/', accountsGet); 
 

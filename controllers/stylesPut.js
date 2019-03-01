@@ -4,7 +4,7 @@ const express = require('express');
 const Colors = require('../services/color');
 const Sizes = require('../services/size');
 
-/* Updates style status. */
+/* Update style status. */
 module.exports = (type) => {
 
   const styles = (type === 'color') ? new Colors() : new Sizes();

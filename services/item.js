@@ -8,6 +8,8 @@ class Items extends BaseService {
   }
 
   async getListView(page = 1, order = false, desc = false, filter = {}) {
+    /* Convert inputs to the right text case. In case ids are typed,
+       check for both typed verbatim and uppercase in database. */
     if (filter.serial) {
       const labels = await this.repo.associate.label.listActive(0);
       filter.serial = this._matchLabelURLs(filter.serial, labels);
@@ -40,16 +42,22 @@ class Items extends BaseService {
     let schema = await this._getSchema();
     const skus = await this.repo.associate.sku.listActive();
     schema.sku.type = 'reference';
+
+    /* Include status in listbox. */
     schema.status.select = this.repo.statuses();
     schema.sku.select = skus.map(e => { 
       return { value: e.id, text: e.id }
     });
+
+    /* Column names to show. */
     schema.serial.alias = 'Unit';
     schema.sku.alias = 'SKU';
     schema.innerId.alias = 'Inner';
     schema.masterId.alias = 'Master';
     schema.factoryOrderId.alias = 'Factory';
     schema.customerOrderId.alias = 'Customer';
+
+    /* Explanations on mouse hovers. */
     schema.serial.explanation = "Item unit serial number.";
     schema.innerId.explanation = "Inner carton serial number.";
     schema.masterId.explanation = "Master carton serial number.";
@@ -72,7 +80,7 @@ class Items extends BaseService {
     const labels = await this.repo.associate.label.listActive(0);
     let cartons = [];
     for (let i = 0; i < items.length; i++) {
-      let id = this._matchLabelURLs(items[i].serial, labels);
+      items[i].serial = this._matchLabelURLs(items[i].serial, labels);
       items[i].status = "In Stock";
       delete items[i].quantity;
       cartons.push({ carton: items[i], quantity: 1 });

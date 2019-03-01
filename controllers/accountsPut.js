@@ -3,7 +3,7 @@ const { sanitizeParam } = require('express-validator/filter');
 const express = require('express');
 const Profiles = require('../services/profile');
 
-/* Updates account status. */
+/* Update account status. */
 module.exports = [
 
   /* Validate id. */

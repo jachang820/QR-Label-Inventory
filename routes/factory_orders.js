@@ -11,13 +11,6 @@ const ordersStockPut = require('../controllers/factoryOrdersViewStockPut');
 const ordersPost = require('../controllers/factoryOrdersPost');
 const ordersLabelsGet = require('../controllers/factoryOrdersLabelsGet');
 
-router.all('*', (req, res, next) => {
-  res.locals.css = ['listView.css'];
-  res.locals.modelName = 'factory_orders';
-  res.locals.title = 'Factory Orders';
-  return next();
-});
-
 /* Show form to add new factory order. */
 router.get('/', auth('AS'), ordersGet);
 

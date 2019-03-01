@@ -5,14 +5,6 @@ const skusGet = require('../controllers/skusGet');
 const skusPost = require('../controllers/skusPost');
 const skusPut = require('../controllers/skusPut');
 
-router.all('*', (req, res, next) => {
-  res.locals.css = ['listView.css'];
-  res.locals.modelName = 'skus';
-  res.locals.title = 'SKUs';
-  res.locals.columns = 7;
-  return next();
-});
-
 /* Show form for managing SKUs. */
 router.get('/', skusGet);
 

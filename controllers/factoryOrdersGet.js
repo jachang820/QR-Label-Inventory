@@ -1,6 +1,6 @@
 const Skus = require('../services/sku');
 
-/* Show orders page. */
+/* Get information to populate form to add new factory orders. */
 module.exports = [
 
   /* Get all SKUs. */
@@ -13,6 +13,8 @@ module.exports = [
 
   /* Render page. */
   (req, res, next) => {
+    res.locals.css = ['listView.css'];
+    res.locals.title = 'Add Factory Orders';
     return res.render('factory_orders', {
       skus: res.locals.skus 
     });

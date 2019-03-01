@@ -3,9 +3,10 @@ const { sanitizeQuery } = require('express-validator/filter');
 const FactoryOrders = require('../services/factoryOrder');
 const organizeQuery = require('../middleware/organizeQuery');
 
-/* Get the necessary information to populate form. */
+/* Get information to populate form to view existing factory orders. */
 module.exports = [
 
+  /* Validate querystring parameters passed to req.query. */
   query('page').optional().trim()
     .isInt({ min: 1 }).withMessage("Invalid page."),
 
@@ -28,15 +29,24 @@ module.exports = [
     return next();
   },
 
+  /* Convert all querystring parameters to right format to query
+     database and display. */
   organizeQuery(new FactoryOrders(), 20, ['ordered', 'arrival']),
 
   async (req, res, next) => {
-    res.locals.printQr = true;
-    res.locals.listOnly = true;
-    res.locals.modelName = 'factory_orders/view';
-    res.locals.expand = true;
-    res.locals.stock = true;
+    res.locals.css = ['listView.css'];
+    res.locals.title = 'Factory Orders';
     res.locals.columns = 9;
+    /* Path for AJAX requests. */
+    res.locals.modelName = 'factory_orders/view';
+    /* Form only displays past data, doesn't add new data. */
+    res.locals.listOnly = true;
+    /* Add action to print QR templates. */
+    res.locals.printQr = true;
+    /* Allow expansion to see details. */
+    res.locals.expand = true;
+    /* Add action to receive shipments. */
+    res.locals.stock = true;
     return res.render('listView');
   }
 ];

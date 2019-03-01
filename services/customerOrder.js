@@ -39,6 +39,7 @@ class CustomerOrders extends BaseService {
   }
 
   async add(serial, type, notes, items) {
+    serial = serial.toUpperCase();
     const uniqueItems = Array.from(new Set(items));
     if (items.length !== uniqueItems.length) {
       let err = new Error("Duplicate items. Already scanned.");

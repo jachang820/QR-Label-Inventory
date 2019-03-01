@@ -3,7 +3,7 @@ const { sanitizeParam } = require('express-validator/filter');
 const express = require('express');
 const Skus = require('../services/sku');
 
-/* Updates SKU status. */
+/* Update SKU status. */
 module.exports = [
 
   /* Validate id. */

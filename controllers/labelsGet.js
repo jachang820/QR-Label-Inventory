@@ -3,9 +3,10 @@ const { sanitizeQuery } = require('express-validator/filter');
 const Labels = require('../services/label');
 const organizeQuery = require('../middleware/organizeQuery');
 
-/* Get the necessary information to populate form. */
+/* Get information to populate form to add label urls. */
 module.exports = [
 
+  /* Validate querystring parameters passed to req.query. */
   query('page').optional().trim()
     .isInt({ min: 1 }).withMessage("Invalid page."),
 
@@ -28,10 +29,16 @@ module.exports = [
     return next();
   },
 
+  /* Convert all querystring parameters to right format to query
+     database and display. */
   organizeQuery(new Labels()),
 
   async (req, res, next) => {
-    console.dir(res.locals.list, {depth: null});
+    res.locals.css = ['listView.css'];
+    res.locals.title = 'Labels';
+    res.locals.columns = 5;
+    /* Path for AJAX requests. */
+    res.locals.modelName = 'labels';
     return res.render('listView');
   }
 ];

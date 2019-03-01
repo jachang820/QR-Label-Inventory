@@ -74,7 +74,7 @@ window.addEventListener('load', function() {
             clickId: item.clickId,
             serial: item.serial,
         		sku: item.sku,
-            created: item.created,
+            created: formatDate(item.created),
         		innerId: item.innerId,
         		masterId: item.masterId,
         		quantity: 1
@@ -121,13 +121,13 @@ window.addEventListener('load', function() {
   	
     let errors = [];
     if (serial.trim().length === 0) {
-      errors.push("Order ID is mandatory.");
+      errors.push("Order id is mandatory.");
       numErrors++;
     } else if (serial.includes(' ')) {
-      errors.push("Order ID cannot contain whitespace.");
+      errors.push("Order id cannot contain whitespace.");
       numErrors++;
     } else if (serial.startsWith('C')) {
-      errors.push("Order ID cannot start with 'C'");
+      errors.push("Order id cannot start with 'C'");
       numErrors++;
     }
     appendErrors(serialDiv, errors);
@@ -189,7 +189,20 @@ window.addEventListener('load', function() {
   		console.log(err);
       button.disabled = false;
   	});
-  }
+  };
+
+  /* Format created field to m/d/yyyy from ISO-8601. */
+  const formatDate = function(date) {
+    /* Convert to date string m/d/yyyy, h:m:s AM/PM. */
+    const textDate = new Date(date.trim()).toLocaleString('en-US');
+
+    /* Replace values with m/d/yyyy part. */
+    if (textDate !== "Invalid Date") {
+      return textDate.substring(0, 9);
+    } else {
+      return date;
+    }
+  };
 
   /* Add event listeners. */
   setupEvents(createLineEvent, createOrderEvent);

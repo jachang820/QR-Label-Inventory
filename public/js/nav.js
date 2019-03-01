@@ -4,29 +4,33 @@ window.addEventListener('load', function() {
   let settings = document.getElementById('nav-settings');
   let settingsMenu = document.getElementById('nav-settings-menu');
   if (settingsMenu) {
-    const settingsLeft = settings.getBoundingClientRect().left;
-    settingsMenu.style.left = parseInt(settingsLeft + 5) + 'px';
+    const settingsPos = settings.getBoundingClientRect();
+    settingsMenu.style.left = parseInt(settingsPos.left + 5) + 'px';
+    settingsMenu.style.top = parseInt(settingsPos.bottom) + 'px';
   }
 
   let inventory = document.getElementById('nav-inventory');
   let inventoryMenu = document.getElementById('nav-inventory-menu');
   if (inventoryMenu) {
-    const inventoryLeft = inventory.getBoundingClientRect().left;
-    inventoryMenu.style.left = parseInt(inventoryLeft + 5) + 'px';
+    const inventoryPos = inventory.getBoundingClientRect();
+    inventoryMenu.style.left = parseInt(inventoryPos.left + 5) + 'px';
+    inventoryMenu.style.top = parseInt(inventoryPos.bottom) + 'px';
   }
 
   let customer = document.getElementById('nav-customer');
   let customerMenu = document.getElementById('nav-customer-menu');
   if (customerMenu) {
-    const customerLeft = customer.getBoundingClientRect().left;
-    customerMenu.style.left = parseInt(customerLeft + 5) + 'px';
+    const customerPos = customer.getBoundingClientRect();
+    customerMenu.style.left = parseInt(customerPos.left + 5) + 'px';
+    customerMenu.style.top = parseInt(customerPos.bottom) + 'px';
   }
 
   let factory = document.getElementById('nav-factory');
   let factoryMenu = document.getElementById('nav-factory-menu');
   if (factoryMenu) {
-    const factoryLeft = factory.getBoundingClientRect().left;
-    factoryMenu.style.left = parseInt(factoryLeft + 5) + 'px';
+    const factoryPos = factory.getBoundingClientRect();
+    factoryMenu.style.left = parseInt(factoryPos.left + 5) + 'px';
+    factoryMenu.style.top = parseInt(factoryPos.bottom) + 'px';
   }
 
   const INACTIVE = '#0C7436';
