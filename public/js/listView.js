@@ -4,6 +4,7 @@ window.addEventListener('load', function() {
   let tbody = document.getElementById('list-body');
   const model = document.getElementById('model-name').textContent;
   const page = parseInt(document.getElementById('page-input').value);
+  let enableActions = true;
 
   /* Create object representing one existing line. */
   const getItem = function(row) {
@@ -58,18 +59,20 @@ window.addEventListener('load', function() {
   };
 
   /* Propagate errors to a cell. */
-  const appendErrors = function(col, errors) {
+  const appendErrors = function(col, errors, strict = true) {
     /* Empty the corresponding error list. */
     let errList = col.getElementsByTagName('ul')[0];
-    empty(errList);
+    if (errList) {
+      empty(errList);
 
-    /* Find relevant errors and add to cell. */
-    let field = col.className.split(' ')[0];
-    for (let k = 0; k < errors.length; k++) {
-      if (errors[k].param == field) {
-        let li = document.createElement('li');
-        li.textContent = errors[k].msg;
-        errList.appendChild(li);
+      /* Find relevant errors and add to cell. */
+      let field = col.className.split(' ')[0];
+      for (let k = 0; k < errors.length; k++) {
+        if (errors[k].param == field || !strict) {
+          let li = document.createElement('li');
+          li.textContent = errors[k].msg;
+          errList.appendChild(li);
+        }
       }
     }
   };
@@ -216,6 +219,8 @@ window.addEventListener('load', function() {
   const statusEvent = function(event) {
     const row = event.currentTarget.parentNode.parentNode;
     const id = getId(row);
+    if (!enableActions) return;
+    else enableActions = false;
 
     /* Update line status, move to appropriate place in table. */
     const path = '/' + model + '/' + id;
@@ -228,7 +233,10 @@ window.addEventListener('load', function() {
 
         /* Display all errors. */
         const errors = response.data.errors;
-        appendErrorsForEach(errors, row);
+        const errBox = document.getElementById('items-box');
+
+        appendErrors(errBox, errors);
+        enableActions = true;
       
       } else {
         /* No errors. Add line. */
@@ -238,6 +246,7 @@ window.addEventListener('load', function() {
 
     }).catch(function(err) {
       console.log(err);
+      enableActions = true;
     });
   };
 
@@ -245,6 +254,8 @@ window.addEventListener('load', function() {
   const arrivalEvent = function(event) {
     const row = event.currentTarget.parentNode.parentNode;
     const id = getId(row);
+    if (!enableActions) return;
+    else enableActions = false;
 
     /* Update line status, move to appropriate place in table. */
     const path = '/' + model + '/stock/' + id;
@@ -258,6 +269,7 @@ window.addEventListener('load', function() {
 
         const errors = response.data.errors;
         appendErrorsForEach(errors, row);
+        enableActions = true;
       
       } else {
         /* No errors. Add line. */
@@ -267,6 +279,7 @@ window.addEventListener('load', function() {
 
     }).catch(function(err) {
       console.log(err);
+      enableActions = true;
     });
   };
 
@@ -282,6 +295,13 @@ window.addEventListener('load', function() {
       button.src = '/images/expand.png';
       detailsRow.classList.remove('show');
       return;
+    } else {
+      /* No errors. Show details. */  
+      button.src = '/images/minimize.png';
+      detailsRow.classList.add('show');
+      if (detailsRow.firstElementChild.textContent.length > 0) {
+        return;
+      }
     }
 
     /* Get details data. */
@@ -300,11 +320,12 @@ window.addEventListener('load', function() {
         appendErrorsForEach(errors, row);
       
       } else {
-        /* No errors. Show details. */  
-        button.src = '/images/minimize.png';
-        detailsRow.classList.add('show');
-        let div = detailsRow.firstElementChild;
         let data = response.data.details;
+        if (data === undefined || data.length === 0) {
+          return;
+        }
+
+        let div = detailsRow.firstElementChild;
         
         /* Build html table to display details. */
         let table = document.createElement('table');
@@ -337,7 +358,7 @@ window.addEventListener('load', function() {
             const textDate = new Date(text).toLocaleString();
             if (textDate !== "Invalid Date" && 
                 typeof text !== 'number') {
-              text = textDate.substring(0, 9);
+              text = textDate.split(',')[0];
             }
             text = document.createTextNode(text);
             td.appendChild(text);
@@ -508,8 +529,8 @@ window.addEventListener('load', function() {
   };
 
   /* Pressing enter on filter field should go to next field if date,
-     or submit. */
-  const filterOnEnterEvent = function(event) {
+     or submit. Pressing enter on add field should trigger create. */
+  const EnterEvent = function(event) {
     /* Mouse cursor must be in a filter input element. */
     let active = document.activeElement;
     if (active.tagName.toLowerCase() === 'input' &&
@@ -523,6 +544,13 @@ window.addEventListener('load', function() {
       } else {
         filterEvent();
       }
+
+    } else if (active.parentNode.classList.item(1) === 'add' &&
+               event.keyCode === 13) {
+      event.preventDefault();
+      let dummyEvent = {};
+      dummyEvent.currentTarget = event.target;
+      createEvent(dummyEvent);
     }
   };
 
@@ -560,7 +588,7 @@ window.addEventListener('load', function() {
     bar.style.visibility = 'visible';
     setTimeout(function() {
       bar.style.visibility = 'hidden';
-    }, 6000);
+    }, 4000);
   };
 
   /* Format date fields to m/d/yyyy from ISO-8601. */
@@ -575,13 +603,13 @@ window.addEventListener('load', function() {
       const columnName = titles[i].classList.item(0);
       const type = titles[i].classList.item(1);
       if (type === 'date' || type === 'dateonly') {
-        dates.push(columnName);
+        dates.push({ name: columnName, type: type });
       }
     }
 
     /* Each date column. */
     for (let i = 0; i < dates.length; i++) {
-      const dateValues = document.getElementsByClassName(dates[i]);
+      const dateValues = document.getElementsByClassName(dates[i].name);
 
       /* Each row with a date. */
       for (let j = 0; j < dateValues.length; j++) {
@@ -593,7 +621,11 @@ window.addEventListener('load', function() {
 
         /* Replace values with m/d/yyyy part. */
         if (textDate !== "Invalid Date") {
-          dateValues[j].textContent = textDate.split(',')[0];
+          if (dates[i].type === 'date') {
+            dateValues[j].textContent = textDate;
+          } else {
+            dateValues[j].textContent = textDate.split(',')[0];
+          }
         }
       }
     }
@@ -628,12 +660,14 @@ window.addEventListener('load', function() {
 
     /* Add event listeners for existing item rows. */
     addActions('action-icon', 'click', statusEvent, startVal);
+    addActions('action-icon', 'click', showWaitMessage, startVal);
     addActions('print-qr', 'click', showWaitMessage);
     addActions('expand', 'click', expandEvent);
     addActions('stock', 'click', arrivalEvent);
     addActions('notes-icon', 'click', notesEvent);
     addActions('notes-close-btn', 'click', notesCloseEvent);
     addExplainers('action-icon');
+    addExplainers('busy');
     addExplainers('print-qr');
     addExplainers('expand');
     addExplainers('stock');
@@ -680,6 +714,6 @@ window.addEventListener('load', function() {
   formatDateElements();
 
   /* If filter is active, go to next field or submit on enter key. */
-  document.addEventListener('keypress', filterOnEnterEvent);
+  document.addEventListener('keypress', EnterEvent);
 
 });

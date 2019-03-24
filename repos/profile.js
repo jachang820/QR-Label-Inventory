@@ -21,10 +21,9 @@ class ProfileRepo extends BaseRepo {
         include: [
           ['id', 'clickId'],
           [sequelize.literal(`COALESCE(created::text , '')`), 'created']
-        ], 
+        ],
         exclude: ['id']
-      },
-      offset: (page - 1) * 20 
+      }
     };
     if (page > 0) opts.offset = (page - 1) * 20;
     if (filter) opts.where = ProfileRepo.insertDateRange(filter);
@@ -51,13 +50,16 @@ class ProfileRepo extends BaseRepo {
   }
 
   async create(first, last, email, role) {
+    let event = await this.events.create("Create Profile", 1,
+      this.name, email);
     let profile = await this._create({
       firstName: first,
       lastName: last,
       email: email,
       role: role
-    });
+    }, { eventId: event.id });
     delete profile.id;
+    await this.events.done(event.id);
     return profile;
   }
 
@@ -72,12 +74,17 @@ class ProfileRepo extends BaseRepo {
   }
 
   async delete(id) {
-    let profile = await this._delete({ where: { id }}, true);
+    let profile = await this.get(id);
+    let event = await this.events.create("Delete Profile", 1,
+      this.name, profile.email);
+    profile = await this._delete({ where: { id }}, true,
+      { eventId: event.id });
     delete profile.id;
+    await this.events.done(event.id);
     return profile;
   }
 
-  describe() { return this._describe(['id']); }
+  describe() { return this._describe(['id', 'fullName']); }
 
   roles() {
     return this.Model.rawAttributes.role.values;

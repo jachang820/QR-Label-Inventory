@@ -35,13 +35,21 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    hidden: DataTypes.DATEONLY
+    hidden: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      validate: {
+        isBoolean: {
+          msg: "Hidden must be either true or false."
+        }
+      }
+    },
+    created: DataTypes.DATEONLY
   }, {
     timestamps: true,
     createdAt: 'created',
-    updatedAt: false,
-    paranoid: true,
-    deletedAt: 'hidden'
+    updatedAt: false
   });
 
   Color.associate = models => {

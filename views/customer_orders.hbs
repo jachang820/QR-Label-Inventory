@@ -13,13 +13,13 @@
     </select>
 
     <div id="serial-box">
-      <label for="serial">Serial #: </label>
+      <label for="serial">Serial Number: </label>
       <input id="serial" type="text" name="serial">
       <ul class="error"></ul>
     </div>
     
     <div id="notes-box">
-      <label for="notes">Notes: </label>
+      <label for="notes">Notes (optional): </label>
       <textarea id="notes" name="notes" rows="3" cols="50" maxlength="128"></textarea>
       <ul class="error"></ul>
     </div>
@@ -84,6 +84,9 @@
 
     {{!-- Hidden element contains model name necessary for Javascript function. --}}
     <div id="model-name" class="hidden-name">{{@modelName}}</div>
+  </div>
+  <div id="message-bar">
+    Please be patient, this might take a minute...
   </div>
 </div>
 

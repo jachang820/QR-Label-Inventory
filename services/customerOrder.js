@@ -15,8 +15,8 @@ class CustomerOrders extends BaseService {
     if (filter.type) {
       filter.type = CustomerOrders.toTitleCase(filter.type);
     }
-    return this._getListView(page, order, desc, filter,
-      CustomerOrders._addListStatus);
+    let list = await this._getListView(page, order, desc, filter);
+    return this._addListStatus(list);
   }
 
   async getSchema() {
@@ -30,7 +30,8 @@ class CustomerOrders extends BaseService {
   }
 
   async get(id) {
-    return this._get(id, CustomerOrders._addListStatus);
+    let order = await this._get(id);
+    return this._addListStatus(order);
   }
 
   async changeState(id) {
@@ -53,15 +54,24 @@ class CustomerOrders extends BaseService {
     return this.repo.expand(id);
   }
 
-  static _addListStatus(list) {
-    if (!Array.isArray(list)) {
+  async _addListStatus(list) {
+    const inputIsArray = Array.isArray(list);
+    if (!inputIsArray) {
       list = [list];
     }
+
+    const busyList = await this._getActiveEvents();
+
     for (let i = 0; i < list.length; i++) {
-      if (list[i].hidden) list[i].state = 'hidden';
+      if (list[i].serial in busyList) list[i].state = 'busy';
+      else if (list[i].count === 0) list[i].state = 'eternal';
+      else if (list[i].hidden) list[i].state = 'hidden';
       else list[i].state = 'used';
       delete list[i].hidden;
+      delete list[i].id;
     }
+
+    if (!inputIsArray) list = list[0];
     return list;
   }
 

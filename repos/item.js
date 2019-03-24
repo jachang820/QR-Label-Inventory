@@ -13,14 +13,6 @@ class ItemRepo extends BaseRepo {
       const SkuRepo = require('./sku');
       this.assoc.sku = new SkuRepo(exclude);
     }
-    if (!exclude.includes('innerCarton')) {
-      const InnerCartonRepo = require('./innerCarton');
-      this.assoc.innerCarton = new InnerCartonRepo(exclude);
-    }
-    if (!exclude.includes('label')) {
-      const LabelRepo = require('./label');
-      this.assoc.label = new LabelRepo(exclude);
-    }
 
     this.defaultOrder = [
       ['status', 'ASC'],
@@ -104,8 +96,7 @@ class ItemRepo extends BaseRepo {
       include: [{
         model: db.FactoryOrder,
         attributes: []
-      }],
-      offset: -1
+      }]
     }); 
   }
 
@@ -115,11 +106,12 @@ class ItemRepo extends BaseRepo {
     
     let items = await this.list(0, 'id', true, filter);
 
+    let param = { param: 'serial' };
     if (items.length === 0) {
-      ItemRepo._handleErrors(new Error("Item not found."), 'serial');
+      this._handleErrors(new Error("Item not found."), param);
 
     } else if (items.filter(e => e.status !== 'In Stock').length > 0) {
-      ItemRepo._handleErrors(new Error("Item is not in stock."), 'serial');
+      this._handleErrors(new Error("Item is not in stock."), param);
     }
     return items;
   }
@@ -132,41 +124,89 @@ class ItemRepo extends BaseRepo {
           [db.sequelize.literal(`COALESCE(created::text , '')`), 'created']
         ], 
         exclude: ['id'] 
-      },
-      paranoid: false
+      }
     });
   }
 
   /* Cartons is a list in the format
      [...{serial, sku, innerId, masterId, factoryOrderId}] */
-  async create(cartons, transaction) {
+  async create(cartons, eventId, transaction) {
     return this.transaction(async (t) => {
-      return this._create(cartons);
-    }, transaction);
-  }
+      const count = cartons.length;
+      let event;
+      if (!eventId) {
+        event = await this.events.create("Add Units to Inventory", count, 
+          this.name);
+      }
 
-  async order(innerId, transaction) {
-    return this.transaction(async (t) => {
-      return this._update(
-        { status: 'Ordered' },
-        { paranoid: false, 
-          where: { innerId }
+      const items = await this._create(cartons, { eventId: event.id });
+
+      const skus = [...new Set(items.map(e => e.sku))];
+      if (!eventId) await this.events.update(event.id, event.progress,
+        "Created units.");
+      
+      /* Use SKUs. */
+      if (this.assoc.sku) {
+        for (let i = 0; i < skus.length; i++) {
+          await this.assoc.sku.use(skus[i], { eventId: event.id });
         }
-      );
+      }
+
+      if (!eventId) await this.events.done(event.id);
     }, transaction);
   }
 
-  async stock(id, type, transaction) {
+  async order(factoryOrderId, eventId, transaction) {
+    return this.transaction(async (t) => {
+      let items = [];
+      let where = { factoryOrderId, status: 'Cancelled' };
+      let status = { status: 'Ordered' };
+
+      /* Update event progress. Since master and inner carton runs in
+         parallel, get progress again in each iteration. */
+      do {
+        let event = await this.events.get(eventId);
+        const batch = await this._update(status, { where, limit: 1000 },
+          { eventId: event.id });
+        event.progress += batch.length;
+        await this.events.update(event.id, event.progress,
+          `Reactivating units... ${event.progress}/${event.max}.`);
+        items.concat(batch);
+      } while (batch.length === 1000);
+
+      return items;
+    }, transaction);
+  }
+
+  async stock(id, type, eventId, transaction) {
     const Op = db.Sequelize.Op;
-    let where = {};
+    let where = { status: { [Op.ne]: 'In Stock' }};
     if (type === 'customer') where.customerOrderId = id;
     else if (type === 'factory') where.factoryOrderId = id;
     else where.id = id;
+    let opts = { where, limit: 1000 };
+
+    let event;
+    if (!eventId) {
+      const item = await this.get(id);
+      event = await this.events.create("Stock Items", 1, 
+        this.name, item.serial);
+    }
+
+    let items = [];
     return this.transaction(async (t) => {
-      return this._update(
-        { status: 'In Stock' },
-        { paranoid: false, where }
-      );
+      /* Update event progress. Since master and inner carton runs in
+         parallel, get progress again in each iteration. */
+      do {
+        if (eventId) event = await this.events.get(eventId);  
+        const batch = await this._update({ status: 'In Stock' }, opts,
+          { eventId: event.id });
+        event.progress += batch.length;
+        await this.events.update(event.id, event.progress,
+          `Stocking units... ${event.progress}/${event.max}.`);
+        items.concat(batch);
+      } while (batch.length === 1000);
+      return items;
     }, transaction);
   }
 
@@ -175,40 +215,72 @@ class ItemRepo extends BaseRepo {
     return this.stock(id);
   }
 
-  async ship(customerOrderId, itemId, transaction) {
+  async ship(customerOrderId, itemId, eventId, transaction) {
     return this.transaction(async (t) => {
-      return this._update({
-        status: 'Shipped',
-        customerOrderId
-      }, {  
-        where: { id: itemId },
-        limit: 1,
-        paranoid: false
-      });
+      let items = [];
+      let event = this.events.get(eventId);
+      let query = { status: 'Shipped', customerOrderId };
+      let opts = { where: { id: itemId }, limit: 1 };
+
+      /* Update event progress. Since master and inner carton runs in
+         parallel, get progress again in each iteration. */
+      do {
+        const batch = await this._update(query, opts,
+          { eventId: event.id });
+        event.progress += 1;
+        await this.events.update(event.id, event.progress,
+          `Shipping units... ${event.progress}/${event.max}.`);
+        items.concat(batch);
+      } while (batch.length > 0)
+      return items;
     }, transaction);
   }
 
-  async reship(customerOrderId, transaction) {
+  async reship(customerOrderId, eventId, transaction) {
     return this.transaction(async (t) => {
-      return this._update({
-        status: 'Shipped'
-      }, {
-        where: { customerOrderId },
-        paranoid: false
-      });
+      let items = [];
+      let event = this.events.get(eventId);
+      let query = { status: 'Shipped' };
+      let opts = { 
+        where: { customerOrderId, status: 'In Stock' }, 
+        limit: 100 
+      };
+
+      /* Update event progress. Since master and inner carton runs in
+         parallel, get progress again in each iteration. */
+      do {
+        const batch = await this._update(query, opts, { eventId: event.id });
+        event.progress += batch.length;
+        await this.events.update(event.id, event.progress,
+          `Reshipping units... ${event.progress}/${event.max}.`);
+        items.concat(batch);
+      } while (batch.length === 100);
+      return items;
     }, transaction);
   }
 
-  async cancel(id, bulk, transaction) {
+  async cancel(id, bulk, eventId, transaction) {
     const Op = db.Sequelize.Op;
-    let where = {};
-    if (bulk) where.innerId = id;
+    let query = { status: 'Cancelled' };
+    let where = { status: { [Op.ne]: 'Cancelled' } };
+    let opts = { where, limit: 1000 };
+    if (bulk) where.factoryOrderId = id;
     else where.id = id;
+
     return this.transaction(async (t) => {
-      return this._update(
-        { status: 'Cancelled' },
-        { paranoid: false, where }
-      );
+      let items = [];
+
+      /* Update event progress. Since master and inner carton runs in
+         parallel, get progress again in each iteration. */
+      do {
+        const event = this.events.get(eventId);
+        const batch = await this._update(query, opts, { eventId: event.id });
+        event.progress += batch.length;
+        await this.events.update(event.id, event.progress,
+          `Cancelling units... ${event.progress}/${event.max}.`);
+        items.concat(batch);
+      } while (batch.length === 1000);
+      return items;
     }, transaction);
   }
 

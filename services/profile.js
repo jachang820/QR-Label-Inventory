@@ -8,8 +8,8 @@ class Profiles extends BaseService {
 
   async getListView(page = 1, order = false, desc = false, filter = {}) {
     if (filter.role) filter.role = Profiles.toTitleCase(filter.role);
-    return this._getListView(page, order, desc, filter,
-      Profiles._addListStatus);
+    let list = await this._getListView(page, order, desc, filter);
+    return this._addListStatus(list);
   }
 
   async getSchema() {
@@ -31,7 +31,8 @@ class Profiles extends BaseService {
   }
 
   async get(id) {
-    return this._get(id, Profiles._addListStatus);
+    let profile = await this._get(id);
+    return this._addListStatus(profile);
   }
 
   async getByEmail(email) {
@@ -40,24 +41,30 @@ class Profiles extends BaseService {
 
   async add(first, last, email, role) {
     let profile = await this.repo.create(first, last, email, role);
-    profile = Profiles._addListStatus(profile);
-    return profile[0];
+    return this._addListStatus(profile);
   }
 
   async changeState(id) {
     const profile = await this.get(id);
-    console.log(profile);
     return this._changeState(profile, id);
   }
 
-  static _addListStatus(list) {
-    if (!Array.isArray(list)) {
+  async _addListStatus(list) {
+    const inputIsArray = Array.isArray(list);
+    if (!inputIsArray) {
       list = [list];
     }
+
+    const busyList = await this._getActiveEvents();
+
     for (let i = 0; i < list.length; i++) {
       const isAdmin = (list[i].role === 'Administrator');
-      list[i].state = isAdmin ? 'eternal' : 'new';
+      if (list[i].email in busyList) list[i].state = 'busy';
+      else if (isAdmin) list[i].state = 'eternal';
+      else list[i].state = 'new';
     }
+
+    if (!inputIsArray) list = list[0];
     return list;
   }
 

@@ -14,8 +14,8 @@ class FactoryOrders extends BaseService {
     if (filter.serial) {
       filter.serial = [filter.serial, filter.serial.toUpperCase()];
     }
-    return this._getListView(page, order, desc, filter,
-      FactoryOrders._addListStatus);
+    let list = await this._getListView(page, order, desc, filter);
+    return this._addListStatus(list);
   }
 
   async getSchema() {
@@ -35,7 +35,8 @@ class FactoryOrders extends BaseService {
   }
 
   async get(id) {
-    return this._get(id, FactoryOrders._addListStatus);
+    let order = await this._get(id);
+    return this._addListStatus(order);
   }
 
   async changeState(id) {
@@ -43,6 +44,7 @@ class FactoryOrders extends BaseService {
     return this._changeState(model, id);
   }
 
+  /* order is [...{sku, master}]. */
   async add(serial, notes, order) {
     serial = serial.toUpperCase();
     return this.repo.create(serial, notes, order);
@@ -56,16 +58,23 @@ class FactoryOrders extends BaseService {
     return this.repo.stock(id);
   }
 
-  static _addListStatus(list) {
-    if (!Array.isArray(list)) {
+  _addListStatus(list) {
+    const inputIsArray = Array.isArray(list);
+    if (!inputIsArray) {
       list = [list];
     }
+
+    const busyList = this._getActiveEvents()
+
     for (let i = 0; i < list.length; i++) {
-      if (list[i].arrival) list[i].state = 'eternal';
+      if (list[i].serial in busyList) list[i].state = 'busy';
+      else if (list[i].arrival) list[i].state = 'eternal';
       else if (list[i].hidden) list[i].state = 'hidden';
       else list[i].state = 'used';
       delete list[i].hidden;
     }
+
+    if (!inputIsArray) list = list[0];
     return list;
   }
 
@@ -81,7 +90,7 @@ class FactoryOrders extends BaseService {
   */
   async generateTemplate(id, writeCallback, endCallback) {
     /* Get factory order. */
-    const order = await this.repo.get(id);
+    const order = await this.repo.getDepth(id);
     /* Get latest updated label url to use for the QR codes. */
     let label = new LabelRepo();
     const url = await label.getActive();

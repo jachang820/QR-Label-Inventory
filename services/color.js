@@ -10,7 +10,8 @@ class Colors extends BaseService {
   async getListView(page = 1, order = false, desc = false, filter = {}) {
     if (filter.name) filter.name = Colors.toTitleCase(filter.name);
     if (filter.abbrev) filter.abbrev = filter.abbrev.toUpperCase();
-    return this._getListView(page, order, desc, filter);
+    let list = await this._getListView(page, order, desc, filter);
+    return this._addListStatus(list);
   }
 
   async getSchema() {
@@ -26,7 +27,8 @@ class Colors extends BaseService {
   }
 
   async get(id) {
-    return this._get(id);
+    let color = await this._get(id);
+    return this._addListStatus(color);
   }
 
   async changeState(id) {
@@ -37,7 +39,12 @@ class Colors extends BaseService {
   async add(name, abbrev) {
   	name = Colors.toTitleCase(name);
   	abbrev = abbrev.toUpperCase();
-    return this._add([name, abbrev]);
+    let color = await this._add([name, abbrev]);
+    return this._addListStatus(color);
+  }
+
+  async addListStatus(list) {
+    return this._addListStatus(list, 'name');
   }
 
 };

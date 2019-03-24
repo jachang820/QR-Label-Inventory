@@ -14,7 +14,7 @@ class CustomerOrderRepo extends BaseRepo {
     }
 
     this.defaultOrder = [
-      ['hidden', 'DESC NULLS FIRST'],
+      ['hidden', 'ASC'],
       ['shipped', 'DESC'],
       ['serial', 'DESC']
     ];
@@ -23,8 +23,8 @@ class CustomerOrderRepo extends BaseRepo {
   async list(page = 1, order, desc, filter) {
     /* Page is not an integer. */
     if (isNaN(parseInt(page))) {
-      FactoryOrderRepo._handleErrors(new Error("Invalid page."), 
-        null, true);
+      this._handleErrors(new Error("Invalid page."), 
+        { critical: true });
     }
 
     const columns = Object.keys(this._describe(['id']));
@@ -35,8 +35,8 @@ class CustomerOrderRepo extends BaseRepo {
 
     /* Sort order is not an array. */
     } else if (!order.match(/^[a-zA-Z]+$/)) {
-      FactoryOrderRepo._handleErrors(new Error("Invalid sort."), 
-        null, true);
+      this._handleErrors(new Error("Invalid sort."), 
+        { critical: true });
     
     } else {
       const direction = desc ? 'DESC' : 'ASC';
@@ -84,21 +84,28 @@ class CustomerOrderRepo extends BaseRepo {
     order = order ? [[order, direction]] : this.defaultOrder;
     let opts = {
       order,
-      offset: (page - 1) * 20
+      offset: (page - 1) * 20,
+      where: { hidden: true }
     };
     return this._list(opts);
   }
 
   async get(id) {
+    /* Note: Sequelize automatically pluralizes "Item" and there is no way
+       around it. */
     return this._get({
       where: { id },
+      group: [db.sequelize.col("CustomerOrder.id")],
       attributes: { 
         include: [
-          [db.sequelize.literal(`COALESCE(shipped::text , '')`), 'shipped']
-        ],
-        exclude: ['id'] 
+          [db.sequelize.literal(`COALESCE(shipped::text , '')`), 'shipped'],
+          [db.sequelize.literal(`COUNT("Items".id)::integer`), 'count']
+        ]
       },
-      paranoid: false
+      include: [{
+        model: db.Item,
+        attributes: []
+      }]
     });
   }
 
@@ -108,23 +115,31 @@ class CustomerOrderRepo extends BaseRepo {
 
   /* 'items' is a list of item ids. */
   async create(serial, type, notes, items, transaction) {
+    /* Get number of items to update event. */
+      const count = items.length;
+      let event = this.events.create("Create Customer Order", count,
+        this.name, serial);
+      let itemList = [];
+
     if (typeof serial === 'string' && serial.startsWith('C')) {
-      FactoryOrderRepo._handleErrors(
-        new Error("Order ID cannot start with 'C'.")
+      this._handleErrors(
+        new Error("Order ID cannot start with 'C'."),
+        { eventId: event.id }
       );
     }
 
     return this.transaction(async (t) => {
-      let customerOrder = await this._create({ serial, type, notes });
-      let itemList = [];
+      let customerOrder = await this._create({ serial, type, notes },
+        { eventId: event.id });
 
       for (let i = 0; i < items.length; i++) {
         const item = await this.assoc.item.ship(
-          customerOrder.id, items[i], t);
+          customerOrder.id, items[i], event.id, t);
         itemList.push(item);
       }
       customerOrder.items = itemList;
       
+      await this.events.done(event.id);
       return customerOrder;
     }, transaction);
   }
@@ -136,18 +151,44 @@ class CustomerOrderRepo extends BaseRepo {
   }
 
   async use(id, transaction) {
+    /* Get number of items to update event. */
+    const items = await this.assoc.item.list(0, null, null, {
+      customerOrderId: id
+    });
+    const count = items.length;
+
+    let order = await this.get(id);
+    const event = await this.events.create("Reship Customer Order", 
+      count, this.name, order.serial);
+
+
     return this.transaction(async (t) => {
-      const order = await this._use({ where: {id} }, true);
-      const item = await this.assoc.item.reship(order.id, transaction);
+      order = await this._use({ where: {id} }, true,
+        { eventId: event.id });
+      await this.assoc.item.reship(order[0].id, event.id, transaction);
+
+      await this.events.done(event.id);
       return order;
     }, transaction);
   }
 
   async hide(id, transaction) {
+    /* Get number of items to update event. */
+    const items = await this.assoc.item.list(0, null, null, {
+      customerOrderId: id
+    });
+    const count = items.length;
+
+    let order = await this.get(id);
+    const event = await this.events.create("Cancel Customer Order", 
+      count, this.name, order.serial);
+
     return this.transaction(async (t) => {
-      const order = await this._delete({ where: {id} }, false);
-      const item = await this.assoc.item.stock(
-        order.id, 'customer', transaction);
+      order = await this._delete({ where: {id} }, false);
+      await this.assoc.item.stock(order.id, 'customer', 
+        event.id, transaction);
+
+      await this.events.done(event.id);
       return order;
     }, transaction);
   }

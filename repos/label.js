@@ -7,19 +7,19 @@ class LabelRepo extends BaseRepo {
     super(Label, 'prefix');
 
     this.defaultOrder = [
-      ['hidden', 'DESC NULLS FIRST'],
+      ['hidden', 'ASC'],
       ['updated', 'DESC']
     ];
   }
 
   async list(page = 1, order, desc, filter) {
     let opts = this._buildList(page, order, desc, filter);
-    opts.paranoid = false;
     return this._list(opts);
   }
 
   async listActive(page = 1, order, desc) {
-    let opts = this._buildList(page, order, desc);
+    const filter = { hidden: false };
+    let opts = this._buildList(page, order, desc, filter);
     return this._list(opts);
   }
 
@@ -37,20 +37,35 @@ class LabelRepo extends BaseRepo {
   }
 
   async create(prefix, style) {
+    let event = await this.events.create("Create Label", 1,
+      this.name, `${prefix} -- ${style}`);
     let label = await this._create({
       prefix: prefix,
       style: style
-    });
+    }, { eventId: event.id });
     delete label.id;
+    await this.events.done(event.id);
     return label;
   }
 
   async use(id) {
-    return this._use({ where: { id } }, true);
+    let label = await this.get(id);
+    let event = await this.events.create("Use Label", 1,
+      this.name, `${label.prefix} -- ${label.style}`);
+    label = await this._use({ where: { id } }, true,
+      { eventId: event.id });
+    await this.events.done(event.id);
+    return label;
   }
 
   async hide(id) {
-    return this._delete({ where: { id } }, false);
+    let label = await this.get(id);
+    let event = await this.events.create("Hide Label", 1,
+      this.name, `${label.prefix} -- ${label.style}`);
+    label = await this._delete({ where: { id } }, false,
+      { eventId: event.id });
+    await this.events.done(event.id);
+    return label;
   }
 
   describe() { return this._describe(['id']); }

@@ -107,11 +107,12 @@ module.exports = (type) => {
             req.body.masterSize
           );
         }
-        
+        console.log(style);
         /* Return JSON with new style. */
         return res.json({ added: style });
       
       } catch (err) {
+        console.log(err)
         return res.json({ errors: err.errors || 'unknown' });
       } 
     }

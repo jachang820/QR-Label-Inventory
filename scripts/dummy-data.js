@@ -1,16 +1,41 @@
-const { Color, Size, Sku, FactoryOrder,
-  CustomerOrder, Item, Profile, Label,
-  InnerCarton, MasterCarton, sequelize } = require('../models');
+const db = require('../models');
+const Colors = require('../services/color');
+const Sizes = require('../services/size');
+const Skus = require('../services/sku');
+const FactoryOrders = require('../services/factoryOrder');
+const CustomerOrders = require('../services/customerOrder');
+const Items = require('../services/item');
+const Profiles = require('../services/profile');
+const Labels = require('../services/label');
 const uuidv4 = require('uuid/v4');
 
 const setup = async () => {
 
-  await sequelize.sync({ force: true });
+  await db.sequelize.sync({ force: true });
 
-  let cartons = [];
-  for (let i = 0; i < 10; i++) {
-    cartons.push({});
-  }
+  console.log("Loading profiles...");
+  const profiles = new Profiles();
+  await profiles.add(
+    'Jonathan', 'Chang', 
+    'j.a.chang820@gmail.com',
+    'Administrator'
+  );
+  await profiles.add(
+    'Alex', 'Chen',
+    'aqchen@g.ucla.edu',
+    'Administrator'
+  );
+  await profiles.add(
+    'Ryan', 'Yang',
+    'ryanqyang@gmail.edu',
+    'Administrator'
+  );
+
+  console.log("Loading labels...");
+  const labels = new Labels();
+  await labels.add('http://www.smokebuddy.com/', 'Querystring');
+  await labels.add('http://holoshield.net/a/', 'Path');
+  await labels.changeState(1);
 
   console.log("Loading colors...");
   const colors = [
@@ -33,10 +58,10 @@ const setup = async () => {
     { name: 'Vegas-red', abbrev: 'VGRED', used: true },
     { name: 'Cares', abbrev: 'CARES', used: true },
     { name: 'Glow In The Dark-white', abbrev: 'GDWHITE', used: true },
-    { name: 'Glow In The Dark-blue', abbrev: 'GDBLACK', used: true }
+    { name: 'Glow In The Dark-blue', abbrev: 'GDBLACK', used: true },
+    { name: 'Grenade', abbrev: 'GRENADE', used: true}
   ];
 
-  const Colors = require('../services/color');
   let colorService = new Colors();
   for (let i = 0; i < colors.length; i++) {
     await colorService.add(colors[i].name, colors[i].abbrev);
@@ -54,7 +79,6 @@ const setup = async () => {
     { name: 'Mega', abbrev: 'M', innerSize: 12, masterSize: 2, used: true }
   ];
 
-  const Sizes = require('../services/size');
   let sizeService = new Sizes();
   for (let i = 0; i < sizes.length; i++) {
     await sizeService.add(
@@ -93,6 +117,7 @@ const setup = async () => {
     { id: 'OR-CARES', upc: `${upc_pre}338`, colorId: colorsDict['Cares'], sizeId: sizesDict['Original'] },
     { id: 'OR-GLOW-WHITE', upc: `${upc_pre}246`, colorId: colorsDict['Glow In The Dark-white'], sizeId: sizesDict['Original'] },
     { id: 'OR-GLOW-BLUE', upc: `${upc_pre}215`, colorId: colorsDict['Glow In The Dark-blue'], sizeId: sizesDict['Original'] },
+    { id: 'OR-GRENADE', upc: `${upc_pre}307`, colorId: colorsDict['Grenade'], sizeId: sizesDict['Original'] },
     { id: 'JR-BLACK', upc: `${upc_pre}048`, colorId: colorsDict['Black'], sizeId: sizesDict['Junior'] },
     { id: 'JR-BLUE', upc: `${upc_pre}093`, colorId: colorsDict['Blue'], sizeId: sizesDict['Junior'] },
     { id: 'JR-RED', upc: `${upc_pre}024`, colorId: colorsDict['Red'], sizeId: sizesDict['Junior'] },
@@ -110,125 +135,28 @@ const setup = async () => {
     { id: 'M-WHITE', upc: `${upc_pre}352`, colorId: colorsDict['White'], sizeId: sizesDict['Mega'] }
   ];
 
-  const Skus = require('../services/sku');
   let skuService = new Skus();
-
   for (let i = 0; i < skus.length; i++) {
     await skuService.add(
       skus[i].id, skus[i].upc, skus[i].colorId, skus[i].sizeId
     );
   }
 
-  let skuIds = await Sku.findAll();
+  let skuIds = await db.Sku.findAll();
   skuIds = skuIds.map(e => e.id );
+  let numSkus = skuIds.length;
 
   console.log("Loading factory orders...");
-  let orders = await FactoryOrder.bulkCreate([
-    {},
-    {}
-  ], { 
-    individualHooks: true,
-    returning: true
-  });
-
-  orders = orders.map(e => e.get());
-  let foId1 = orders[0].id;
-  let foId2 = orders[1].id;
-
-  console.log("Loading master cartons...");
-  let masters = await MasterCarton.bulkCreate([
-    { factoryOrderId: foId1, sku: 'OR-WOOD' },
-    { factoryOrderId: foId2, sku: 'M-BLACK' },
-    { factoryOrderId: foId2, sku: 'JR-ORANGE' }
-  ], {
-    individualHooks: true,
-    returning: true
-  });
-
-  masters = masters.map(e => e.get());
-  let mcId1 = masters[0].id;
-  let mcId2 = masters[1].id;
-  let mcId3 = masters[2].id;
-
-  console.log("Loading inner cartons...");
-  let inners = await InnerCarton.bulkCreate([
-    { masterId: mcId1, sku: 'OR-WOOD' },
-    { masterId: mcId1, sku: 'OR-WOOD' },
-    { masterId: mcId1, sku: 'OR-WOOD' },
-    { masterId: mcId1, sku: 'OR-WOOD' },
-    { masterId: mcId2, sku: 'M-BLACK' },
-    { masterId: mcId2, sku: 'M-BLACK' },
-    { masterId: mcId3, sku: 'JR-ORANGE' },
-    { masterId: mcId3, sku: 'JR-ORANGE' },
-    { masterId: mcId3, sku: 'JR-ORANGE' },
-    { masterId: mcId3, sku: 'JR-ORANGE' }
-  ], {
-    individualHooks: true,
-    returning: true
-  });
-
-  inner = inners.map(e => e.get());
-
-  console.log("Loading customer orders...");
-  let customers = await CustomerOrder.bulkCreate([
-    { type: 'Wholesale' }
-  ], {
-    individualHooks: true,
-    returning: true
-  });
-
-  customers = customers.map(e => e.get());
-
-  console.log("Loading items...");
-  let itemsList = [];
-  for (let i = 0; i < inners.length; i++) {
-    for (let j = 0; j < 12; j++) {
-      let item = {
-        factoryOrderId: i >= 4 ? foId2 : foId1,
-        masterId: inners[i].masterId,
-        innerId: inners[i].id,
-        sku: inners[i].sku,
-        status: i >= 4 ? 'Shipped' : 'In Stock'
-      };
-      if (i >= 4) {
-        item.customerOrderId = customers[0].id;
-      }
-      itemsList.push(item);
-    }
+  let factoryService = new FactoryOrders();
+  const numFactoryOrders = 5;
+  let factoryList = [];
+  for (let i = 0; i < numFactoryOrders; i++) {
+    const skuIndex = Math.floor(Math.random() * numSkus);
+    await factoryService.add('', '', [{
+      sku: skuIds[skuIndex],
+      master: 3
+    }]);
   }
-
-  await Item.bulkCreate(itemsList, {
-    individualHooks: true
-  });
-
-  console.log("Loading profiles...");
-  await Profile.bulkCreate([
-    { firstName: 'Jonathan',
-      lastName: 'Chang',
-      email: 'j.a.chang820@gmail.com',
-      role: 'Administrator'},
-    { firstName: 'Alex',
-      lastName: 'Chen',
-      email: 'aqchen@g.ucla.edu',
-      role: 'Administrator' },
-    { firstName: 'Ryan',
-      lastName: 'Yang',
-      email: 'ryanqyang@gmail.edu',
-      role: 'Administrator' }
-  ]);
-
-  console.log("Loading labels...");
-  await Label.bulkCreate([
-    { prefix: 'http://www.smokebuddy.com/', style: 'Querystring'},
-    { prefix: 'http://holoshield.net/a/', style: 'Path'}
-  ]);
-
-  await Label.destroy({
-    where: {
-      prefix: 'http://www.smokebuddy.com/',
-      style: 'Querystring'
-    }
-  });
 
 }
 

@@ -20,7 +20,7 @@ module.exports = [
   body('items.*.master').trim()
     .exists().withMessage("Cannot find quantities.")
     .isInt({ min: 1}).withMessage("Quantity must be a positive integer.")
-    .isInt({ max: 500 }).withMessage("Cannot exceed 500 master cartons."),
+    .isInt({ max: 1200 }).withMessage("Cannot exceed 1200 master cartons."),
 
   /* Trim trailing spaces and remove escape characters to prevent
      SQL injections. */
@@ -40,9 +40,10 @@ module.exports = [
       for (let i = 0; i < errors.length; i++) {
         let match = errors[i].param.match(regex);
         if (match) {
-          errors[i].param = `Line ${match[1]} (${match[2]})`;
+          errors[i].param = match[2];
         }
       }
+      console.log(errors);
       return res.json({ errors });
     }
     return next();
@@ -52,17 +53,43 @@ module.exports = [
   async (req, res, next) => {
     let factoryOrders = new FactoryOrders();
     let order;
+
+    res.writeHead(200, {
+      'Connection': 'Transfer-Encoding',
+      'Content-Type': 'text/json',
+      'Transfer-Encoding': 'chunked',
+      'X-Content-Type-Options': 'nosniff'
+    });
+    res.flush();
+
+    const callback = (progress, max, message) => {
+      if (progress !== undefined && progress >= 0) {
+        console.log(message);
+        const obj = JSON.stringify({ progress, max, message });
+        const text = `${obj.length}\r\n${obj}\r\n`;
+        res.write(text);
+        res.flush();
+      } else {
+        console.log("END");
+        res.end();
+      }
+    };
+
     try {
+      console.log("before post");
+      res.write('');
       order = await factoryOrders.add(
         req.body.serial,
         req.body.notes, 
-        req.body.items 
+        req.body.items,
+        callback 
       );
+      console.log("after post");
+      res.end();
     } catch (err) {
+      console.log(err);
       return res.json({ errors: err.errors || 'unknown' });
     }
-    
-    return res.json({ order });
   }
 
 ];

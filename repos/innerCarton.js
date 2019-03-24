@@ -21,6 +21,8 @@ class InnerCartonRepo extends BaseRepo {
       const ItemRepo = require('./item');
       this.assoc.item = new ItemRepo(exclude);
     }
+    const EventRepo = require('./event');
+    this.events = new EventRepo();
   }
 
   async list(by) {
@@ -33,48 +35,23 @@ class InnerCartonRepo extends BaseRepo {
 
   /* Cartons is a list in the format
      [...{sku, masterId}] */
-  async create(cartons, transaction) {
-    console.log("IN INNER");
+  async create(cartons, eventId, transaction) {
     return this.transaction(async (t) => {
-      return this._create(cartons);
+      return this._create(cartons, { eventId });
     }, transaction);
   }
 
-  async stock(id, transaction) {
+  async use(id, eventId, transaction) {
     return this.transaction(async (t) => {
-      return this.assoc.item.stock(id, t);
-    });
-  }
-
-  async use(id, transaction) {
-    return this.transaction(async (t) => {
-      let inner = await this._use({ 
-        where: { masterId: id }
-      }, true);
-      inner = inner.map(e => e.get({ plain: true }));
-
-      for (let i = 0; i < inner.length; i++) {
-        const items = await this.assoc.item.order(
-          inner[i].id, t);
-        inner[i].items = items;
-      }
-      
-      return inner;
+      return this._use({ where: { masterId: id } }, 
+        true, { eventId });
     }, transaction);
   }
 
-  async hide(id, transaction) {
+  async hide(id, eventId, transaction) {
     return this.transaction(async (t) => {
-      let inner = await this._delete({ 
-        where: { masterId: id } 
-      }, false);
-
-      for (let i = 0; i < inner.length; i++) {
-        let items = await this.assoc.item.cancel(
-          inner[i].id, true, t);
-        inner[i].push(items);
-      }
-      return inner;
+      return this._delete({ where: { masterId: id } }, 
+        false, { eventId });
     }, transaction);
   }
 

@@ -21,6 +21,8 @@ class MasterCartonRepo extends BaseRepo {
       const InnerCartonRepo = require('./innerCarton');
       this.assoc.innerCarton = new InnerCartonRepo(exclude);
     }
+    const EventRepo = require('./event');
+    this.events = new EventRepo();
   }
 
   async expandData(factoryOrderId) {
@@ -51,43 +53,34 @@ class MasterCartonRepo extends BaseRepo {
 
   /* Cartons is a list in the format
      [...{sku, factoryOrderId}] */
-  async create(cartons, transaction) {
+  async create(cartons, eventId, transaction) {
     return this.transaction(async (t) => {
-      return this._create(cartons);
+      return this._create(cartons, { eventId });
     }, transaction);
   }
 
-  async stock(id, transaction) {
+  async use(id, eventId, transaction) {
     return this.transaction(async (t) => {
-      return this.assoc.innerCarton.stock(id, t);
-    });
-  }
-
-  async use(id, transaction) {
-    return this.transaction(async (t) => {
-      let master = await this._use({ 
-        where: { factoryOrderId: id }
-      }, true);
+      let master = await this._use({ where: { factoryOrderId: id } }, 
+        true, { eventId });
       master = master.map(e => e.get({ plain: true }));
 
       for (let i = 0; i < master.length; i++) {
-        const inner = await this.assoc.innerCarton.use(
-          master[i].id, t);
-        master[i].innerCartons = inner;
+        await this.assoc.innerCarton.use(master[i].id, eventId, t);
       }
       return master;
     }, transaction);
   }
 
-  async hide(id, transaction) {
+  async hide(id, eventId, transaction) {
+    console.log(eventId);
     return this.transaction(async (t) => {
-      const master = await this._delete({
-        where: { factoryOrderId: id } 
-      }, false);
+      console.log(eventId);
+      const master = await this._delete({ where: { factoryOrderId: id } }, 
+        false, { eventId });
 
       for (let i = 0; i < master.length; i++) {
-        const inner = await this.assoc.innerCarton.hide(
-          master[i].id, t);
+        await this.assoc.innerCarton.hide(master[i].id, eventId, t);
       }
       return master;
     }, transaction);

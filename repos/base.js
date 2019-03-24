@@ -17,26 +17,30 @@ class BaseRepo {
 
     /* Associated repos. */
     this.assoc = null;
+
+    /* Event logging. */
+    if (this.Model.tableName !== 'Event') {
+      const EventRepo = require('./event');
+      this.events = new EventRepo();
+    }
   }
 
   /* Sequelize options.
      Set 'offset' to 0 to turn off limiting. */
-  async _list(options = {}) {
-
+  async _list(options = {}, { eventId } = {}) {
     /* Looks for an extra record past the limit to determine
        last page. */
-    if (options.offset > 0) {
+    if (options.offset === null || options.offset === undefined) {
+      if (options.limit !== undefined) delete options.limit;
+    } else {
       if (!options.limit) options.limit = 21;
       else options.limit += 1;
-    } else {
-      options.offset = 0;
-      delete options.limit;
     }
 
     /* Get a list of records. */
     let models, err;
     [err, models] = await to(this.Model.findAll(options));
-    if (err) BaseRepo._handleErrors(err);
+    if (err) this._handleErrors(err, { eventId });
 
     this.cache.list = models;
     if (!models) return [];
@@ -44,10 +48,10 @@ class BaseRepo {
   }
 
   /* Get a single record. */
-  async _get(options) {
+  async _get(options, { eventId } = {}) {
     let model, err;
     [err, model] = await to(this.Model.findOne(options));
-    if (err) BaseRepo._handleErrors(err);
+    if (err) this._handleErrors(err, { eventId });
     
     this.cache.get = model;
     if (!model) return null;
@@ -55,9 +59,8 @@ class BaseRepo {
   }
 
   /* Create one or more records. */
-  async _create(modelObj) {
+  async _create(modelObj, { eventId } = {}) {
     let model, err;
-    console.log(modelObj);
 
     /* Use bulkCreate if an array of objects passed in. */
     if (Array.isArray(modelObj)) {
@@ -69,7 +72,7 @@ class BaseRepo {
     } else {
       [err, model] = await to(this.Model.create(modelObj));  
     }
-    if (err) BaseRepo._handleErrors(err);
+    if (err) this._handleErrors(err, { eventId });
 
     /* If no records found, return empty objet or null. */
     this.cache.create = model;
@@ -85,14 +88,14 @@ class BaseRepo {
   }
 
   /* Generic update a column of a record. */
-  async _update(query, options) {
+  async _update(query, options, { eventId } = {}) {
     /* Add option to return record instead of a count. */
     let ret, err;
     let opts = Object.assign({ returning: true }, options);
 
     /* Update selected record. */
     [err, ret] = await to(this.Model.update(query, opts));
-    if (err) BaseRepo._handleErrors(err);
+    if (err) this._handleErrors(err, { eventId });
     let [count, models] = ret;
 
     /* Return updated record. */
@@ -104,33 +107,26 @@ class BaseRepo {
   /* Mark a record as used, either because it has gained an 
      association (new => used), or a soft-deleted record has
      been reactivated (hidden => used). */
-  async _use(options, used) {
-    const query = { hidden: null, used: used };
-    let opts = Object.assign({ paranoid: false }, options);
-    return this._update(query, opts);
+  async _use(options, used, { eventId } = {}) {
+    const query = { hidden: false, used: used };
+    return this._update(query, options, { eventId });
   }
 
   /* Delete a record, either permanently or soft-delete (hidden). */
-  async _delete(options, permanent) {
-    const findOpts = Object.assign({ paranoid: false }, options);
-
+  async _delete(options, permanent, { eventId } = {}) {
     /* Find the record that needs to be deleted. */
     let model, err;
-    [err, model] = await to(this.Model.findOne(findOpts));
-    if (err) BaseRepo._handleErrors(err);
+    [err, model] = await to(this.Model.findOne(options));
+    if (err) this._handleErrors(err, { eventId });
 
     /* Only records without any associations can be permanently
        deleted. */
     let destroyOpts;
     if (!model.used && permanent) {
-      destroyOpts = { force: true };
+      [err] = await to(model.destroy());
     } else {
-      destroyOpts = {};
+      [err] = await to(model.update({ hidden: true }));
     }
-
-    /* Delete record. */
-    [err] = await to(model.destroy(destroyOpts));
-    if (err) BaseRepo._handleErrors(err);
 
     /* Return deleted record. */
     this.cache.delete = model;
@@ -141,7 +137,7 @@ class BaseRepo {
   }
 
   /* Determine if a record is active. */
-  async active(id) {
+  async active(id, { eventId } = {}) {
     /* If soft-delete isn't an option, all records are active. */
     if (this.Model.rawAttributes.hidden === undefined) {
       return true;
@@ -152,12 +148,11 @@ class BaseRepo {
     /* Construct where clause to find value by key. */
     let options = { where: {} };
     options.where[key] = id;
-    options.paranoid = false;
     
     /* Get single record. */
     let model, err;
     [err, model] = await to(this.Model.findOne(options));
-    if (err) BaseRepo._handleErrors(err);
+    if (err) this._handleErrors(err, { eventId });
     this.cache.active = model;
 
     /* Return true if record found has a hidden date. */
@@ -187,7 +182,7 @@ class BaseRepo {
   }
 
   /* Get primary key name by searching schema. */
-  getPK() {
+  getPK({ eventId } = {}) {
     for (let key in this.Model.rawAttributes) {
       const attr = this.Model.rawAttributes[key];
       if (attr.primaryKey) {
@@ -195,8 +190,8 @@ class BaseRepo {
         return key;
       }
     }
-    BaseRepo._handleErrors(new Error("No primary key?!"),
-      null, true);
+    this._handleErrors(new Error("No primary key?!"),
+      { critical: true, eventId });
   }
 
   /* Make a query within a transaction, or start a new transaction. */
@@ -213,7 +208,7 @@ class BaseRepo {
 
   /* Create a error objects with unified interface for easier error
      handling. */
-  static _handleErrors(err, param, critical = false) {
+  async _handleErrors(err, {eventId, critical, param} = {}) {
     let newErr = new Error();
     /* All validation and constraint errors renamed as ValidationError. */
     newErr.name = 'ValidationError';
@@ -249,7 +244,7 @@ class BaseRepo {
           const cap_path = path.charAt(0).toUpperCase() + path.substr(1);
           newErr.errors.push({
             msg: `${cap_path} already in use.`,
-            param: err.errors[i].path
+            param: path
           });
         }
         break;
@@ -266,6 +261,16 @@ class BaseRepo {
           });
         }
     }
+    /* Set event to error. */
+    let msg;
+    if (Array.isArray(newErr.errors)) {
+      msg = newErr.errors[0].msg;
+    } else {
+      msg = newErr.errors;
+    }
+    await this.events.throw(eventId, msg, newErr.stack);
+
+    /* Throw error. */
     throw newErr;
   }
 
@@ -328,6 +333,10 @@ class BaseRepo {
   /* Get associated repository. */
   get associate() {
     return this.assoc;
+  }
+
+  get name() {
+    return this.Model.tableName;
   }
 }
 

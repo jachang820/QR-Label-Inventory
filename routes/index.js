@@ -6,6 +6,7 @@ const auth = require('../middleware/authorize');
 const indexGet = require('../controllers/indexGet');
 
 const authRouter = require('./auth');
+const eventRouter = require('./events');
 const customerRouter = require('./customer_orders');
 const inventoryRouter = require('./inventory');
 const factoryRouter = require('./factory_orders');
@@ -17,18 +18,13 @@ const labelsRouter = require('./labels');
 const manualRouter = require('./manual');
 const errorRouter = require('./error');
 
-/* Public pages. */
-router.all(/^(\/auth)|(\/$)/, (req, res, next) => {
-  res.locals.css = ['index.css'];
-  return next();
-});
-
 /* GET home page. */
 router.get('/', indexGet);
 router.use('/auth', authRouter);
 
 /* Protected pages. */
 router.use(secured);
+router.use('/events', auth('AS'), eventRouter);
 router.use('/inventory', inventoryRouter);
 router.use('/factory_orders', auth('ASF'), factoryRouter);
 router.use('/accounts', auth('A'), accountsRouter);

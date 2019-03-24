@@ -7,7 +7,7 @@ module.exports = [
   async (req, res, next) => {
     const skus = new Skus();
     res.locals.skus = await skus.getListView(0, 'id', false, {
-      hidden: null
+      hidden: false
     });
     res.locals.skus = res.locals.skus.map(e => e.id);
     return next();

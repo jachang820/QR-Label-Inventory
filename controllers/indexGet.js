@@ -4,6 +4,7 @@ module.exports = (req, res, next) => {
   if (req.user && req.user.token && req.user.emails) {
     res.redirect('customer_orders');
   } else {
+		res.locals.css = ['index.css'];
     res.render('index');
   }
 };

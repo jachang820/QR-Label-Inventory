@@ -8,8 +8,8 @@ class Labels extends BaseService {
 
   async getListView(page = 1, order = false, desc = false, filter = {}) {
     if (filter.style) filter.style = Labels.toTitleCase(filter.style);
-    return this._getListView(page, order, desc, filter,
-      Labels._addListStatus);
+    let list = await this._getListView(page, order, desc, filter);
+    return this._addListStatus(list);
   }
 
   async getSchema() {
@@ -29,11 +29,13 @@ class Labels extends BaseService {
   }
 
   async get(id) {
-    return this._get(id, Labels._addListStatus);
+    let label = await this._get(id);
+    return this._addListStatus(label);
   }
 
   async add(prefix, style) {
-    return this._add(Array.from(arguments));
+    let label = await this._add(Array.from(arguments));
+    return this._addListStatus(label);
   }
 
   async changeState(id) {
@@ -41,14 +43,24 @@ class Labels extends BaseService {
     return this._changeState(label, id);
   }
 
-  static _addListStatus(list) {
-    if (!Array.isArray(list)) {
+  async _addListStatus(list) {
+    const inputIsArray = Array.isArray(list);
+    if (!inputIsArray) {
       list = [list];
     }
+
+    const busyList = await this._getActiveEvents();
+
     for (let i = 0; i < list.length; i++) {
-      list[i].state = list[i].hidden ? 'hidden' : 'used';
+      const active = !list[i].hidden;
+      const eventTarget = `${list[i].prefix} -- ${list[i].style}`;
+      if (eventTarget in busyList) list[i].state = 'busy';
+      else if (active) list[i].state = 'used';
+      else list[i].state = 'hidden';
       delete list[i].hidden;
     }
+
+    if (!inputIsArray) list = list[0];
     return list;
   }
 };

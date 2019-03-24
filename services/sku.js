@@ -18,7 +18,8 @@ class Skus extends BaseService {
       filter.sizeId = filter.size;
       delete filter.size;
     }
-    return this._getListView(page, order, desc, filter);
+    let list = await this._getListView(page, order, desc, filter);
+    return this._addListStatus(list);
   }
 
   async getSize(sku) {
@@ -56,7 +57,8 @@ class Skus extends BaseService {
   }
 
   async get(id) {
-    return this._get(id);
+    let sku = await this._get(id);
+    return this._addListStatus(sku);
   }
 
   async changeState(id) {
@@ -66,7 +68,8 @@ class Skus extends BaseService {
 
   async add(id, upc, colorId, sizeId) {
     id = id.toUpperCase();
-    return this._add([id, upc, colorId, sizeId]);
+    let sku = await this._add([id, upc, colorId, sizeId]);
+    return this._addListStatus(sku);
   }
 
 };

@@ -34,13 +34,13 @@ class Items extends BaseService {
         filter.factoryOrderId.toUpperCase()
       ];
     }
-    return this._getListView(page, order, desc, filter, 
-      Items._addListStatus);
+    let list = await this._getListView(page, order, desc, filter);
+    return this._addListStatus(list);
   }
 
   async getSchema() {
     let schema = await this._getSchema();
-    const skus = await this.repo.associate.sku.listActive();
+    const skus = await this.repo.associate.sku.list();
     schema.sku.type = 'reference';
 
     /* Include status in listbox. */
@@ -67,7 +67,8 @@ class Items extends BaseService {
   }
 
   async get(id) {
-    return this._get(id, Items._addListStatus);
+    let item = await this._get(id);
+    return this._addListStatus(item);
   }
 
   async changeState(id) {
@@ -150,16 +151,23 @@ class Items extends BaseService {
     return this.repo.expand(id);
   }
 
-  static _addListStatus(list) {
-    if (!Array.isArray(list)) {
+  async _addListStatus(list) {
+    const inputIsArray = Array.isArray(list);
+    if (!inputIsArray) {
       list = [list];
     }
+
+    const busyList = await this._getActiveEvents();
+
     for (let i = 0; i < list.length; i++) {
-      if (list[i].status === 'In Stock') list[i].state = 'used';
+      if (list[i].serial in busyList) list[i].state = 'busy';
+      else if (list[i].status === 'In Stock') list[i].state = 'used';
       else if (list[i].status === 'Cancelled') list[i].state = 'hidden';
       else list[i].state = 'eternal';
       delete list[i].hidden;
     }
+
+    if (!inputIsArray) list = list[0];
     return list;
   }
 

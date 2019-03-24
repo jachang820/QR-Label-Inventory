@@ -19,16 +19,24 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     arrival: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true
     },
-    hidden: DataTypes.DATEONLY
+    hidden: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      validate: {
+        isBoolean: {
+          msg: "Hidden must be either true or false."
+        }
+      }
+    },
+    ordered: DataTypes.DATEONLY
   }, {
     timestamps: true,
     createdAt: 'ordered',
     updatedAt: false,
-    paranoid: true,
-    deletedAt: 'hidden',
     hooks: {
       afterCreate: formatSerial('F')
     }

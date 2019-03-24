@@ -187,7 +187,7 @@ th.action-col, th.color-coded {
 
 .action-icon, .print-qr, 
 .expand, .stock, .none,
-.notes-icon {
+.notes-icon, .busy {
   width: 1.2rem;
   height: 1.2rem;
   opacity: 0.6;
@@ -196,7 +196,7 @@ th.action-col, th.color-coded {
   display: inline-block;
 }
 
-.none {
+.none, .busy {
   cursor: default;
 }
 
@@ -212,7 +212,8 @@ th.action-col, th.color-coded {
 .action-icon:hover, .print-qr:hover,
 .expand:hover, .stock:hover,
 .asc:hover, .desc:hover, 
-.notes-icon:hover, .filter-icon:hover {
+.notes-icon:hover, .filter-icon:hover,
+.busy:hover {
   opacity: 1.0;
 }
 

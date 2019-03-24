@@ -12,6 +12,9 @@
     {{~#if-role @role "in" "ASF"}}
       <li><div id="nav-factory">Factory Orders</div></li>
     {{/if-role~}}
+    {{~#if-role @role "in" "AS"}}
+      <li><a href="/events">Events</a></li>
+    {{/if-role~}}
     <li><a href="/auth/logout">Logout</a></li>
   </ul>
   <img src="/images/thumbs/{{@picture}}" id="profile-photo" alt="User photo">

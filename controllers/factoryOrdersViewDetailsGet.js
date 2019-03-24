@@ -26,7 +26,6 @@ module.exports = [
     const id = req.params.id;
     const orders = new FactoryOrders();
     let details = await orders.getDetails(id);
-    console.log(details);
     return res.json({ details });
   }
 ];

@@ -4,17 +4,11 @@ class BaseService {
     this.repo = new repo();
   }
 
-  /* Get a list of records with an optional function to determine
-     and append status. */
-  async _getListView(page = 1, order, desc, filter, statusFun) {
+  /* Get a list of records. */
+  async _getListView(page = 1, order, desc, filter) {
     let list = await this.repo.list(page, order, desc, filter);
     if (list.length === 0) return [];
-    if (statusFun) {
-      list = statusFun(list);
-    } else {
-      list = BaseService._addListStatus(list);
-    }
-    return list;
+    else return list;
   }
 
   /* Get model schema to determine how to display data, and remove
@@ -25,17 +19,11 @@ class BaseService {
     return schema;
   }
 
-  /* Get a single record with an optional function to determine
-     and append status. */
-  async _get(id, statusFun) {
+  /* Get a single record. */
+  async _get(id) {
     let model = await this.repo.get(id);
     if (!model) return null;
-    if (statusFun) {
-      model = statusFun(model);
-    } else {
-      model = BaseService._addListStatus(model);
-    }
-    return model[0];
+    else return model;
   }
 
   /* Toggle states depending on status. 
@@ -53,7 +41,7 @@ class BaseService {
       let err = new Error("State cannot be changed.");
       err.errors = [{
         msg: err.message,
-        param: null,
+        param: 'items',
         critical: true
       }];
       throw err;
@@ -63,24 +51,36 @@ class BaseService {
 
   /* Create new record using a list of attributes. */
   async _add(attributes) {
-    let model = await this.repo.create(...attributes);
-    model = BaseService._addListStatus(model);
-    return model[0];
+    return this.repo.create(...attributes);
+  }
+
+  /* Get a list of record ids with open events, showing that they are
+     being acted upon (busy). */
+  async _getActiveEvents() {
+    const ids = await this.repo.events.listBusy(this.repo.name);
+    return ids.map(e => e.targetId);
   }
 
   /* Default function to add status depending on some parameter date
      columns. */
-  static _addListStatus(list) {
+  async _addListStatus(list, eventTarget) {
+    const inputIsArray = Array.isArray(list);
     /* Convert input to array. */
-    if (!Array.isArray(list)) {
+    if (!inputIsArray) {
       list = [list];
     }
+
+    if (!eventTarget) eventTarget = 'id';
+
+    /* Get a list of busy records. */
+    const busyList = await this._getActiveEvents();
 
     /* Add status to each record based on hidden and used parameters. */
     for (let i = 0; i < list.length; i++) {
       const active = !list[i].hidden;
       const used = list[i].used;
-      if (active && !used) list[i].state = 'new';
+      if (list[i][eventTarget] in busyList) list[i].state = 'busy';
+      else if (active && !used) list[i].state = 'new';
       else if (active && used) list[i].state = 'used';
       else if (!active && used) list[i].state = 'hidden';
       else list[i].state = 'eternal';
@@ -88,6 +88,8 @@ class BaseService {
       delete list[i].hidden;
       delete list[i].used;
     }
+
+    if (!inputIsArray) list = list[0];
     return list;
   }
 

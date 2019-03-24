@@ -63,10 +63,8 @@ const sumItemTotal = function() {
       sum += quantity;
     }
   }
-  const text = document.createTextNode(sum);
   let total = document.getElementById('total');
-  total.textContent = '';
-  document.getElementById('total').appendChild(text);
+  total.textContent = sum === 0 ? '' : sum;
   return sum;
 };
 
@@ -74,6 +72,7 @@ const sumItemTotal = function() {
 const deleteRowEvent = function(event) {
   const tr = event.currentTarget.parentNode.parentNode;
   tbody.removeChild(tr);
+  sumItemTotal();
 };  
 
 /* Create list representing all the line items. */
@@ -160,4 +159,13 @@ const setupEvents = function(lineEvent, orderEvent) {
       lineEvent(event);
     }
   });
+};
+
+/* Show a message on the bottom of the page. */
+const showWaitMessage = function(event) {
+  let bar = document.getElementById('message-bar');
+  bar.style.visibility = 'visible';
+  setTimeout(function() {
+    bar.style.visibility = 'hidden';
+  }, 4000);
 };

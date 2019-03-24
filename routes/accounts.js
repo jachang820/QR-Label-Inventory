@@ -5,6 +5,10 @@ const accountsGet = require('../controllers/accountsGet');
 const accountsPost = require('../controllers/accountsPost');
 const accountsPut = require('../controllers/accountsPut');
 
+router.all('/', (req, res, next) => {
+	return next();
+});
+
 /* Get all users and populate user management form. */
 router.get('/', accountsGet); 
 

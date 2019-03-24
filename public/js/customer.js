@@ -143,6 +143,7 @@ window.addEventListener('load', function() {
 
     let button = event.currentTarget;
     button.disabled = true;
+    showWaitMessage();
 
   	axios.post('/customer_orders', order).then(function(response) {
   		const errs = response.data.errors;
@@ -198,7 +199,7 @@ window.addEventListener('load', function() {
 
     /* Replace values with m/d/yyyy part. */
     if (textDate !== "Invalid Date") {
-      return textDate.substring(0, 9);
+      return textDate.split(',')[0];
     } else {
       return date;
     }

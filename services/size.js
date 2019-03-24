@@ -10,7 +10,8 @@ class Sizes extends BaseService {
   async getListView(page = 1, order = false, desc = false, filter = {}) {
     if (filter.name) filter.name = Sizes.toTitleCase(filter.name);
     if (filter.abbrev) filter.abbrev = filter.abbrev.toUpperCase();
-    return this._getListView(page, order, desc, filter);
+    let list = await this._getListView(page, order, desc, filter);
+    return this._addListStatus(list);
   }
 
   async getSchema() {
@@ -32,7 +33,8 @@ class Sizes extends BaseService {
   }
 
   async get(id) {
-    return this._get(id);
+    let size = await this._get(id);
+    return this._addListStatus(size);
   }
 
   async changeState(id) {
@@ -43,7 +45,12 @@ class Sizes extends BaseService {
   async add(name, abbrev, innerSize, masterSize) {
     name = Sizes.toTitleCase(name);
     abbrev = abbrev.toUpperCase();
-    return this._add([name, abbrev, innerSize, masterSize]);
+    let size = await this._add([name, abbrev, innerSize, masterSize]);
+    return this._addListStatus(size);
+  }
+
+  async addListStatus(list) {
+    return this._addListStatus(list, 'name');
   }
 
 };

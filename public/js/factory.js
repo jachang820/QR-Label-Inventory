@@ -105,34 +105,53 @@ window.addEventListener('load', function() {
       return;
     }
 
+    /* Clear errors. */
+    appendErrors(serialDiv);
+    appendErrors(notesDiv);
+    appendErrors(itemsDiv);
+
   	const order = { items, serial, notes };
 
     let button = event.currentTarget;
     button.disabled = true;
+    showWaitMessage();
 
-  	axios.post('/factory_orders', order).then(function(response) {
+  	axios.post('/factory_orders', order, {
+      onDownloadProgress: function(progressEvent) {
+        console.log(progressEvent);
+      }
+    }).then(function(response) {
   		const errs = response.data.errors;
+      try {
+        console.log(response.data);
+        //console.log(JSON.parse(response.data));
+      } catch (err) {
+        console.log(err);
+      }
+      console.log("one");
   		if (errs) {
   			if (errs === 'unknown') {
           window.location.replace('/error/500');
           return;
         }
 
+        let tr = tbody.firstElementChild;
+        appendErrors(tr.children[2], getErrors(errs, 'sku'));
+        appendErrors(tr.children[3], getErrors(errs, 'master'));
   			appendErrors(serialDiv, getErrors(errs, 'serial'));
   			appendErrors(notesDiv, getErrors(errs, 'notes'));
-  			appendErrors(itemsDiv, getErrors(errs, 'sku')
-  				.append(getErrors(errs, 'quantity')));
 
         button.disabled = false;
-
+        console.log("disabled = false");
   		} else {
-  			window.location.replace('/factory_orders/view');
-  			return;
+        console.log("what the fuck?");
+  			//window.location.replace('/factory_orders/view');
+  			//return;
   		}
 
   	}).catch(function(err) {
   		const tr = tbody.firstElementChild;
-  		appendErrors(tr.children[2], ["Server error."]);
+  		appendErrors(itemsDiv ["Server error."]);
       button.disabled = false;
   	});
   };
