@@ -255,7 +255,7 @@ class FactoryOrderRepo extends BaseRepo {
           let batch;
           if (innerList.length > 0) {
             batch = await InnerCartonRepo.create(innerList, event.id, t);
-            innerCartons.concat(batch);
+            innerCartons = innerCartons.concat(batch);
             event.progress += batch.length;
             await this.events.update(event.id, event.progress,
               `Created inner cartons... ${batch.length}/${innerList.length}.`);
@@ -266,6 +266,7 @@ class FactoryOrderRepo extends BaseRepo {
 
       /* Create items. */
       let itemList = [];
+      let items = [];
       const ItemRepo = InnerCartonRepo.assoc.item;
       for (let i = 0; i < innerCartons.length; i++) {
         const innerSku = innerCartons[i].sku;
@@ -284,9 +285,10 @@ class FactoryOrderRepo extends BaseRepo {
         if (i % 100 === 0 || i === innerCartons.length - 1) {
           if (itemList.length > 0) {
             let batch = await ItemRepo.create(itemList, event.id, t);
+            items = items.concat(batch);
             event.progress += batch.length;
             await this.events.update(event.id, event.progress,
-              `Created units... ${batch.length}/${itemList.length}.`);
+              `Created units... ${batch.length}/${items.length}.`);
             itemList = [];
           }
         }
@@ -311,20 +313,21 @@ class FactoryOrderRepo extends BaseRepo {
     const arrival = new Date();
 
     /* Get number of items to update event. */
-    const MasterCartons = this.assoc.masterCarton;
-    const InnerCartons = MasterCartons.assoc.innerCarton;
-    const Items = InnerCartons.assoc.item;
-    const items = ItemRepo.list(0, null, null, { factoryOrderId: id });
-    const count = items.length;
+    const MasterCartonRepo = this.assoc.masterCarton;
+    const InnerCartonRepo = MasterCartonRepo.assoc.innerCarton;
+    const ItemRepo = InnerCartonRepo.assoc.item;
+    const count = await ItemRepo.count({ factoryOrderId: id });
 
     let order = await this.get(id);
     const event = await this.events.create("Mark Order Arrival", 
-      count, this.name, order.serial);
+      count + 1, this.name, order.serial);
 
     return this.transaction(async (t) => {
       order = await this._update({ arrival }, { where: { id } },
         { eventId: event.id });
-      items = await Items.stock(id, 'factory', event.id, t);
+      items = await ItemRepo.stock(id, 'factory', event.id, t);
+      console.log(items);
+      console.log(order);
 
       delete order[0].id
       await this.events.done(event.id);
@@ -338,16 +341,16 @@ class FactoryOrderRepo extends BaseRepo {
     const ItemRepo = InnerCartonRepo.assoc.item;
 
     /* Get number of items to update event. */
-    const items = ItemRepo.list(0, null, null, { factoryOrderId: id });
-    const count = items.length;
+    const count = await ItemRepo.count({ factoryOrderId: id });
 
     let order = await this.get(id);
     const event = await this.events.create("Reorder Factory Order", 
-      count, this.name, order.serial);
+      count + 1, this.name, order.serial);
 
     return this.transaction(async (t) => {
       order = await this._use({ where: { id } }, true,
         { eventId: event.id });
+
       await Promise.all([
         MasterCartonRepo.use(id, event.id, t),
         InnerCartonRepo.use(id, event.id, t),
@@ -366,21 +369,21 @@ class FactoryOrderRepo extends BaseRepo {
     const ItemRepo = InnerCartonRepo.assoc.item;
 
     /* Get number of items to update event. */
-    const items = ItemRepo.list(0, null, null, { factoryOrderId: id });
-    const count = items.length;
-
+    const count = await ItemRepo.count({ factoryOrderId: id });
     let order = await this.get(id);
     const event = await this.events.create("Cancel Factory Order", 
-      count, this.name, order.serial);
+      count + 1, this.name, order.serial);
 
     return this.transaction(async (t) => {
-      order = await this._delete({ where: { id } }, false);
+      order = await this._delete({ where: { id } }, false,
+        { eventId: event.id });
       if (order.arrival) {
         this._handleErrors(
           new Error("Received orders cannot be deleted."),
           { critical: true, eventId: event.id }
         );
       }
+
       await Promise.all([
         MasterCartonRepo.hide(id, event.id, t),
         InnerCartonRepo.hide(id, event.id, t),

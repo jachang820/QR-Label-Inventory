@@ -152,11 +152,7 @@ class CustomerOrderRepo extends BaseRepo {
 
   async use(id, transaction) {
     /* Get number of items to update event. */
-    const items = await this.assoc.item.list(0, null, null, {
-      customerOrderId: id
-    });
-    const count = items.length;
-
+    const count = await this.assoc.item.count();
     let order = await this.get(id);
     const event = await this.events.create("Reship Customer Order", 
       count, this.name, order.serial);
@@ -174,11 +170,7 @@ class CustomerOrderRepo extends BaseRepo {
 
   async hide(id, transaction) {
     /* Get number of items to update event. */
-    const items = await this.assoc.item.list(0, null, null, {
-      customerOrderId: id
-    });
-    const count = items.length;
-
+    const count = await this.assoc.item.count();
     let order = await this.get(id);
     const event = await this.events.create("Cancel Customer Order", 
       count, this.name, order.serial);

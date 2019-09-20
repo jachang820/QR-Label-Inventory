@@ -45,8 +45,7 @@ class SizeRepo extends BaseRepo {
   }
 
   async renew(id, { eventId } = {}) {
-    return this._use({ where: { id } }, false,
-      { eventId });
+    return this._use({ where: { id } }, false, { eventId });
   }
 
   async use(id, { eventId } = {}) {
@@ -58,8 +57,7 @@ class SizeRepo extends BaseRepo {
         this.name, size.name);
       eventId = event.id;
     }
-    size = await this._use({ where: { id } }, true,
-      { eventId });
+    size = await this._use({ where: { id } }, true, { eventId });
     await this.events.done(eventId);
     return size;
   }
@@ -100,6 +98,7 @@ class SizeRepo extends BaseRepo {
       }
     };
     if (page > 0) opts.offset = (page - 1) * 20;
+
     if (filter) opts.where = SizeRepo.insertDateRange(filter);
     return opts;
   }

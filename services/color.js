@@ -32,7 +32,7 @@ class Colors extends BaseService {
   }
 
   async changeState(id) {
-    const color = await this._get(id);
+    const color = await this.get(id);
     return this._changeState(color, id);
   }
 

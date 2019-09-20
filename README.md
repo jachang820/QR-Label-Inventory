@@ -1,6 +1,6 @@
-# Smokebuddy
+# QR Label Inventory System
 
-Smokebuddy inventory system.
+This was an inventory system that generates unique ID QR codes and labels per unit, so they could be tracked after shipment to consumers. This version of the project was unfinished, and ultimately a decision was made to go forward with a different version. As such, the company whose name remains on some of these pages is not related to this project. I do not take credit for the names and logos. This project, including all the code, but besides any company and product names and logos, should not be construed to represent anyone but myself. The logos found within belong to their respective owners.
 
 ### Installing
 

@@ -38,7 +38,7 @@ class Sizes extends BaseService {
   }
 
   async changeState(id) {
-    const size = await this._get(id);
+    const size = await this.get(id);
     return this._changeState(size, id);
   }
 

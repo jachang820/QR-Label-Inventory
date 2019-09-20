@@ -27,8 +27,7 @@ class ColorRepo extends BaseRepo {
 
   async get(id, { eventId } = {}) {
     return this._get({ 
-      where: { id }, 
-      paranoid: false
+      where: { id }
     }, { eventId });
   }
 
@@ -44,8 +43,7 @@ class ColorRepo extends BaseRepo {
   }
 
   async renew(id, { eventId } = {}) {
-    return this._use({ where: { id } }, false,
-      { eventId });
+    return this._use({ where: { id } }, false, { eventId });
   }
 
   async use(id, { eventId } = {}) {
@@ -76,7 +74,7 @@ class ColorRepo extends BaseRepo {
     let color = await this.get(id);
     let event = await this.events.create("Delete Color", 1,
       this.name, color.name);
-    const color = await this._delete({ where: { id }}, true,
+    color = await this._delete({ where: { id }}, true,
       { eventId: event.id });
     await this.events.done(event.id);
     return color;

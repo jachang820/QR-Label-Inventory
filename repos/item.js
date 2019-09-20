@@ -23,6 +23,7 @@ class ItemRepo extends BaseRepo {
 
   async list(page = 1, order, desc, filter) {
     let where = ItemRepo.buildFilterString(filter, 'Item');
+    console.log(where);
 
     let offset = '';
     if (page > 0) {
@@ -48,6 +49,7 @@ class ItemRepo extends BaseRepo {
       const oldString = `"Item"."${keys[i]}"`;
       const newString = `"${map[keys[i]][0]}".${map[keys[i]][1]}`;
       where = where.split(oldString).join(newString);
+      console.log(where);
       order = order.split(oldString).join(newString);
     }
 
@@ -76,6 +78,7 @@ class ItemRepo extends BaseRepo {
 
     const items = await db.sequelize.query(query);
     this.cache.list = items;
+    console.log(items)
 
     if (!items[0]) return [];
     return items[0]; 
@@ -134,25 +137,29 @@ class ItemRepo extends BaseRepo {
     return this.transaction(async (t) => {
       const count = cartons.length;
       let event;
+      let existingEvent = true;
       if (!eventId) {
+        existingEvent = false;
         event = await this.events.create("Add Units to Inventory", count, 
           this.name);
+        eventId = event.id;
       }
 
-      const items = await this._create(cartons, { eventId: event.id });
-
+      const items = await this._create(cartons, { eventId });
       const skus = [...new Set(items.map(e => e.sku))];
-      if (!eventId) await this.events.update(event.id, event.progress,
+      if (!existingEvent) await this.events.update(eventId, event.progress,
         "Created units.");
       
       /* Use SKUs. */
-      if (this.assoc.sku) {
+      if (existingEvent && this.assoc.sku) {
         for (let i = 0; i < skus.length; i++) {
-          await this.assoc.sku.use(skus[i], { eventId: event.id });
+          await this.assoc.sku.use(skus[i], { eventId });
         }
       }
 
-      if (!eventId) await this.events.done(event.id);
+      if (!existingEvent) await this.events.done(eventId);
+
+      return items;
     }, transaction);
   }
 
@@ -161,17 +168,18 @@ class ItemRepo extends BaseRepo {
       let items = [];
       let where = { factoryOrderId, status: 'Cancelled' };
       let status = { status: 'Ordered' };
+      let opts = { where, limit: 1000 };
+      let batch;
 
       /* Update event progress. Since master and inner carton runs in
          parallel, get progress again in each iteration. */
       do {
         let event = await this.events.get(eventId);
-        const batch = await this._update(status, { where, limit: 1000 },
-          { eventId: event.id });
+        batch = await this._update(status, opts, { eventId: event.id });
         event.progress += batch.length;
         await this.events.update(event.id, event.progress,
           `Reactivating units... ${event.progress}/${event.max}.`);
-        items.concat(batch);
+        items = items.concat(batch);
       } while (batch.length === 1000);
 
       return items;
@@ -197,14 +205,15 @@ class ItemRepo extends BaseRepo {
     return this.transaction(async (t) => {
       /* Update event progress. Since master and inner carton runs in
          parallel, get progress again in each iteration. */
+      let batch;
       do {
         if (eventId) event = await this.events.get(eventId);  
-        const batch = await this._update({ status: 'In Stock' }, opts,
+        batch = await this._update({ status: 'In Stock' }, opts,
           { eventId: event.id });
         event.progress += batch.length;
         await this.events.update(event.id, event.progress,
           `Stocking units... ${event.progress}/${event.max}.`);
-        items.concat(batch);
+        items = items.concat(batch);
       } while (batch.length === 1000);
       return items;
     }, transaction);
@@ -218,19 +227,19 @@ class ItemRepo extends BaseRepo {
   async ship(customerOrderId, itemId, eventId, transaction) {
     return this.transaction(async (t) => {
       let items = [];
-      let event = this.events.get(eventId);
+      let event = await this.events.get(eventId);
       let query = { status: 'Shipped', customerOrderId };
       let opts = { where: { id: itemId }, limit: 1 };
+      let batch;
 
       /* Update event progress. Since master and inner carton runs in
          parallel, get progress again in each iteration. */
       do {
-        const batch = await this._update(query, opts,
-          { eventId: event.id });
+        batch = await this._update(query, opts, { eventId: event.id });
         event.progress += 1;
         await this.events.update(event.id, event.progress,
           `Shipping units... ${event.progress}/${event.max}.`);
-        items.concat(batch);
+        items = items.concat(batch);
       } while (batch.length > 0)
       return items;
     }, transaction);
@@ -239,21 +248,22 @@ class ItemRepo extends BaseRepo {
   async reship(customerOrderId, eventId, transaction) {
     return this.transaction(async (t) => {
       let items = [];
-      let event = this.events.get(eventId);
+      let event = await this.events.get(eventId);
       let query = { status: 'Shipped' };
       let opts = { 
         where: { customerOrderId, status: 'In Stock' }, 
         limit: 100 
       };
+      let batch;
 
       /* Update event progress. Since master and inner carton runs in
          parallel, get progress again in each iteration. */
       do {
-        const batch = await this._update(query, opts, { eventId: event.id });
+        batch = await this._update(query, opts, { eventId: event.id });
         event.progress += batch.length;
         await this.events.update(event.id, event.progress,
           `Reshipping units... ${event.progress}/${event.max}.`);
-        items.concat(batch);
+        items = items.concat(batch);
       } while (batch.length === 100);
       return items;
     }, transaction);
@@ -263,22 +273,23 @@ class ItemRepo extends BaseRepo {
     const Op = db.Sequelize.Op;
     let query = { status: 'Cancelled' };
     let where = { status: { [Op.ne]: 'Cancelled' } };
-    let opts = { where, limit: 1000 };
     if (bulk) where.factoryOrderId = id;
     else where.id = id;
+    let opts = { where, limit: 1000 };
 
     return this.transaction(async (t) => {
       let items = [];
+      let batch;
 
       /* Update event progress. Since master and inner carton runs in
          parallel, get progress again in each iteration. */
       do {
-        const event = this.events.get(eventId);
-        const batch = await this._update(query, opts, { eventId: event.id });
+        let event = await this.events.get(eventId);
+        batch = await this._update(query, opts, { eventId: event.id });
         event.progress += batch.length;
         await this.events.update(event.id, event.progress,
           `Cancelling units... ${event.progress}/${event.max}.`);
-        items.concat(batch);
+        items = items.concat(batch);
       } while (batch.length === 1000);
       return items;
     }, transaction);

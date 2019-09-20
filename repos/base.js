@@ -100,8 +100,7 @@ class BaseRepo {
 
     /* Return updated record. */
     this.cache.update = models;
-    models.map(e => e.get({ plain: true }));
-    return models;
+    return models.map(e => e.get({ plain: true }));
   }
 
   /* Mark a record as used, either because it has gained an 
@@ -118,7 +117,7 @@ class BaseRepo {
     let model, err;
     [err, model] = await to(this.Model.findOne(options));
     if (err) this._handleErrors(err, { eventId });
-
+    
     /* Only records without any associations can be permanently
        deleted. */
     let destroyOpts;
@@ -127,13 +126,25 @@ class BaseRepo {
     } else {
       [err] = await to(model.update({ hidden: true }));
     }
-
+    
     /* Return deleted record. */
     this.cache.delete = model;
     if (!model) return null;
     else {
       return model.get({ plain: true });
     }
+  }
+
+  /* Count number of records. */
+  async count(where) {
+    let key = this.getPK();
+    let query = {
+      attributes: [[sequelize.fn('COUNT', sequelize.col(key)), 'count']]
+    };
+    if (where) query.where = where;
+    let model, err;
+    [err, model] = await to(this.Model.findAll(query));
+    return parseInt(model[0].get({ plain: true }).count); 
   }
 
   /* Determine if a record is active. */
@@ -182,7 +193,7 @@ class BaseRepo {
   }
 
   /* Get primary key name by searching schema. */
-  getPK({ eventId } = {}) {
+  getPK() {
     for (let key in this.Model.rawAttributes) {
       const attr = this.Model.rawAttributes[key];
       if (attr.primaryKey) {
@@ -190,8 +201,6 @@ class BaseRepo {
         return key;
       }
     }
-    this._handleErrors(new Error("No primary key?!"),
-      { critical: true, eventId });
   }
 
   /* Make a query within a transaction, or start a new transaction. */

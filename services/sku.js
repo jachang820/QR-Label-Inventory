@@ -62,7 +62,7 @@ class Skus extends BaseService {
   }
 
   async changeState(id) {
-    const sku = await this._get(id);
+    const sku = await this.get(id);
     return this._changeState(sku, id);
   }
 
